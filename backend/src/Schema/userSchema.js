@@ -1,9 +1,6 @@
-//Creating schema
+import { Schema } from "mongoose";
 
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-
-const UserSchema = new Schema(
+let registerSchema = Schema(
   {
     name: {
       type: String,
@@ -15,8 +12,8 @@ const UserSchema = new Schema(
     },
 
     contact: {
-      type: Date,
-      // required: [true, "dob is required."],
+      type: String,
+      required: [true, "contact is required."],
     },
     address: {
       type: String,
@@ -30,12 +27,17 @@ const UserSchema = new Schema(
       type: String,
       required: [true, "password is required."],
     },
+    role: {
+      type: String,
+      // required: [true, "role is required."],
+    },
     isVerifiedEmail: {
       type: Boolean,
+      default: "user",
       // required: [true, "isVerifiedEmail is required."],
     },
   },
   { timestamps: true }
 );
 
-export default UserSchema;
+export default registerSchema;

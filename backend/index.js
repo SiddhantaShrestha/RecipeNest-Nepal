@@ -1,21 +1,24 @@
 import express, { json } from "express";
 import cors from "cors";
-import { port } from "./constant.js";
-import connectDb from "./connectDb/connectmongoDb.js";
+import { port } from "./src/constant.js";
+import connectDb from "./src/connectDb/connectmongoDb.js";
 import bodyParser from "body-parser";
+import registerRouter from "./src/Routes/registerRouter.js";
 
-let app = express();
-app.use(bodyParser.json());
-app.use(cors());
+let expressApp = express();
+expressApp.use(json());
+expressApp.use(cors());
 
 connectDb(); //Using PORT from dotenv file
 
 //test server with ping api
-app.get("/ping", (req, res) => {
+expressApp.get("/ping", (req, res) => {
   res.send("Test");
 });
 
 //callback function for terminal message
-app.listen(port, () => {
+expressApp.listen(port, () => {
   console.log(`Server is running on PORT ${port}`);
 });
+
+expressApp.use("/register", registerRouter);
