@@ -36,6 +36,7 @@ const Signup = () => {
 
   return (
     <div className="flex w-full h-screen font-sans">
+      {/* Left Section */}
       <div className="flex justify-center items-center w-[calc(100vw-445px)] p-12">
         <div className="w-full max-w-[471px] bg-[#f5e8d6] p-8 rounded-lg shadow-md">
           <h2 className="text-2xl mb-6">Sign Up</h2>
@@ -46,27 +47,47 @@ const Signup = () => {
           >
             {() => (
               <Form className="space-y-4">
-                <FormikInput name="name" label="Name" required />
-                <FormikInput name="username" label="Username" required />
-                <FormikInput name="email" label="Email" type="email" required />
+                <FormikInput
+                  name="name"
+                  placeholder="Enter your full name"
+                  required
+                  className="input-field"
+                />
+                <FormikInput
+                  name="username"
+                  required
+                  placeholder="Enter your username"
+                  autocomplete="username"
+                />
                 <FormikInput
                   name="phone"
-                  label="Phone No"
                   type="tel"
+                  placeholder="Enter your phone number"
                   required
+                  className="input-field"
+                />
+                <FormikInput
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="Enter your email address"
+                  autocomplete="email"
                 />
                 <FormikInput
                   name="password"
-                  label="Password"
                   type="password"
                   required
+                  placeholder="Enter your password"
+                  autocomplete="new-password"
                 />
                 <FormikInput
                   name="confirmPassword"
-                  label="Retype Password"
                   type="password"
                   required
+                  placeholder="Retype your password"
+                  autocomplete="new-password"
                 />
+
                 <button
                   type="submit"
                   className="w-full py-2 text-lg bg-[#8b5e34] text-white rounded-md cursor-pointer"
@@ -78,9 +99,13 @@ const Signup = () => {
           </Formik>
         </div>
       </div>
+
+      {/* Right Section */}
       <div className="flex flex-col justify-center items-center w-[445px] bg-[#ececec] p-12 text-center">
-        <h2 className="text-xl mb-5">Already have an Account?</h2>
-        <p className="mb-5">Go back to Login.</p>
+        <h2 className="font-bold text-4xl mb-4">Already have an Account?</h2>{" "}
+        {/* Adjusted font size */}
+        <p className="text-2xl mb-5">Go back to Login.</p>{" "}
+        {/* Adjusted font size */}
         <button
           onClick={() => (window.location.href = "/login")}
           className="py-2 px-6 text-lg bg-[#d9e85e] rounded-md cursor-pointer"
