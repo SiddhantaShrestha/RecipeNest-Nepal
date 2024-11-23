@@ -2,7 +2,8 @@ import React from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormikInput from "./FormikComponents/FormikInput";
-import "../CSS/auth.css"; // Import shared CSS
+import axios from "axios";
+import "../CSS/auth.css";
 
 const Signup = () => {
   const initialValues = {
@@ -10,6 +11,7 @@ const Signup = () => {
     username: "",
     email: "",
     phone: "",
+    dob: "",
     password: "",
     confirmPassword: "",
   };
@@ -21,6 +23,7 @@ const Signup = () => {
     phone: Yup.string()
       .matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
       .required("Phone number is required"),
+    dob: Yup.date().required("Date of Birth is required"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
@@ -29,9 +32,28 @@ const Signup = () => {
       .required("Confirm your password"),
   });
 
-  const handleSubmit = (values) => {
-    console.log("Signup Values", values);
-    // Perform signup logic here
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      const response = await axios.post("http://localhost:8000/register", {
+        name: values.name,
+        username: values.username,
+        email: values.email,
+        contact: values.phone,
+        dob: values.dob,
+        password: values.password,
+      });
+      console.log("Signup Success", response.data);
+      alert("Account created successfully! Please verify your email.");
+      resetForm();
+    } catch (error) {
+      console.error(
+        "Signup Error",
+        error.response?.data?.message || error.message
+      );
+      alert(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -74,6 +96,12 @@ const Signup = () => {
                   autocomplete="email"
                 />
                 <FormikInput
+                  name="dob"
+                  type="date"
+                  required
+                  className="input-field"
+                />
+                <FormikInput
                   name="password"
                   type="password"
                   required
@@ -102,10 +130,8 @@ const Signup = () => {
 
       {/* Right Section */}
       <div className="flex flex-col justify-center items-center w-[445px] bg-[#ececec] p-12 text-center">
-        <h2 className="font-bold text-4xl mb-4">Already have an Account?</h2>{" "}
-        {/* Adjusted font size */}
-        <p className="text-2xl mb-5">Go back to Login.</p>{" "}
-        {/* Adjusted font size */}
+        <h2 className="font-bold text-4xl mb-4">Already have an Account?</h2>
+        <p className="text-2xl mb-5">Go back to Login.</p>
         <button
           onClick={() => (window.location.href = "/login")}
           className="py-2 px-6 text-lg bg-[#d9e85e] rounded-md cursor-pointer"

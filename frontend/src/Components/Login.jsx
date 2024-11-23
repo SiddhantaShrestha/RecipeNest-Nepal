@@ -2,6 +2,7 @@ import React from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormikInput from "./FormikComponents/FormikInput";
+import axios from "axios"; // Import axios
 import "../CSS/auth.css"; // Import shared CSS
 
 const Login = () => {
@@ -15,9 +16,33 @@ const Login = () => {
     password: Yup.string().required("Password is required"),
   });
 
-  const handleSubmit = (values) => {
-    console.log("Login Values", values);
-    // Perform login logic here
+  const handleSubmit = async (values) => {
+    try {
+      console.log("Login Values", values);
+      // Send a POST request to the backend
+      const response = await axios.post(
+        "http://localhost:8000/register/login",
+        {
+          email: values.email,
+          password: values.password,
+        }
+      );
+
+      // Handle successful login
+      if (response.data.success) {
+        // Save the JWT or token to localStorage or context
+        localStorage.setItem("authToken", response.data.token);
+
+        // Redirect the user to the dashboard or homepage
+        window.location.href = "/home"; // or use react-router-dom's navigate
+      } else {
+        // Handle unsuccessful login
+        alert(response.data.message || "Login failed!");
+      }
+    } catch (error) {
+      console.error("Login error", error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
   return (

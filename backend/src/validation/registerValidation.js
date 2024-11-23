@@ -7,6 +7,12 @@ let registerValidation = Joi.object()
       "string.min": "name must be at least 3 characters",
       "string.max": "name must be at under 15 characters",
     }),
+    username: Joi.string().required().min(3).max(22).message({
+      "any.required": "username is required",
+      "string.base": "field must be string",
+      "string.min": "name must be at least 3 characters",
+      "string.max": "name must be at under 15 characters",
+    }),
     // age: Joi.number()
     //   .required() //.min(18).max(60),
     //   .custom((value, msg) => {
@@ -23,6 +29,7 @@ let registerValidation = Joi.object()
     //     "number.min": "age must be at least 18",
     //     "number.max": "age must be under 60",
     //   }),
+    contact: Joi.string().required(),
     email: Joi.string()
       .required()
       .custom((value, msg) => {
@@ -35,8 +42,7 @@ let registerValidation = Joi.object()
           return msg.message("email is not in valid format");
         }
       }),
-    contact: Joi.string().required(),
-    address: Joi.string().required(),
+
     dob: Joi.date().required(),
 
     password: Joi.string()

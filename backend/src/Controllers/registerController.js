@@ -45,8 +45,8 @@ export let createRegister = async (req, res) => {
       subject: "account create",
       html: `
     <h1>Your account has been created successfully. </h1>
-    <a href="http://localhost3000/verify-email?token=${token}">
-    http://localhost3000/verify-email?token=${token}
+    <a href="http://localhost:3000/verify-email?token=${token}">
+    http://localhost:3000/verify-email?token=${token}
     </a>
     `,
     });
