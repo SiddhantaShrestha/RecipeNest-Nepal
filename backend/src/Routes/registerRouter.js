@@ -14,9 +14,9 @@ import {
   verifyEmail,
 } from "../Controllers/registerController.js";
 import isAuthenticated from "../Middleware/isAuthenticated.js";
-import validation from "../middleware/validation.js";
+import validation from "../Middleware/validation.js";
 import registerValidation from "../validation/registerValidation.js";
-import authorized from "../middleware/authorized.js";
+import authorized from "../Middleware/authorized.js";
 
 //Register.create(data)
 //Register.find({})

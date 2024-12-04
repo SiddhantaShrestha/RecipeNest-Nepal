@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormikInput from "./FormikComponents/FormikInput";
 import axios from "axios";
+import { AuthContext } from "../AuthContext";
 import "../CSS/auth.css";
 
 const Signup = () => {
+  const { login } = useContext(AuthContext); // Access the login function from context
+
   const initialValues = {
     name: "",
     username: "",
@@ -42,7 +45,11 @@ const Signup = () => {
         dob: values.dob,
         password: values.password,
       });
-      console.log("Signup Success", response.data);
+
+      // On successful signup, log in the user
+      const { user, token } = response.data;
+      login(user, token); // Update global authentication state
+
       alert("Account created successfully! Please verify your email.");
       resetForm();
     } catch (error) {
@@ -57,11 +64,11 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex w-full h-screen font-sans">
+    <div className="flex flex-col lg:flex-row w-full h-screen font-sans">
       {/* Left Section */}
-      <div className="flex justify-center items-center w-[calc(100vw-445px)] p-12">
+      <div className="flex justify-center items-center w-full lg:w-[calc(100vw-445px)] p-6 lg:p-12">
         <div className="w-full max-w-[471px] bg-[#f5e8d6] p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl mb-6">Sign Up</h2>
+          <h2 className="text-2xl mb-6 text-center lg:text-left">Sign Up</h2>
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
@@ -129,12 +136,14 @@ const Signup = () => {
       </div>
 
       {/* Right Section */}
-      <div className="flex flex-col justify-center items-center w-[445px] bg-[#ececec] p-12 text-center">
-        <h2 className="font-bold text-4xl mb-4">Already have an Account?</h2>
-        <p className="text-2xl mb-5">Go back to Login.</p>
+      <div className="flex flex-col justify-center items-center w-full lg:w-[445px] bg-[#ececec] p-6 lg:p-12 text-center">
+        <h2 className="font-bold text-3xl lg:text-4xl mb-4">
+          Already have an Account?
+        </h2>
+        <p className="text-lg lg:text-2xl mb-5">Go back to Login.</p>
         <button
           onClick={() => (window.location.href = "/login")}
-          className="py-2 px-6 text-lg bg-[#d9e85e] rounded-md cursor-pointer"
+          className="py-2 px-4 lg:px-6 text-lg bg-[#d9e85e] rounded-md cursor-pointer"
         >
           Login
         </button>

@@ -1,0 +1,31 @@
+.blog-section {
+  font-family: "Arial", sans-serif;
+  background-color: #f9f9f9;
+}
+
+.filters {
+  margin-bottom: 20px;
+}
+
+.search-input,
+.category-select {
+  font-size: 16px;
+  padding: 10px;
+}
+
+.blog-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.blog-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.read-more-btn {
+  transition: background-color 0.3s ease;
+}
+
+.read-more-btn:hover {
+  background-color: #a77d50;
+}

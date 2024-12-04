@@ -7,6 +7,15 @@ import { sendMail } from "../utils/sendMail.js";
 export let createRegister = async (req, res) => {
   try {
     let data = req.body;
+
+    // Check if email already exists
+    let existingUser = await Register.findOne({ email: data.email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already in use.",
+      });
+    }
     //   data = {
     //     "name": "Siddhanta Shrestha",
     //     "email":"sidmarkys2004@gmail.com",
@@ -40,7 +49,7 @@ export let createRegister = async (req, res) => {
 
     //send mail
     await sendMail({
-      from: "'Club House' sidmarkys2004@gmail.com",
+      from: "'RecipeNest Nepal' sidmarkys2004@gmail.com",
       to: [data.email],
       subject: "account create",
       html: `
@@ -318,13 +327,13 @@ export const forgotPassword = async (req, res, next) => {
 
       // sendMail
       await sendMail({
-        from: "'Club House' sidmarkys2004@gmail.com",
+        from: "'RecipeNest Nepal' sidmarkys2004@gmail.com",
         to: email,
         subject: "Reset password",
         html: `
     <h1>Here is the link for your password reset. </h1>
-    <a href="http://localhost3000/reset-password?token=${token}">
-    http://localhost3000/reset-password?token=${token}
+    <a href="http://localhost:3000/reset-password?token=${token}">
+    http://localhost:3000/reset-password?token=${token}
     </a>
     `,
       });

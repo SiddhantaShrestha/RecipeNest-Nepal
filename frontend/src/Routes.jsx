@@ -1,22 +1,27 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 // Import all your components
-// import Home from "./components/Home"; // Example component for the homepage
-import Signup from "./Components/Signup.jsx"; // Signup form component
-import Login from "./Components/Login.jsx"; // Login form component
-import VerifyEmail from "./Components/VerifyEmail"; // Email verification component
-// import Profile from "./components/Profile"; // User profile component
-// import UpdateProfile from "./components/UpdateProfile"; // Profile update component
-// import ForgotPassword from "./components/ForgotPassword"; // Forgot password component
-// import ResetPassword from "./components/ResetPassword"; // Reset password component
-import NotFound from "./Components/NotFound"; // Not Found page for invalid routes
+import Signup from "./Components/Signup.jsx";
+import Login from "./Components/Login.jsx";
+import VerifyEmail from "./Components/VerifyEmail";
+import NotFound from "./Components/NotFound";
 import HomePage from "./Components/HomePage.jsx";
+import ResetPassword from "./Components/ResetPassword";
+import ForgotPassword from "./Components/ForgotPassword.jsx";
+import BlogSection from "./Components/BlogSection.jsx";
+import CreateBlogPage from "./Components/CreateBlogPage.jsx";
+import BlogDetailsPage from "./Components/BlogDetailsPage.jsx";
 
 // Protected Route for authenticated pages
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem("token"); // Check if user is logged in
-  return isAuthenticated ? children : <Login />;
+  const isAuthenticated = localStorage.getItem("token"); // Check if token exists
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 const AppRoutes = () => {
@@ -24,13 +29,15 @@ const AppRoutes = () => {
     <Router>
       <Routes>
         {/* Public Routes */}
-        {/* <Route path="/" element={<Home />} /> */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/home" element={<HomePage></HomePage>}></Route>
-        {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
-        {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/blog" element={<BlogSection />} />
+        <Route path="/create-blog" element={<CreateBlogPage />} />
+        <Route path="/blog/:id" element={<BlogDetailsPage />} />
 
         {/* Protected Routes */}
         {/* <Route
@@ -38,14 +45,6 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <Profile />
-            </ProtectedRoute>
-          }
-        /> */}
-        {/* <Route
-          path="/update-profile"
-          element={
-            <ProtectedRoute>
-              <UpdateProfile />
             </ProtectedRoute>
           }
         /> */}
