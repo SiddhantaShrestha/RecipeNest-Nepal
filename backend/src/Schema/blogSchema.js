@@ -21,12 +21,12 @@ const blogSchema = new mongoose.Schema(
     image: {
       type: String,
       required: true,
-      // validate: {
-      //   validator: function (v) {
-      //     return /^(http|https):\/\/[^ "]+$/.test(v); // Validate URL format
-      //   },
-      //   message: "Invalid URL format for image",
-      // },
+      validate: {
+        validator: function (v) {
+          return /^(http|https):\/\/[^ "]+$/.test(v); // Validate URL format
+        },
+        message: "Invalid URL format for image",
+      },
     },
   },
   {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import Navbar from "./Navbar";
 
 const BlogDetailsPage = () => {
   const { id } = useParams(); // Get the blog ID from the URL
@@ -32,7 +33,12 @@ const BlogDetailsPage = () => {
         alt={blog.title}
         className="w-full h-64 object-cover mb-4"
       />
-      <p className="text-gray-700 mb-4">{blog.description}</p>
+      <div
+        className="text-gray-700 mb-4"
+        style={{ whiteSpace: "pre-wrap" }} // Preserve spaces and newlines
+      >
+        {blog.description}
+      </div>
       <p className="text-sm text-gray-500">Category: {blog.category}</p>
     </div>
   );

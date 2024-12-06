@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; // Import Link for navigation
+import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate for navigation
 import axios from "axios"; // Axios for API requests
 
 import "../CSS/blog.css"; // Create this CSS file for custom styling
@@ -10,6 +10,7 @@ const BlogSection = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   // Fetch blogs from the backend
   useEffect(() => {
@@ -24,6 +25,25 @@ const BlogSection = () => {
         setLoading(false);
       });
   }, []);
+
+  // Handle blog deletion
+  const handleDelete = (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this blog?"
+    );
+    if (confirmDelete) {
+      axios
+        .delete(`http://localhost:8000/blogs/${id}`)
+        .then(() => {
+          alert("Blog deleted successfully");
+          setBlogs(blogs.filter((blog) => blog._id !== id)); // Update the state to remove the deleted blog
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Failed to delete the blog.");
+        });
+    }
+  };
 
   // Categories derived from the fetched blogs
   const categories = ["All", ...new Set(blogs.map((blog) => blog.category))];
@@ -94,12 +114,26 @@ const BlogSection = () => {
               <p className="text-gray-600 mb-4">
                 {blog.description.substring(0, 100)}...
               </p>
-              <Link
-                to={`/blog/${blog._id}`} // Navigate to the details page using the blog ID
-                className="read-more-btn py-2 px-4 bg-[#8b5e34] text-white rounded-lg"
-              >
-                Read More
-              </Link>
+              <div className="flex gap-2">
+                <Link
+                  to={`/blog/${blog._id}`} // Navigate to the details page using the blog ID
+                  className="py-2 px-4 bg-blue-500 text-white rounded-lg"
+                >
+                  Read More
+                </Link>
+                <Link
+                  to={`/blogs/edit/${blog._id}`} // Navigate to the edit page
+                  className="py-2 px-4 bg-yellow-500 text-white rounded-lg"
+                >
+                  Edit
+                </Link>
+                <button
+                  onClick={() => handleDelete(blog._id)} // Handle delete action
+                  className="py-2 px-4 bg-red-500 text-white rounded-lg"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))
         ) : (

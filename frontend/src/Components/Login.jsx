@@ -5,9 +5,11 @@ import FormikInput from "./FormikComponents/FormikInput";
 import axios from "axios";
 import "../CSS/auth.css";
 import { AuthContext } from "../AuthContext"; // Import AuthContext
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Login = () => {
   const { login } = useContext(AuthContext); // Access login function from context
+  const navigate = useNavigate(); // Use navigate hook from react-router-dom
 
   const initialValues = {
     email: "",
@@ -38,7 +40,7 @@ const Login = () => {
         login(response.data.token, response.data.user);
 
         // Redirect the user to the homepage or dashboard
-        window.location.href = "/blog"; // Or use react-router-dom's `useNavigate`
+        navigate("/navbar");
       } else {
         // Handle unsuccessful login
         alert(response.data.message || "Invalid credentials!");
@@ -86,7 +88,7 @@ const Login = () => {
 
                 <p
                   className="text-right text-sm text-[#8b5e34] mb-4 cursor-pointer"
-                  onClick={() => (window.location.href = "/forgot-password")}
+                  onClick={() => navigate("/forgot-password")} // Use navigate hook for Forgot Password
                 >
                   Forgot Password?
                 </p>
@@ -108,7 +110,7 @@ const Login = () => {
         <h2 className="font-bold text-3xl lg:text-4xl mb-4">New Here?</h2>
         <p className="text-lg lg:text-2xl mb-5">Create a Free account.</p>
         <button
-          onClick={() => (window.location.href = "/signup")}
+          onClick={() => navigate("/signup")} // Use navigate hook for Sign Up
           className="py-2 px-4 lg:px-6 text-lg bg-[#d9e85e] rounded-md cursor-pointer"
         >
           Sign Up

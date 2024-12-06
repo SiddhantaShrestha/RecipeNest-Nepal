@@ -17,6 +17,8 @@ import ForgotPassword from "./Components/ForgotPassword.jsx";
 import BlogSection from "./Components/BlogSection.jsx";
 import CreateBlogPage from "./Components/CreateBlogPage.jsx";
 import BlogDetailsPage from "./Components/BlogDetailsPage.jsx";
+import UpdateBlogPage from "./Components/UpdateBlogPage.jsx";
+import Navbar from "./Components/Navbar.jsx";
 
 // Protected Route for authenticated pages
 const ProtectedRoute = ({ children }) => {
@@ -38,6 +40,8 @@ const AppRoutes = () => {
         <Route path="/blog" element={<BlogSection />} />
         <Route path="/create-blog" element={<CreateBlogPage />} />
         <Route path="/blog/:id" element={<BlogDetailsPage />} />
+        <Route path="/blogs/edit/:id" element={<UpdateBlogPage />} />
+        <Route path="/navbar" element={<Navbar />} />
 
         {/* Protected Routes */}
         {/* <Route
