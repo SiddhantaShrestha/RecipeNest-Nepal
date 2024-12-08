@@ -1,123 +1,133 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Formik, Form } from "formik";
+import FormikInput from "./FormikComponents/FormikInput";
+import FormikTextArea from "./FormikComponents/FormikTextArea";
+import FormikCategorySelect from "./FormikComponents/FormikCategorySelect"; // Reuse the FormikCategorySelect
+import Navbar from "./Navbar"; // Import Navbar component
+
+// Form validation function
+const validate = (values) => {
+  const errors = {};
+
+  if (!values.title) {
+    errors.title = "Title is required";
+  }
+
+  if (!values.description) {
+    errors.description = "Description is required";
+  }
+
+  const urlPattern = /^(http|https):\/\/[^ "]+$/;
+  if (values.image && !urlPattern.test(values.image)) {
+    errors.image = "Please enter a valid image URL";
+  }
+
+  if (!values.category) {
+    errors.category = "Category is required";
+  }
+
+  return errors;
+};
 
 const CreateBlogPage = () => {
-  const [newBlog, setNewBlog] = useState({
+  // Initial values for Formik
+  const initialValues = {
     title: "",
     description: "",
-    category: "Beginner", // Default category
+    category: "", // Initially empty string or null, will be set by FormikCategorySelect
     image: "",
-  });
-
-  // Handle input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewBlog({ ...newBlog, [name]: value });
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token"); // Get the token from local storage
+  const handleSubmit = (values, { setSubmitting }) => {
+    const token = localStorage.getItem("authToken");
 
     if (!token) {
       alert("You must be logged in to create a blog!");
       return;
     }
 
-    // Validate the image URL to ensure it's a valid URL
-    const imageUrl = newBlog.image;
-    const urlPattern = /^(http|https):\/\/[^ "]+$/;
-    if (!urlPattern.test(imageUrl)) {
-      alert("Please enter a valid image URL.");
-      return;
-    }
-
     axios
-      .post("http://localhost:8000/blogs", newBlog, {
+      .post("http://localhost:8000/blogs", values, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Include the token
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((response) => {
         alert("Blog created successfully!");
-        setNewBlog({
-          title: "",
-          description: "",
-          category: "Beginner",
-          image: "",
-        });
       })
       .catch((err) => {
-        console.error(err.response ? err.response.data : err.message); // Check the full error
+        console.error(err.response ? err.response.data : err.message);
         alert(err.response?.data?.message || "Failed to create blog.");
+      })
+      .finally(() => {
+        setSubmitting(false);
       });
   };
 
   return (
-    <div className="create-blog-page p-6 lg:p-12">
-      <h1 className="text-4xl font-bold mb-6 text-center">Create New Blog</h1>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block mb-2">Title</label>
-          <input
-            type="text"
-            name="title"
-            className="w-full p-2 border rounded-lg"
-            value={newBlog.title}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
+    <div>
+      {/* Navbar added here */}
+      <Navbar />
 
-        <div className="mb-4">
-          <label className="block mb-2">Description</label>
-          <textarea
-            name="description"
-            className="w-full p-2 border rounded-lg"
-            value={newBlog.description}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block mb-2">Category</label>
-          <select
-            name="category"
-            className="w-full p-2 border rounded-lg"
-            value={newBlog.category}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="Beginner">Beginner</option>
-            <option value="Cuisine">Cuisine</option>
-            <option value="Health">Health</option>
-            <option value="Dessert">Dessert</option>
-            <option value="Tips">Tips</option>
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block mb-2">Image URL</label>
-          <input
-            type="text"
-            name="image"
-            className="w-full p-2 border rounded-lg"
-            value={newBlog.image}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="py-2 px-4 bg-[#8b5e34] text-white rounded-lg"
+      {/* Form section */}
+      <div className="create-blog-page p-6 lg:p-12">
+        <h1 className="text-4xl font-bold mb-6 text-center">Create New Blog</h1>
+        <Formik
+          initialValues={initialValues}
+          validate={validate}
+          onSubmit={handleSubmit}
         >
-          Create Blog
-        </button>
-      </form>
+          {({ setFieldValue, values, isSubmitting }) => (
+            <Form>
+              <div className="mb-4">
+                <FormikInput
+                  name="title"
+                  label="Title"
+                  required={true}
+                  placeholder="Enter blog title"
+                />
+              </div>
+
+              <div className="mb-4">
+                <FormikTextArea
+                  name="description"
+                  label="Description"
+                  required={true}
+                  placeholder="Enter blog description"
+                />
+              </div>
+
+              <div className="mb-4">
+                <FormikCategorySelect
+                  name="category"
+                  selectedCategory={values.category}
+                  setFieldValue={setFieldValue}
+                  required={true} // Make the category field required
+                />
+              </div>
+
+              <div className="mb-4">
+                <FormikInput
+                  name="image"
+                  label="Image URL"
+                  required={true}
+                  placeholder="Enter image URL"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="py-2 px-4 bg-[#8b5e34] text-white rounded-lg"
+              >
+                {isSubmitting ? "Submitting..." : "Create Blog"}
+              </button>
+            </Form>
+          )}
+        </Formik>
+      </div>
     </div>
   );
 };

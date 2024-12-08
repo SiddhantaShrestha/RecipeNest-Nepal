@@ -1,144 +1,156 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Formik, Form } from "formik";
+import FormikInput from "./FormikComponents/FormikInput";
+import FormikTextArea from "./FormikComponents/FormikTextArea";
+import FormikCategorySelect from "./FormikComponents/FormikCategorySelect";
+import Navbar from "./Navbar"; // Import the Navbar component
 
 const UpdateBlogPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const [blog, setBlog] = useState({
+  const [loading, setLoading] = useState(true);
+  const [initialValues, setInitialValues] = useState({
     title: "",
     description: "",
-    category: "Beginner", // Default category
-    image: "", // Default image URL
+    category: "Beginner",
+    image: "",
   });
-  const [loading, setLoading] = useState(true);
 
-  // Fetch blog data from the backend
+  // Fetch blog data for initial values
   useEffect(() => {
     axios
       .get(`http://localhost:8000/blogs/${id}`)
       .then((response) => {
         const { title, description, category, image } = response.data.blog;
-        setBlog({ title, description, category, image });
+        setInitialValues({ title, description, category, image });
         setLoading(false);
       })
       .catch((err) => {
         console.error(err);
-        alert("Failed to load blog.");
+        alert("Failed to load blog data.");
+        setLoading(false);
       });
   }, [id]);
 
-  // Handle input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setBlog({ ...blog, [name]: value });
+  // Validation function for Formik
+  const validate = (values) => {
+    const errors = {};
+
+    if (!values.title) {
+      errors.title = "Title is required";
+    }
+
+    if (!values.description) {
+      errors.description = "Description is required";
+    }
+
+    const urlPattern = /^(http|https):\/\/[^ "]+$/;
+    if (!values.image || !urlPattern.test(values.image)) {
+      errors.image = "Please enter a valid image URL";
+    }
+
+    if (!values.category) {
+      errors.category = "Category is required";
+    }
+
+    return errors;
   };
 
-  // Handle form submission for updating the blog
-  const handleUpdate = (e) => {
-    e.preventDefault(); // Prevent default form submit behavior
-    const token = localStorage.getItem("token");
+  // Submit handler for Formik
+  const handleSubmit = (values, { setSubmitting }) => {
+    const token = localStorage.getItem("authToken");
 
     if (!token) {
       alert("You must be logged in to update a blog!");
       return;
     }
 
-    // Validate the image URL to ensure it's a valid URL
-    const imageUrl = blog.image;
-    const urlPattern = /^(http|https):\/\/[^ "]+$/;
-    if (!urlPattern.test(imageUrl)) {
-      alert("Please enter a valid image URL.");
-      return;
-    }
-
     axios
-      .patch(`http://localhost:8000/blogs/${id}`, blog, {
+      .patch(`http://localhost:8000/blogs/${id}`, values, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Include the token
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(() => {
         alert("Blog updated successfully!");
-
-        // Delay the redirect to allow user to see success message
-        setTimeout(() => {
-          navigate(`/blog/${id}`); // Redirect to the blog details page
-        }, 1000); // 1 second delay (can adjust as needed)
+        navigate(`/blog/${id}`); // Redirect to the updated blog details page
       })
       .catch((err) => {
-        console.error(err.response ? err.response.data : err.message); // Check the full error
+        console.error(err.response ? err.response.data : err.message);
         alert(err.response?.data?.message || "Failed to update blog.");
+      })
+      .finally(() => {
+        setSubmitting(false);
       });
   };
 
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="update-blog-page p-6 lg:p-12">
-      <h1 className="text-4xl font-bold mb-6 text-center">Update Blog</h1>
-      <form onSubmit={handleUpdate}>
-        <div className="mb-4">
-          <label className="block mb-2">Title</label>
-          <input
-            type="text"
-            name="title"
-            className="w-full p-2 border rounded-lg"
-            value={blog.title}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
+    <div>
+      {/* Navbar included at the top */}
+      <Navbar />
 
-        <div className="mb-4">
-          <label className="block mb-2">Description</label>
-          <textarea
-            name="description"
-            className="w-full p-2 border rounded-lg"
-            value={blog.description}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block mb-2">Category</label>
-          <select
-            name="category"
-            className="w-full p-2 border rounded-lg"
-            value={blog.category}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="Beginner">Beginner</option>
-            <option value="Cuisine">Cuisine</option>
-            <option value="Health">Health</option>
-            <option value="Dessert">Dessert</option>
-            <option value="Tips">Tips</option>
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block mb-2">Image URL</label>
-          <input
-            type="text"
-            name="image"
-            className="w-full p-2 border rounded-lg"
-            value={blog.image}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="py-2 px-4 bg-[#8b5e34] text-white rounded-lg"
+      <div className="update-blog-page p-6 lg:p-12">
+        <h1 className="text-4xl font-bold mb-6 text-center">Update Blog</h1>
+        <Formik
+          initialValues={initialValues}
+          enableReinitialize={true} // Ensures Formik updates initial values when data is fetched
+          validate={validate}
+          onSubmit={handleSubmit}
         >
-          Update Blog
-        </button>
-      </form>
+          {({ setFieldValue, isSubmitting, values }) => (
+            <Form>
+              <div className="mb-4">
+                <FormikInput
+                  name="title"
+                  label="Title"
+                  required={true}
+                  placeholder="Enter blog title"
+                />
+              </div>
+
+              <div className="mb-4">
+                <FormikTextArea
+                  name="description"
+                  label="Description"
+                  required={true}
+                  placeholder="Enter blog description"
+                />
+              </div>
+
+              <div className="mb-4">
+                <FormikCategorySelect
+                  name="category"
+                  selectedCategory={values.category}
+                  setFieldValue={setFieldValue}
+                  required={true} // Make the category field required
+                />
+              </div>
+
+              <div className="mb-4">
+                <FormikInput
+                  name="image"
+                  label="Image URL"
+                  required={true}
+                  placeholder="Enter image URL"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="py-2 px-4 bg-[#8b5e34] text-white rounded-lg"
+              >
+                {isSubmitting ? "Updating..." : "Update Blog"}
+              </button>
+            </Form>
+          )}
+        </Formik>
+      </div>
     </div>
   );
 };

@@ -40,7 +40,7 @@ const Login = () => {
         login(response.data.token, response.data.user);
 
         // Redirect the user to the homepage or dashboard
-        navigate("/navbar");
+        navigate("/blog");
       } else {
         // Handle unsuccessful login
         alert(response.data.message || "Invalid credentials!");
