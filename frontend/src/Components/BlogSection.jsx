@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate for navigation
-import axios from "axios"; // Axios for API requests
-
-import Navbar from "./Navbar"; // Import Navbar component
-import "../CSS/blog.css"; // Create this CSS file for custom styling
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { Formik, Form, Field } from "formik";
+import Select from "react-select"; // Import react-select
+import Navbar from "./Navbar";
+import { categories } from "../categories"; // Import predefined categories
+import "../CSS/blog.css";
 
 const BlogSection = () => {
   const [blogs, setBlogs] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [filteredBlogs, setFilteredBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   // Fetch blogs from the backend
   useEffect(() => {
     axios
-      .get("http://localhost:8000/blogs") // Replace with your actual backend URL
+      .get("http://localhost:8000/blogs")
       .then((response) => {
         setBlogs(response.data.blogs);
+        setFilteredBlogs(response.data.blogs); // Initialize filteredBlogs with all blogs
         setLoading(false);
       })
       .catch((err) => {
@@ -37,7 +39,8 @@ const BlogSection = () => {
         .delete(`http://localhost:8000/blogs/${id}`)
         .then(() => {
           alert("Blog deleted successfully");
-          setBlogs(blogs.filter((blog) => blog._id !== id)); // Update the state to remove the deleted blog
+          setBlogs(blogs.filter((blog) => blog._id !== id));
+          setFilteredBlogs(filteredBlogs.filter((blog) => blog._id !== id)); // Update filteredBlogs after delete
         })
         .catch((err) => {
           console.error(err);
@@ -46,28 +49,35 @@ const BlogSection = () => {
     }
   };
 
-  // Categories derived from the fetched blogs
-  const categories = ["All", ...new Set(blogs.map((blog) => blog.category))];
+  // Map categories into react-select options
+  const categoryOptions = [
+    { value: "All", label: "All" },
+    ...categories.map((category) => ({
+      value: category,
+      label: category,
+    })),
+  ];
 
-  // Filter blogs based on category and search term
-  const filteredBlogs = blogs.filter(
-    (blog) =>
-      (selectedCategory === "All" || blog.category === selectedCategory) &&
-      blog.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Function to filter blogs based on search and selected category
+  const filterBlogs = (category, searchTerm) => {
+    const filtered = blogs.filter(
+      (blog) =>
+        (category.value === "All" || blog.category === category.value) &&
+        blog.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredBlogs(filtered); // Update filtered blogs
+  };
 
   return (
     <div>
-      {/* Navbar added here */}
       <Navbar />
 
       <div className="blog-section p-6 lg:p-12">
         <h1 className="text-4xl font-bold mb-6 text-center">Blog Section</h1>
 
-        {/* Button to navigate to the Create Blog Page */}
         <div className="text-center mb-8">
           <Link
-            to="/create-blog" // Navigate to the Create Blog Page
+            to="/create-blog"
             className="py-2 px-4 bg-[#8b5e34] text-white rounded-lg"
           >
             Create Blog
@@ -75,26 +85,45 @@ const BlogSection = () => {
         </div>
 
         {/* Search and Category Filter */}
-        <div className="filters flex flex-col lg:flex-row items-center justify-between mb-8">
-          <input
-            type="text"
-            placeholder="Search blogs..."
-            className="search-input w-full lg:w-1/3 p-2 border rounded-lg mb-4 lg:mb-0"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <select
-            className="category-select w-full lg:w-1/4 p-2 border rounded-lg"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            {categories.map((category, index) => (
-              <option key={index} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Formik
+          initialValues={{
+            category: { value: "All", label: "All" },
+          }}
+          onSubmit={(values) => {
+            // Trigger filter on form submit
+            filterBlogs(values.category, searchTerm);
+          }}
+        >
+          {({ setFieldValue, values }) => (
+            <Form className="filters flex flex-col lg:flex-row items-center justify-between mb-8">
+              <input
+                type="text"
+                placeholder="Search blogs..."
+                className="search-input w-full lg:w-1/3 p-2 border rounded-lg mb-4 lg:mb-0"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  filterBlogs(values.category, e.target.value); // Filter blogs when search term changes
+                }}
+              />
+              <Field name="category">
+                {({ field }) => (
+                  <Select
+                    options={categoryOptions} // Predefined category options
+                    value={values.category} // Currently selected category
+                    onChange={(option) => {
+                      setFieldValue("category", option);
+                      filterBlogs(option, searchTerm); // Filter blogs when category changes
+                    }} // Update category value and trigger filtering
+                    isSearchable // Enable searching
+                    className="w-full lg:w-1/4" // Style the dropdown
+                    placeholder="Select a category"
+                  />
+                )}
+              </Field>
+            </Form>
+          )}
+        </Formik>
 
         {/* Loading and Error States */}
         {loading && (
@@ -107,7 +136,7 @@ const BlogSection = () => {
           {filteredBlogs.length > 0 ? (
             filteredBlogs.map((blog) => (
               <div
-                key={blog._id} // Use the blog's unique ID here
+                key={blog._id}
                 className="blog-card p-4 bg-white shadow-md rounded-lg hover:shadow-lg"
               >
                 <img
@@ -121,19 +150,19 @@ const BlogSection = () => {
                 </p>
                 <div className="flex gap-2">
                   <Link
-                    to={`/blog/${blog._id}`} // Navigate to the details page using the blog ID
+                    to={`/blog/${blog._id}`}
                     className="py-2 px-4 bg-blue-500 text-white rounded-lg"
                   >
                     Read More
                   </Link>
                   <Link
-                    to={`/blogs/edit/${blog._id}`} // Navigate to the edit page
+                    to={`/blogs/edit/${blog._id}`}
                     className="py-2 px-4 bg-yellow-500 text-white rounded-lg"
                   >
                     Edit
                   </Link>
                   <button
-                    onClick={() => handleDelete(blog._id)} // Handle delete action
+                    onClick={() => handleDelete(blog._id)}
                     className="py-2 px-4 bg-red-500 text-white rounded-lg"
                   >
                     Delete

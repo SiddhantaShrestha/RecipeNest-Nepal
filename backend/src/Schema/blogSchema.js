@@ -1,5 +1,24 @@
 import mongoose from "mongoose";
 
+// Define a sub-schema for comments
+export const commentSchema = new mongoose.Schema({
+  user: {
+    type: String,
+    required: true,
+    minlength: 1,
+    maxlength: 50,
+  },
+  text: {
+    type: String,
+    required: true,
+    minlength: 1,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now, // Automatically set the current timestamp
+  },
+});
+
 const blogSchema = new mongoose.Schema(
   {
     title: {
@@ -55,7 +74,6 @@ const blogSchema = new mongoose.Schema(
         "Dietary Restrictions",
       ],
     },
-
     image: {
       type: String,
       required: true,
@@ -66,9 +84,10 @@ const blogSchema = new mongoose.Schema(
         message: "Invalid URL format for image",
       },
     },
+    comments: [commentSchema], // Array of comments
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true, // Adds createdAt and updatedAt fields automatically
   }
 );
 

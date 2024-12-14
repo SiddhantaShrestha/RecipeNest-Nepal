@@ -29,7 +29,23 @@ let registerValidation = Joi.object()
     //     "number.min": "age must be at least 18",
     //     "number.max": "age must be under 60",
     //   }),
-    contact: Joi.string().required(),
+    contact: Joi.string()
+      .required()
+      .custom((value, msg) => {
+        // Regex for Nepali contact numbers (10 digits starting with 9)
+        const validContact = value.match(/^9\d{9}$/);
+        if (validContact) {
+          return true;
+        } else {
+          return msg.message(
+            "contact number must be a valid Nepali number (starting with 9 and exactly 10 digits)"
+          );
+        }
+      })
+      .message({
+        "any.required": "contact is required",
+        "string.base": "contact must be a string",
+      }),
     email: Joi.string()
       .required()
       .custom((value, msg) => {

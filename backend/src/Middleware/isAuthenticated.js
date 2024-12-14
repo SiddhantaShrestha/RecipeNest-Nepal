@@ -3,20 +3,33 @@ import { secretKey } from "../constant.js";
 
 let isAuthenticated = async (req, res, next) => {
   try {
-    // get token from postman
-    let tokenString = req.headers.authorization;
-    let tokenArray = tokenString.split(" ");
-    let token = tokenArray[1];
+    const tokenString = req.headers.authorization;
 
-    //verify token
-    let user = await jwt.verify(token, secretKey);
+    if (!tokenString || !tokenString.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization token missing or invalid format",
+      });
+    }
+
+    const token = tokenString.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Token not provided",
+      });
+    }
+
+    const user = await jwt.verify(token, secretKey);
     req._id = user._id;
     next();
   } catch (error) {
-    res.json({
+    res.status(401).json({
       success: false,
-      message: error.message,
+      message: "Invalid or malformed token",
     });
   }
 };
+
 export default isAuthenticated;

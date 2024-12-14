@@ -114,3 +114,34 @@ export const deleteBlog = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const addComment = async (req, res) => {
+  const { id } = req.params; // Blog ID
+  const { user, text } = req.body; // Comment fields
+
+  // Input validation
+  if (!user || !text) {
+    return res
+      .status(400)
+      .json({ message: "User and text fields are required." });
+  }
+
+  try {
+    // Find blog and push new comment
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    const newComment = { user, text, createdAt: new Date() };
+    blog.comments.push(newComment);
+    await blog.save();
+
+    res
+      .status(201)
+      .json({ message: "Comment added successfully", comment: newComment });
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

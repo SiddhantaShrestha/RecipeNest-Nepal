@@ -5,6 +5,7 @@ import {
   getBlogs,
   getBlogById,
   deleteBlog,
+  addComment,
 } from "../Controllers/blogController.js";
 import {
   validateJoi,
@@ -32,5 +33,7 @@ blogRouter
     updateBlog // Call the updateBlog controller function to update the blog
   )
   .delete(deleteBlog); // Delete a blog (requires authorization)
+
+blogRouter.route("/:id/comments").post(addComment); // Add a new comment
 
 export default blogRouter;

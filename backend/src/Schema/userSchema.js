@@ -13,11 +13,12 @@ let registerSchema = Schema(
     email: {
       type: String,
       required: [true, "email is required."],
+      unique: true, // Ensure the email is unique
     },
-
     contact: {
       type: String,
       required: [true, "contact is required."],
+      unique: true,
     },
     dob: {
       type: String,
@@ -29,12 +30,10 @@ let registerSchema = Schema(
     },
     role: {
       type: String,
-      // required: [true, "role is required."],
     },
     isVerifiedEmail: {
       type: Boolean,
-      default: "user",
-      // required: [true, "isVerifiedEmail is required."],
+      default: false,
     },
   },
   { timestamps: true }

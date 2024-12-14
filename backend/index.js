@@ -5,6 +5,7 @@ import connectDb from "./src/connectDb/connectmongoDb.js";
 import bodyParser from "body-parser";
 import registerRouter from "./src/Routes/registerRouter.js";
 import blogRouter from "./src/Routes/blogRouter.js"; // Import the blogRouter
+import recipeRouter from "./src/Routes/recipeRouter.js";
 
 let expressApp = express();
 
@@ -23,6 +24,7 @@ expressApp.get("/ping", (req, res) => {
 // Routes
 expressApp.use("/register", registerRouter); // User registration routes
 expressApp.use("/blogs", blogRouter); // Blog routes
+expressApp.use("/recipes", recipeRouter); // Blog routes
 
 // Start server and log the port
 expressApp.listen(port, () => {

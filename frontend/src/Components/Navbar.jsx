@@ -1,7 +1,10 @@
 import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa"; // User profile icon
+import { BiSearch } from "react-icons/bi"; // Search icon
 import { AuthContext } from "../AuthContext"; // Import AuthContext
+// import navImage from "../Images/RecipeNestLogo.png";
+import navImage2 from "../Images/RecipeNest Logo 2.png";
 
 const Navbar = () => {
   const { authState, logout } = useContext(AuthContext); // Access auth state and logout function
@@ -39,32 +42,40 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-orange-100 p-4 flex justify-between items-center relative">
-      {/* Logo on the left side */}
-      <div className="flex items-center">
+    <nav className="bg-orange-100 p-4 flex items-center relative">
+      {/* Logo */}
+      <div className="flex items-center flex-shrink-0">
         <img
-          src="../Images/RecipeNestLogo.webp"
+          src={navImage2}
           alt="RecipeNest Logo"
-          className="mr-4"
+          className="mr-4 h-12 w-auto object-contain"
         />
-        <div className="space-x-4">
-          <a href="/" className="text-black">
-            Home
-          </a>
-          <a href="/recipes" className="text-black">
-            Recipes
-          </a>
-          <a href="/marketplace" className="text-black">
-            Marketplace
-          </a>
-          <a href="/about" className="text-black">
-            About Us
-          </a>
-        </div>
+      </div>
+
+      {/* Navigation Links - Centered */}
+      <div className="flex-grow flex justify-center space-x-8">
+        <Link to="/" className="text-black">
+          Home
+        </Link>
+        <Link to="/recipes" className="text-black">
+          Recipes
+        </Link>
+        <Link to="/marketplace" className="text-black">
+          Marketplace
+        </Link>
+        <Link to="/blog" className="text-black">
+          Blogs
+        </Link>
+        <Link to="/about" className="text-black">
+          About Us
+        </Link>
       </div>
 
       {/* Search form */}
-      <form onSubmit={handleSearchSubmit} className="flex items-center">
+      <form
+        onSubmit={handleSearchSubmit}
+        className="flex items-center ml-auto mr-4"
+      >
         <input
           type="text"
           className="p-2 mr-2 border rounded-lg"
@@ -72,17 +83,11 @@ const Navbar = () => {
           value={searchQuery}
           onChange={handleSearchChange}
         />
-        <button type="submit" className="bg-gray-300 p-2 rounded-lg">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="currentColor"
-            className="bi bi-search"
-            viewBox="0 0 16 16"
-          >
-            <path d="M11.742 10.742a6 6 0 1 0-1.414 1.415 5.973 5.973 0 0 0 1.414-1.415zM12 6a6 6 0 1 1-6-6 6 6 0 0 1 6 6z" />
-          </svg>
+        <button
+          type="submit"
+          className="bg-gray-300 p-2 rounded-lg flex items-center justify-center"
+        >
+          <BiSearch size={20} /> {/* React-icon search icon */}
         </button>
       </form>
 

@@ -9,33 +9,37 @@ export let createRegister = async (req, res) => {
     let data = req.body;
 
     // Check if email already exists
-    let existingUser = await Register.findOne({ email: data.email });
-    if (existingUser) {
+    let existingEmailUser = await Register.findOne({ email: data.email });
+    if (existingEmailUser) {
       return res.status(400).json({
         success: false,
         message: "Email is already in use.",
       });
     }
-    //   data = {
-    //     "name": "Siddhanta Shrestha",
-    //     "email":"sidmarkys2004@gmail.com",
-    //     "password":"Password@123",
-    //     "dob":"2004-01-16",
-    //     "gender":"Male",
-    //     "role":"customer"
-    // }
+
+    // Check if contact number already exists
+    let existingContactUser = await Register.findOne({ contact: data.contact });
+    if (existingContactUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Contact number is already in use.",
+      });
+    }
+
+    // Hash the password
     let hashPassword = await bcrypt.hash(data.password, 10);
 
+    // Set the user data
     data = {
       ...data,
       isVerifiedEmail: false,
       password: hashPassword,
     };
+
+    // Create new user
     let result = await Register.create(data);
 
-    //send email with link
-
-    //generate token
+    // Generate token
     let infoObj = {
       _id: result._id,
     };
@@ -45,25 +49,21 @@ export let createRegister = async (req, res) => {
     };
 
     let token = await jwt.sign(infoObj, secretKey, expiryInfo);
-    //link => frontend link
 
-    //send mail
+    // Send email with verification link
     await sendMail({
       from: "'RecipeNest Nepal' sidmarkys2004@gmail.com",
       to: [data.email],
-      subject: "account create",
+      subject: "Account Created",
       html: `
-    <h1>Your account has been created successfully. </h1>
-    <a href="http://localhost:3000/verify-email?token=${token}">
-    http://localhost:3000/verify-email?token=${token}
-    </a>
-    `,
+        <h1>Your account has been created successfully.</h1>
+        <a href="http://localhost:3000/verify-email?token=${token}">Click here to verify your email.</a>
+      `,
     });
 
     res.status(201).json({
       success: true,
-      message: "register created successfully",
-      // data: result,
+      message: "Register created successfully",
     });
   } catch (error) {
     res.status(400).json({

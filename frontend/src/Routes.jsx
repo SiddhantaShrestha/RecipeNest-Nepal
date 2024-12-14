@@ -19,6 +19,9 @@ import CreateBlogPage from "./Components/CreateBlogPage.jsx";
 import BlogDetailsPage from "./Components/BlogDetailsPage.jsx";
 import UpdateBlogPage from "./Components/UpdateBlogPage.jsx";
 import Navbar from "./Components/Navbar.jsx";
+import AddRecipePage from "./Components/AddRecipePage.jsx";
+import RecipeListPage from "./Components/RecipeListPage.jsx";
+import ViewRecipePage from "./Components/ViewRecipePage.jsx";
 
 // Protected Route for authenticated pages
 const ProtectedRoute = ({ children }) => {
@@ -41,7 +44,9 @@ const AppRoutes = () => {
         <Route path="/create-blog" element={<CreateBlogPage />} />
         <Route path="/blog/:id" element={<BlogDetailsPage />} />
         <Route path="/blogs/edit/:id" element={<UpdateBlogPage />} />
-        <Route path="/navbar" element={<Navbar />} />
+        <Route path="/addrecipes" element={<AddRecipePage />} />
+        <Route path="/recipes" element={<RecipeListPage />} />
+        <Route path="/recipes/:id" element={<ViewRecipePage />} />
 
         {/* Protected Routes */}
         {/* <Route
