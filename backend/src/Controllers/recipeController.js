@@ -2,15 +2,31 @@ import { Recipe } from "../Schema/model.js";
 
 // Create a new recipe
 export const createRecipe = async (req, res) => {
-  const { title, description, ingredients, steps, category, image } = req.body;
+  const {
+    title,
+    description,
+    ingredients,
+    steps,
+    category,
+    image,
+    prepTime,
+    servings,
+  } = req.body;
 
   try {
+    const formattedSteps = steps.map((step) => ({
+      description: step.description,
+      image: step.image || "", // Default to empty string if image is not provided
+    }));
+
     const newRecipe = new Recipe({
       title,
       description,
       ingredients,
-      steps,
+      steps: formattedSteps,
       category,
+      prepTime, // New field
+      servings, // New field
       image,
     });
     await newRecipe.save();

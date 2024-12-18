@@ -6,12 +6,15 @@ import {
   getBlogById,
   deleteBlog,
   addComment,
+  getMyBlogs,
 } from "../Controllers/blogController.js";
 import {
   validateJoi,
   blogCreationValidation,
   blogUpdateValidation,
 } from "../Middleware/validateJoi.js";
+import isAuthenticated from "../Middleware/isAuthenticated.js";
+import checkBlogOwnership from "../Middleware/checkBlogOwnership.js";
 
 const blogRouter = Router();
 
@@ -19,20 +22,28 @@ const blogRouter = Router();
 blogRouter.route("/").get(getBlogs); // Get all blogs
 blogRouter.route("/:id").get(getBlogById); // Get a specific blog
 
-// Public route for creating a blog (no authentication required)
-blogRouter.route("/").post(
-  validateJoi(blogCreationValidation), // Validate the blog data with Joi
-  createBlog // Call the createBlog controller function to create the blog
-);
+// Protected route for creating a blog
+blogRouter
+  .route("/")
+  .post(isAuthenticated, validateJoi(blogCreationValidation), createBlog);
 
-// Update a blog (requires authorization)
+// Protected route for updating a blog
 blogRouter
   .route("/:id")
   .patch(
-    validateJoi(blogUpdateValidation), // Validate blog updates
-    updateBlog // Call the updateBlog controller function to update the blog
+    isAuthenticated,
+    checkBlogOwnership, // Only the creator can update
+    validateJoi(blogUpdateValidation),
+    updateBlog
   )
-  .delete(deleteBlog); // Delete a blog (requires authorization)
+  .delete(
+    isAuthenticated,
+    checkBlogOwnership, // Only the creator can delete
+    deleteBlog
+  );
+
+// Protected route for fetching blogs created by the logged-in user
+blogRouter.route("/myBlogs").get(isAuthenticated, getMyBlogs);
 
 blogRouter.route("/:id/comments").post(addComment); // Add a new comment
 

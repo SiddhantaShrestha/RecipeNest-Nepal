@@ -22,6 +22,9 @@ import Navbar from "./Components/Navbar.jsx";
 import AddRecipePage from "./Components/AddRecipePage.jsx";
 import RecipeListPage from "./Components/RecipeListPage.jsx";
 import ViewRecipePage from "./Components/ViewRecipePage.jsx";
+import MyProfile from "./Components/MyProfile.jsx";
+import ChangePassword from "./Components/ChangePassword.jsx";
+import MyBlogs from "./Components/MyBlogs.jsx";
 
 // Protected Route for authenticated pages
 const ProtectedRoute = ({ children }) => {
@@ -34,19 +37,22 @@ const AppRoutes = () => {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/blog" element={<BlogSection />} />
+        <Route path="/my-blogs" element={<MyBlogs />} />
         <Route path="/create-blog" element={<CreateBlogPage />} />
         <Route path="/blog/:id" element={<BlogDetailsPage />} />
         <Route path="/blogs/edit/:id" element={<UpdateBlogPage />} />
         <Route path="/addrecipes" element={<AddRecipePage />} />
         <Route path="/recipes" element={<RecipeListPage />} />
         <Route path="/recipes/:id" element={<ViewRecipePage />} />
+        <Route path="/my-profile" element={<MyProfile />} />
+        <Route path="/change-password" element={<ChangePassword />} />
 
         {/* Protected Routes */}
         {/* <Route

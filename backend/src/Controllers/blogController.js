@@ -19,7 +19,13 @@ export const createBlog = async (req, res) => {
     }
 
     // Create and save a new blog
-    const newBlog = new Blog({ title, description, category, image });
+    const newBlog = new Blog({
+      title,
+      description,
+      category,
+      image,
+      creator: req._id,
+    });
     await newBlog.save();
 
     res.status(201).json({
@@ -142,6 +148,21 @@ export const addComment = async (req, res) => {
       .json({ message: "Comment added successfully", comment: newComment });
   } catch (error) {
     console.error("Error adding comment:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+// Fetch blogs created by the authenticated user
+export const getMyBlogs = async (req, res) => {
+  try {
+    const userId = req._id; // Retrieved from the token middleware
+    const blogs = await Blog.find({ creator: userId }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "Your blogs fetched successfully",
+      blogs,
+    });
+  } catch (error) {
+    console.error("Error fetching user-specific blogs:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

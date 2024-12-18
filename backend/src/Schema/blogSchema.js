@@ -77,12 +77,17 @@ const blogSchema = new mongoose.Schema(
     image: {
       type: String,
       required: true,
-      validate: {
-        validator: function (v) {
-          return /^(http|https):\/\/[^ "]+$/.test(v); // Validate URL format
-        },
-        message: "Invalid URL format for image",
-      },
+      // validate: {
+      //   validator: function (v) {
+      //     return /^(http|https):\/\/[^ "]+$/.test(v); // Validate URL format
+      //   },
+      //   message: "Invalid URL format for image",
+      // },
+    },
+    creator: {
+      type: mongoose.Types.ObjectId, // Reference to the user who created the blog
+      ref: "Register",
+      required: true,
     },
     comments: [commentSchema], // Array of comments
   },

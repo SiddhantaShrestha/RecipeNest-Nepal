@@ -16,7 +16,7 @@ export const blogCreationValidation = Joi.object({
     .required()
     .messages({
       "string.empty": "Category is required.",
-      "string.valid": "Category must be one of the predefined values.",
+      "any.only": "Category must be one of the predefined values.",
     }),
   image: Joi.string().uri().required().messages({
     "string.empty": "Image URL is required.",
@@ -30,11 +30,26 @@ export const blogUpdateValidation = Joi.object({
     "string.min": "Title must be at least 3 characters long.",
     "string.max": "Title cannot exceed 100 characters.",
   }),
-  content: Joi.string().min(10).optional().messages({
-    "string.min": "Content must be at least 10 characters long.",
+  description: Joi.string().min(10).optional().messages({
+    "string.min": "Description must be at least 10 characters long.",
+  }),
+  category: Joi.string()
+    .valid("Beginner", "Cuisine", "Health", "Dessert", "Tips")
+    .optional()
+    .messages({
+      "any.only": "Category must be one of the predefined values.",
+    }),
+  image: Joi.string().uri().optional().messages({
+    "string.uri": "Image must be a valid URL.",
   }),
   tags: Joi.array().items(Joi.string().max(30)).max(10).optional().messages({
     "array.max": "You can specify up to 10 tags.",
     "string.max": "Each tag cannot exceed 30 characters.",
   }),
+  user: Joi.string()
+    .optional()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .messages({
+      "string.pattern.base": "User ID must be a valid MongoDB ObjectId.",
+    }),
 });

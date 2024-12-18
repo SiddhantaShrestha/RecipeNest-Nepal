@@ -31,12 +31,18 @@ const BlogSection = () => {
 
   // Handle blog deletion
   const handleDelete = (id) => {
+    const token = localStorage.getItem("authToken");
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this blog?"
     );
     if (confirmDelete) {
       axios
-        .delete(`http://localhost:8000/blogs/${id}`)
+        .delete(`http://localhost:8000/blogs/${id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        })
         .then(() => {
           alert("Blog deleted successfully");
           setBlogs(blogs.filter((blog) => blog._id !== id));

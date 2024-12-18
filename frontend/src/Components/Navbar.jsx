@@ -1,131 +1,188 @@
 import React, { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { FaUserCircle } from "react-icons/fa"; // User profile icon
+import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa"; // Icons
 import { BiSearch } from "react-icons/bi"; // Search icon
-import { AuthContext } from "../AuthContext"; // Import AuthContext
-// import navImage from "../Images/RecipeNestLogo.png";
+import { AuthContext } from "../AuthContext";
 import navImage2 from "../Images/RecipeNest Logo 2.png";
 
 const Navbar = () => {
-  const { authState, logout } = useContext(AuthContext); // Access auth state and logout function
+  const { authState, logout } = useContext(AuthContext);
   const [searchQuery, setSearchQuery] = useState("");
-  const [dropdownVisible, setDropdownVisible] = useState(false); // Track dropdown visibility
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); // Hamburger menu state
   const navigate = useNavigate();
 
-  // Handle search input change
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
+  const handleSearchChange = (e) => setSearchQuery(e.target.value);
 
-  // Handle form submission (search)
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    navigate(`/search?query=${searchQuery}`); // Redirect to search results page
+    navigate(`/search?query=${searchQuery}`);
+    setMenuOpen(false);
   };
 
-  // Toggle the dropdown visibility
-  const toggleDropdown = () => {
-    setDropdownVisible((prev) => !prev);
-  };
+  const toggleDropdown = () => setDropdownVisible((prev) => !prev);
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
 
-  // Navigate to the profile page
   const handleProfileClick = () => {
-    navigate("/profile"); // Navigate to the user's profile page
-    setDropdownVisible(false); // Hide the dropdown
+    navigate("/my-profile");
+    setDropdownVisible(false);
   };
 
-  // Handle logout
   const handleLogout = () => {
-    logout(); // Call the logout function from AuthContext
-    navigate("/login"); // Redirect to home
-    setDropdownVisible(false); // Hide the dropdown
+    logout();
+    navigate("/login");
+    setDropdownVisible(false);
   };
 
   return (
-    <nav className="bg-orange-100 p-4 flex items-center relative">
-      {/* Logo */}
-      <div className="flex items-center flex-shrink-0">
-        <img
-          src={navImage2}
-          alt="RecipeNest Logo"
-          className="mr-4 h-12 w-auto object-contain"
-        />
-      </div>
+    <nav className="bg-orange-100 p-4 shadow-md relative">
+      <div className="flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center flex-shrink-0">
+          <img
+            src={navImage2}
+            alt="RecipeNest Logo"
+            className="h-10 w-auto object-contain"
+          />
+        </div>
 
-      {/* Navigation Links - Centered */}
-      <div className="flex-grow flex justify-center space-x-8">
-        <Link to="/" className="text-black">
-          Home
-        </Link>
-        <Link to="/recipes" className="text-black">
-          Recipes
-        </Link>
-        <Link to="/marketplace" className="text-black">
-          Marketplace
-        </Link>
-        <Link to="/blog" className="text-black">
-          Blogs
-        </Link>
-        <Link to="/about" className="text-black">
-          About Us
-        </Link>
-      </div>
-
-      {/* Search form */}
-      <form
-        onSubmit={handleSearchSubmit}
-        className="flex items-center ml-auto mr-4"
-      >
-        <input
-          type="text"
-          className="p-2 mr-2 border rounded-lg"
-          placeholder="Search for recipes, ingredients"
-          value={searchQuery}
-          onChange={handleSearchChange}
-        />
-        <button
-          type="submit"
-          className="bg-gray-300 p-2 rounded-lg flex items-center justify-center"
+        {/* Centered Links (Hidden on small screens) */}
+        <div
+          className={`${
+            menuOpen ? "block" : "hidden"
+          } lg:flex flex-col lg:flex-row lg:items-center lg:space-x-6 absolute lg:relative top-full left-0 lg:top-0 lg:left-auto bg-orange-100 w-full lg:w-auto lg:bg-transparent z-10`}
         >
-          <BiSearch size={20} /> {/* React-icon search icon */}
-        </button>
-      </form>
-
-      {/* Sign In / User Icon */}
-      {authState.isAuthenticated ? (
-        <div className="relative">
-          <button
-            onClick={toggleDropdown}
-            className="ml-4 px-4 py-2 rounded-lg bg-green-500 flex items-center"
+          <Link
+            to="/"
+            className="block px-4 py-2 text-black hover:text-orange-600"
+            onClick={() => setMenuOpen(false)}
           >
-            <FaUserCircle size={24} color="white" />
-          </button>
+            Home
+          </Link>
+          <Link
+            to="/recipes"
+            className="block px-4 py-2 text-black hover:text-orange-600"
+            onClick={() => setMenuOpen(false)}
+          >
+            Recipes
+          </Link>
+          <Link
+            to="/marketplace"
+            className="block px-4 py-2 text-black hover:text-orange-600"
+            onClick={() => setMenuOpen(false)}
+          >
+            Marketplace
+          </Link>
+          <Link
+            to="/blog"
+            className="block px-4 py-2 text-black hover:text-orange-600"
+            onClick={() => setMenuOpen(false)}
+          >
+            Blogs
+          </Link>
+          <Link
+            to="/about"
+            className="block px-4 py-2 text-black hover:text-orange-600"
+            onClick={() => setMenuOpen(false)}
+          >
+            About Us
+          </Link>
+        </div>
 
-          {/* Dropdown menu */}
-          {dropdownVisible && (
-            <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-lg border">
+        {/* Search Bar */}
+        <div className="hidden lg:flex items-center space-x-2">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="flex items-center bg-white p-1 border rounded-lg"
+          >
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="p-2 focus:outline-none rounded-l-lg"
+            />
+            <button
+              type="submit"
+              className="bg-gray-300 p-2 rounded-r-lg flex items-center justify-center"
+            >
+              <BiSearch size={20} />
+            </button>
+          </form>
+        </div>
+
+        {/* Right Section: Hamburger Menu & Auth */}
+        {/* Right Section: User Auth & Hamburger Menu */}
+        <div className="flex items-center space-x-4">
+          {/* Profile Dropdown for Larger Screens */}
+          {authState.isAuthenticated && (
+            <div className="hidden lg:flex relative">
               <button
-                onClick={handleProfileClick}
-                className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                onClick={toggleDropdown}
+                className="p-2 rounded-full text-gray-700 hover:text-gray-900"
               >
-                My Profile
+                <FaUserCircle size={28} />
               </button>
-              <button
-                onClick={handleLogout}
-                className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-              >
-                Logout
-              </button>
+              {dropdownVisible && (
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-lg border z-20">
+                  <button
+                    onClick={handleProfileClick}
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                  >
+                    My Profile
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           )}
+
+          {/* Sign-In Button for Large Screens */}
+          {!authState.isAuthenticated && (
+            <button
+              onClick={() => navigate("/login")}
+              className="hidden lg:inline-block px-4 py-2 rounded-lg bg-yellow-400 text-black hover:bg-yellow-500"
+            >
+              Sign In
+            </button>
+          )}
+
+          {/* Hamburger Menu for Small Screens */}
+          <div className="lg:hidden">
+            <button onClick={toggleMenu} className="text-black">
+              {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+            </button>
+          </div>
         </div>
-      ) : (
-        <button
-          onClick={() => navigate("/login")}
-          className="ml-4 px-4 py-2 rounded-lg bg-yellow-400"
-        >
-          Sign In
-        </button>
+      </div>
+
+      {/* Mobile Search Bar */}
+      {menuOpen && (
+        <div className="flex lg:hidden mt-4">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="flex w-full items-center bg-white p-1 border rounded-lg"
+          >
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="p-2 flex-grow focus:outline-none rounded-l-lg"
+            />
+            <button
+              type="submit"
+              className="bg-gray-300 p-2 rounded-r-lg flex items-center justify-center"
+            >
+              <BiSearch size={20} />
+            </button>
+          </form>
+        </div>
       )}
     </nav>
   );
