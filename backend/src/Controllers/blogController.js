@@ -3,7 +3,7 @@ import { validationResult } from "express-validator"; // Input validation
 
 // Create a new blog
 export const createBlog = async (req, res) => {
-  const { title, description, category, image } = req.body;
+  const { title, description, category } = req.body;
 
   // Validate request inputs
   const errors = validationResult(req);
@@ -18,13 +18,20 @@ export const createBlog = async (req, res) => {
       return res.status(400).json({ message: "Blog title already exists" });
     }
 
+    // Check if an image file was uploaded
+    const image = req.file ? req.file.path : null;
+    if (!image) {
+      return res.status(400).json({ message: "Image is required" });
+    }
+
     // Create and save a new blog
+    let link = `localhost:8000/${req.file.filename}`;
     const newBlog = new Blog({
       title,
       description,
       category,
-      image,
-      creator: req._id,
+      image: link,
+      creator: req._id, // Assuming req._id is set for the logged-in user
     });
     await newBlog.save();
 
@@ -32,6 +39,10 @@ export const createBlog = async (req, res) => {
       message: "Blog created successfully",
       blog: newBlog,
     });
+
+    // Debugging logs
+    // console.log("Request Body:", req.body);
+    // console.log("Uploaded File:", req.file);
   } catch (error) {
     console.error("Error creating blog:", error);
     res.status(500).json({ message: "Server error" });
@@ -75,7 +86,7 @@ export const getBlogById = async (req, res) => {
 // Update a blog
 export const updateBlog = async (req, res) => {
   const { id } = req.params;
-  const { title, description, category, image } = req.body;
+  const { title, description, category } = req.body;
 
   // Validate request inputs
   const errors = validationResult(req);
@@ -84,15 +95,23 @@ export const updateBlog = async (req, res) => {
   }
 
   try {
-    const updatedBlog = await Blog.findByIdAndUpdate(
-      id,
-      { title, description, category, image },
-      { new: true, runValidators: true } // Enforce validation on update
-    );
-
-    if (!updatedBlog) {
+    // Find the blog by ID
+    const blog = await Blog.findById(id);
+    if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
+
+    // Handle the uploaded image file
+    const image = req.file ? `localhost:8000/${req.file.filename}` : blog.image;
+
+    // Update the blog fields
+    blog.title = title || blog.title;
+    blog.description = description || blog.description;
+    blog.category = category || blog.category;
+    blog.image = image;
+
+    // Save the updated blog
+    const updatedBlog = await blog.save();
 
     res.status(200).json({
       message: "Blog updated successfully",

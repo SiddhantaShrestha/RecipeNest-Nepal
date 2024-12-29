@@ -84,6 +84,7 @@ const blogSchema = new mongoose.Schema(
       //   message: "Invalid URL format for image",
       // },
     },
+    //pass image --> upload image to server --> link --> store link to database
     creator: {
       type: mongoose.Types.ObjectId, // Reference to the user who created the blog
       ref: "Register",

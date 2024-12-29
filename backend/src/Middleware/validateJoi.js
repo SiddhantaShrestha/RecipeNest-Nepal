@@ -2,7 +2,7 @@ import Joi from "joi";
 
 // Validation schema for creating a blog
 export const blogCreationValidation = Joi.object({
-  title: Joi.string().min(3).max(100).required(),
+  // title: Joi.string().min(3).max(100).required(),
   description: Joi.string().min(10).required(),
   category: Joi.string()
     .valid("Beginner", "Cuisine", "Health", "Dessert", "Tips")

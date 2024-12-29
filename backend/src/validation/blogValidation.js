@@ -12,16 +12,12 @@ export const blogCreationValidation = Joi.object({
     "string.min": "Description must be at least 10 characters long.",
   }),
   category: Joi.string()
-    .valid("Beginner", "Cuisine", "Health", "Dessert", "Tips")
+    .valid("Beginner", "Cuisine", "Health", "Dessert", "Tips", "Low Carb")
     .required()
     .messages({
       "string.empty": "Category is required.",
       "any.only": "Category must be one of the predefined values.",
     }),
-  image: Joi.string().uri().required().messages({
-    "string.empty": "Image URL is required.",
-    "string.uri": "Image must be a valid URL.",
-  }),
 });
 
 // Blog update validation schema
@@ -39,9 +35,6 @@ export const blogUpdateValidation = Joi.object({
     .messages({
       "any.only": "Category must be one of the predefined values.",
     }),
-  image: Joi.string().uri().optional().messages({
-    "string.uri": "Image must be a valid URL.",
-  }),
   tags: Joi.array().items(Joi.string().max(30)).max(10).optional().messages({
     "array.max": "You can specify up to 10 tags.",
     "string.max": "Each tag cannot exceed 30 characters.",

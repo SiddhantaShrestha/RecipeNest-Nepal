@@ -19,6 +19,7 @@ const BlogSection = () => {
     axios
       .get("http://localhost:8000/blogs")
       .then((response) => {
+        console.log(response.data.blogs); // Log the blogs array here
         setBlogs(response.data.blogs);
         setFilteredBlogs(response.data.blogs); // Initialize filteredBlogs with all blogs
         setLoading(false);
@@ -146,10 +147,11 @@ const BlogSection = () => {
                 className="blog-card p-4 bg-white shadow-md rounded-lg hover:shadow-lg"
               >
                 <img
-                  src={blog.image}
+                  src={`http://${blog.image}`}
                   alt={blog.title}
                   className="w-full h-40 object-cover rounded-md mb-4"
                 />
+
                 <h2 className="text-2xl font-semibold mb-2">{blog.title}</h2>
                 <p className="text-gray-600 mb-4">
                   {blog.description.substring(0, 100)}...

@@ -1,49 +1,82 @@
+// before working with multer first always make public folder(it is the common error that beginner does)
+//(public folder is where the file gets store)
 import multer from "multer";
 import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
 
-// Get the current directory using import.meta.url
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+let limits = {
+  fileSize: 1024 * 1024 * 2, //2Mb
+  // the max file size (in bytes)
+  // 1kb equal to 1024
+};
 
-// Ensure the uploads folder exists
-const uploadsDir = path.join(__dirname, "../../uploads");
-
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true }); // Create the uploads folder if it doesn't exist
-}
-
-const storage = multer.diskStorage({
+let storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    console.log("Destination:", uploadsDir);
-    cb(null, uploadsDir);
+    let staticFolder = "./uploads";
+
+    cb(null, staticFolder);
+
+    //vvvimp  ./means root (main) folder
+    // note you must make public  folder manually other it will through (error) like no such file or directory
   },
+  //destination give the folder location where file is place
+
   filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${file.originalname}`;
-    console.log("Filename:", uniqueName);
-    cb(null, uniqueName);
+    // any file has key and value
+    //key is called as fieldName, value is called as originalname
+    let fileName = Date.now() + file.originalname;
+    cb(null, fileName);
   },
+  //filename give the name of file
 });
 
-// Define the upload middleware with file size and file filter checks
+let fileFilter = (req, file, cb) => {
+  let validExtensions = [
+    ".webp",
+    ".jpeg",
+    ".jpg",
+    ".JPG",
+    ".JPEG",
+    ".png",
+    ".svg",
+    ".doc",
+    ".pdf",
+    ".mp4",
+    ".PNG",
+  ];
+
+  let originalName = file.originalname;
+  let originalExtension = path.extname(originalName); //note path module is inbuilt module(package) of node js (ie no need to install path package)
+  let isValidExtension = validExtensions.includes(originalExtension);
+
+  if (isValidExtension) {
+    cb(null, true);
+    //true =>it means  pass such type of file
+    //note null represent error since there is no error this error is null
+  } else {
+    cb(new Error("File is not supported"), false);
+
+    //false means don't pass such type of file
+  }
+};
+
 const upload = multer({
-  storage,
-  limits: {
-    fileSize: 2 * 1024 * 1024, // 2 MB size limit
-  },
-  fileFilter: (req, file, cb) => {
-    const fileTypes = /jpeg|png/;
-    const mimeType = fileTypes.test(file.mimetype);
-    const extName = fileTypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-    if (mimeType && extName) {
-      return cb(null, true); // File type is valid
-    } else {
-      return cb(new Error("Only JPEG and PNG files are allowed.")); // Invalid file type
-    }
-  },
+  storage: storage, //we define the location in server where the file is store and control the fileName
+  fileFilter: fileFilter, //we filter (generally) according to extension
+  limits: limits, //we filter file according to its size
 });
 
 export default upload;
+
+// vvvvvvvvvvvvvvvimp
+//upload midddleware  does following thing
+// 1) upload single image if upload.single is used  or upload multiple image if upload.multiple is used
+//2) add body(to get req.body in file data you must use multer) and file(or files) to request ie you can get req.body and req.file
+//3 note req.file for upload.singe and req.files for upload.array
+//VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVIIIIIIMP
+//you must use upload middler to get form data.
+
+//in simple word to use form data
+//  add expressApp.use(urlencoded({ extended: true }));  at index.js file
+//and use upload  middleware ( to get form data)
+
+//to use this middleware

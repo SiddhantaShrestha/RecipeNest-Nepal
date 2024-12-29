@@ -8,43 +8,49 @@ import {
   addComment,
   getMyBlogs,
 } from "../Controllers/blogController.js";
-import {
-  validateJoi,
-  blogCreationValidation,
-  blogUpdateValidation,
-} from "../Middleware/validateJoi.js";
 import isAuthenticated from "../Middleware/isAuthenticated.js";
 import checkBlogOwnership from "../Middleware/checkBlogOwnership.js";
+import upload from "../Middleware/multer.js";
+import validation from "../Middleware/validation.js";
+import {
+  blogCreationValidation,
+  blogUpdateValidation,
+} from "../validation/blogValidation.js";
 
 const blogRouter = Router();
 
 // Public routes
-blogRouter.route("/").get(getBlogs); // Get all blogs
-blogRouter.route("/:id").get(getBlogById); // Get a specific blog
+blogRouter.route("/").get(getBlogs);
+blogRouter.route("/:id").get(getBlogById);
 
-// Protected route for creating a blog
+// Create blog route
 blogRouter
   .route("/")
-  .post(isAuthenticated, validateJoi(blogCreationValidation), createBlog);
-
-// Protected route for updating a blog
-blogRouter
-  .route("/:id")
-  .patch(
+  .post(
     isAuthenticated,
-    checkBlogOwnership, // Only the creator can update
-    validateJoi(blogUpdateValidation),
-    updateBlog
-  )
-  .delete(
-    isAuthenticated,
-    checkBlogOwnership, // Only the creator can delete
-    deleteBlog
+    upload.single("image"),
+    validation(blogCreationValidation),
+    createBlog
   );
 
-// Protected route for fetching blogs created by the logged-in user
-blogRouter.route("/myBlogs").get(isAuthenticated, getMyBlogs);
+// Update blog route with image handling
+blogRouter.route("/:id").patch(
+  isAuthenticated,
+  checkBlogOwnership,
+  upload.single("image"), // Handle both multipart form data and JSON
+  validation(blogUpdateValidation),
+  updateBlog
+);
 
-blogRouter.route("/:id/comments").post(addComment); // Add a new comment
+// Delete blog route
+blogRouter
+  .route("/:id")
+  .delete(isAuthenticated, checkBlogOwnership, deleteBlog);
+
+// Get user's blogs route
+blogRouter.route("/myblogs").get(isAuthenticated, getMyBlogs);
+
+// Comment route
+blogRouter.route("/:id/comments").post(addComment);
 
 export default blogRouter;

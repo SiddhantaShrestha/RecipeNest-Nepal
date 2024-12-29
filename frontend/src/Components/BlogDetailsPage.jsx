@@ -42,9 +42,9 @@ const BlogDetailsPage = () => {
     <div className="blog-details-page p-6 lg:p-12">
       <h1 className="text-4xl font-bold mb-6">{blog.title}</h1>
       <img
-        src={blog.image}
+        src={`http://${blog.image}`}
         alt={blog.title}
-        className="w-full h-64 object-cover mb-4"
+        className="w-full h-40 object-cover rounded-md mb-4"
       />
       <p className="text-gray-700 mb-4">{blog.description}</p>
 

@@ -3,10 +3,9 @@ import axios from "axios";
 import { Formik, Form } from "formik";
 import FormikInput from "./FormikComponents/FormikInput";
 import FormikTextArea from "./FormikComponents/FormikTextArea";
-import FormikCategorySelect from "./FormikComponents/FormikCategorySelect"; // Reuse the FormikCategorySelect
-import Navbar from "./Navbar"; // Import Navbar component
+import FormikCategorySelect from "./FormikComponents/FormikCategorySelect";
+import Navbar from "./Navbar";
 
-// Form validation function
 const validate = (values) => {
   const errors = {};
 
@@ -18,11 +17,6 @@ const validate = (values) => {
     errors.description = "Description is required";
   }
 
-  const urlPattern = /^(http|https):\/\/[^ "]+$/;
-  if (values.image && !urlPattern.test(values.image)) {
-    errors.image = "Please enter a valid image URL";
-  }
-
   if (!values.category) {
     errors.category = "Category is required";
   }
@@ -31,11 +25,12 @@ const validate = (values) => {
 };
 
 const CreateBlogPage = () => {
-  // Initial values for Formik
+  const [imagePreview, setImagePreview] = useState(null);
+
   const initialValues = {
     title: "",
     description: "",
-    category: "", // Initially empty string or null, will be set by FormikCategorySelect
+    category: "",
     image: "",
   };
 
@@ -47,10 +42,16 @@ const CreateBlogPage = () => {
       return;
     }
 
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("description", values.description);
+    formData.append("category", values.category);
+    formData.append("image", values.image);
+
     axios
-      .post("http://localhost:8000/blogs", values, {
+      .post("http://localhost:8000/blogs", formData, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       })
@@ -66,12 +67,25 @@ const CreateBlogPage = () => {
       });
   };
 
+  const handleImageChange = (event, setFieldValue) => {
+    const file = event.currentTarget.files[0];
+    setFieldValue("image", file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
   return (
     <div>
-      {/* Navbar added here */}
       <Navbar />
 
-      {/* Form section */}
       <div className="create-blog-page p-6 lg:p-12">
         <h1 className="text-4xl font-bold mb-6 text-center">Create New Blog</h1>
         <Formik
@@ -80,7 +94,7 @@ const CreateBlogPage = () => {
           onSubmit={handleSubmit}
         >
           {({ setFieldValue, values, isSubmitting }) => (
-            <Form>
+            <Form className="max-w-2xl mx-auto">
               <div className="mb-4">
                 <FormikInput
                   name="title"
@@ -104,23 +118,64 @@ const CreateBlogPage = () => {
                   name="category"
                   selectedCategory={values.category}
                   setFieldValue={setFieldValue}
-                  required={true} // Make the category field required
+                  required={true}
                 />
               </div>
 
               <div className="mb-4">
-                <FormikInput
+                <label htmlFor="image" className="block font-bold mb-1">
+                  Image
+                </label>
+                <input
+                  id="image"
                   name="image"
-                  label="Image URL"
-                  required={true}
-                  placeholder="Enter image URL"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleImageChange(event, setFieldValue)}
+                  required
+                  className="border py-2 px-3 rounded w-full"
                 />
+
+                {/* Image Preview Section */}
+                {imagePreview && (
+                  <div className="mt-4">
+                    <p className="font-bold mb-2">Image Preview:</p>
+                    <div className="relative w-full max-w-md mx-auto">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-64 object-cover rounded-lg shadow-md"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImagePreview(null);
+                          setFieldValue("image", "");
+                        }}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="py-2 px-4 bg-[#8b5e34] text-white rounded-lg"
+                className="w-full py-2 px-4 bg-[#8b5e34] text-white rounded-lg hover:bg-[#724c2a] transition-colors"
               >
                 {isSubmitting ? "Submitting..." : "Create Blog"}
               </button>
