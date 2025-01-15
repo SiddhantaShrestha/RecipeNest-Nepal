@@ -3,11 +3,13 @@ import {
   createRegister,
   deleteUser,
   forgotPassword,
+  getBookmarkedRecipes,
   loginUser,
   myProfile,
   readAllUser,
   readSpecificUser,
   resetPassword,
+  toggleBookmark,
   updatePassword,
   updateProfile,
   updateSpecificUser,
@@ -53,6 +55,23 @@ registerRouter
     updateSpecificUser
   ) // Admin and superadmin can update without token
   .delete(isAuthenticated, authorized(["superadmin"]), deleteUser);
+
+registerRouter.route("/toggle-bookmark").post(isAuthenticated, toggleBookmark);
+
+registerRouter.route("/bookmarks").get(isAuthenticated, getBookmarkedRecipes);
+
+registerRouter.route("/bookmarks").get(
+  (req, res, next) => {
+    console.log("Pre-auth middleware hit");
+    next();
+  },
+  isAuthenticated,
+  (req, res, next) => {
+    console.log("Post-auth middleware hit");
+    next();
+  },
+  getBookmarkedRecipes
+);
 
 export default registerRouter;
 

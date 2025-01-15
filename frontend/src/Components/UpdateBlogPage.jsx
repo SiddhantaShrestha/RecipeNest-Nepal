@@ -1,50 +1,50 @@
+// src/components/UpdateBlogPage.js
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBlog } from "../slices/blogsSlice"; // Import the fetchBlog action
 import axios from "axios";
 import { Formik, Form } from "formik";
 import FormikInput from "./FormikComponents/FormikInput";
 import FormikTextArea from "./FormikComponents/FormikTextArea";
 import FormikCategorySelect from "./FormikComponents/FormikCategorySelect";
-import Navbar from "./Navbar"; // Import the Navbar component
+import Navbar from "./Navbar";
 
 const UpdateBlogPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+
+  // Access blog and loading states from Redux
+  const { blog, isLoading } = useSelector((state) => state.blogs);
+
   const [imagePreview, setImagePreview] = useState(null);
-  const [initialValues, setInitialValues] = useState({
-    title: "",
-    description: "",
-    category: "Beginner",
-    image: "",
-  });
 
-  // Fetch blog data for initial values
-  // Fetch blog data for initial values
+  // Fetch blog when component mounts
   useEffect(() => {
-    axios
-      .get(`http://localhost:8000/blogs/${id}`)
-      .then((response) => {
-        const { title, description, category, image } = response.data.blog;
+    dispatch(fetchBlog(id)); // Dispatch fetchBlog action to load the blog by ID
+  }, [id, dispatch]);
 
-        // Ensure the image URL has the correct protocol
-        const imageUrl =
-          image.startsWith("http://") || image.startsWith("https://")
-            ? image
-            : `http://${image}`;
+  // Show loading message while fetching
+  if (isLoading) return <p>Loading...</p>;
 
-        setInitialValues({ title, description, category, image: imageUrl });
-        setImagePreview(imageUrl);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("Failed to load blog data.");
-        setLoading(false);
-      });
-  }, [id]);
+  // Handle image preview logic
+  const handleImageChange = (event, setFieldValue) => {
+    const file = event.currentTarget.files[0];
+    setFieldValue("image", file);
 
-  // Validation function for Formik
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
+  // Form validation
   const validate = (values) => {
     const errors = {};
 
@@ -63,23 +63,7 @@ const UpdateBlogPage = () => {
     return errors;
   };
 
-  // Handle image change and preview
-  const handleImageChange = (event, setFieldValue) => {
-    const file = event.currentTarget.files[0];
-    setFieldValue("image", file);
-
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
-    }
-  };
-
-  // Submit handler for Formik
+  // Submit handler for updating the blog
   const handleSubmit = (values, { setSubmitting }) => {
     const token = localStorage.getItem("authToken");
 
@@ -105,7 +89,7 @@ const UpdateBlogPage = () => {
       })
       .then(() => {
         alert("Blog updated successfully!");
-        navigate(`/blog/${id}`); // Redirect to the updated blog details page
+        navigate(`/blog/${id}`);
       })
       .catch((err) => {
         console.error(err.response ? err.response.data : err.message);
@@ -116,18 +100,22 @@ const UpdateBlogPage = () => {
       });
   };
 
-  if (loading) return <p>Loading...</p>;
+  // Form initial values from Redux blog data
+  const initialValues = {
+    title: blog?.title || "",
+    description: blog?.description || "",
+    category: blog?.category || "Beginner",
+    image: blog?.image || "",
+  };
 
   return (
     <div>
-      {/* Navbar included at the top */}
       <Navbar />
-
       <div className="update-blog-page p-6 lg:p-12">
         <h1 className="text-4xl font-bold mb-6 text-center">Update Blog</h1>
         <Formik
           initialValues={initialValues}
-          enableReinitialize={true} // Ensures Formik updates initial values when data is fetched
+          enableReinitialize={true} // Reinitialize form when blog data is loaded
           validate={validate}
           onSubmit={handleSubmit}
         >
@@ -156,7 +144,7 @@ const UpdateBlogPage = () => {
                   name="category"
                   selectedCategory={values.category}
                   setFieldValue={setFieldValue}
-                  required={true} // Make the category field required
+                  required={true}
                 />
               </div>
 
@@ -173,7 +161,6 @@ const UpdateBlogPage = () => {
                   className="border py-2 px-3 rounded w-full"
                 />
 
-                {/* Image Preview Section */}
                 {imagePreview && (
                   <div className="mt-4">
                     <p className="font-bold mb-2">Image Preview:</p>

@@ -1,13 +1,15 @@
-import React, { useContext } from "react";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux"; // To dispatch actions
+import { login } from "../slices/authSlice"; // Import the login action
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormikInput from "./FormikComponents/FormikInput";
 import axios from "axios";
-import { AuthContext } from "../AuthContext";
 import "../CSS/auth.css";
 
 const Signup = () => {
-  const { login } = useContext(AuthContext); // Access the login function from context
+  const dispatch = useDispatch(); // Hook to dispatch actions
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialValues = {
     name: "",
@@ -35,7 +37,8 @@ const Signup = () => {
       .required("Confirm your password"),
   });
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+  const handleSubmit = async (values, { resetForm }) => {
+    setIsSubmitting(true);
     try {
       const response = await axios.post("http://localhost:8000/register", {
         name: values.name,
@@ -47,8 +50,8 @@ const Signup = () => {
       });
 
       // On successful signup, log in the user
-      const { user, token } = response.data;
-      login(user, token); // Update global authentication state
+      const { user, token, expirationDate } = response.data;
+      dispatch(login({ token, user, expirationDate })); // Dispatch login action to update state
 
       alert("Account created successfully! Please verify your email.");
       resetForm();
@@ -59,7 +62,7 @@ const Signup = () => {
       );
       alert(error.response?.data?.message || "Something went wrong");
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -126,6 +129,7 @@ const Signup = () => {
                 <button
                   type="submit"
                   className="w-full py-2 text-lg bg-[#8b5e34] text-white rounded-md cursor-pointer"
+                  disabled={isSubmitting}
                 >
                   Sign Up
                 </button>

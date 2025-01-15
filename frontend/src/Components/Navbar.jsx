@@ -1,16 +1,21 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa"; // Icons
 import { BiSearch } from "react-icons/bi"; // Search icon
-import { AuthContext } from "../AuthContext";
 import navImage2 from "../Images/RecipeNest Logo 2.png";
 
 const Navbar = () => {
-  const { authState, logout } = useContext(AuthContext);
+  const [authToken, setAuthToken] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // Hamburger menu state
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check for token in localStorage on component mount
+    const token = localStorage.getItem("authToken");
+    setAuthToken(token);
+  }, []);
 
   const handleSearchChange = (e) => setSearchQuery(e.target.value);
 
@@ -29,20 +34,22 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem("authToken"); // Remove the token from localStorage
+    setAuthToken(null); // Update the state
     navigate("/login");
     setDropdownVisible(false);
   };
 
   return (
-    <nav className="bg-orange-100 p-4 shadow-md relative">
-      <div className="flex items-center justify-between">
+    <nav className="bg-white p-4 shadow-md relative" style={{ height: "60px" }}>
+      <div className="flex items-center justify-between h-full">
         {/* Logo */}
         <div className="flex items-center flex-shrink-0">
           <img
             src={navImage2}
             alt="RecipeNest Logo"
-            className="h-10 w-auto object-contain"
+            className="object-contain"
+            style={{ width: "50px", height: "30px", borderRadius: "15px" }}
           />
         </div>
 
@@ -112,10 +119,9 @@ const Navbar = () => {
         </div>
 
         {/* Right Section: Hamburger Menu & Auth */}
-        {/* Right Section: User Auth & Hamburger Menu */}
         <div className="flex items-center space-x-4">
           {/* Profile Dropdown for Larger Screens */}
-          {authState.isAuthenticated && (
+          {authToken && (
             <div className="hidden lg:flex relative">
               <button
                 onClick={toggleDropdown}
@@ -143,7 +149,7 @@ const Navbar = () => {
           )}
 
           {/* Sign-In Button for Large Screens */}
-          {!authState.isAuthenticated && (
+          {!authToken && (
             <button
               onClick={() => navigate("/login")}
               className="hidden lg:inline-block px-4 py-2 rounded-lg bg-yellow-400 text-black hover:bg-yellow-500"

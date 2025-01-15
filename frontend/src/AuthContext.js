@@ -6,24 +6,26 @@ export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState(() => {
     const token = localStorage.getItem("authToken");
     const user = localStorage.getItem("user");
-
-    let parsedUser = null;
-    try {
-      if (user) {
-        parsedUser = JSON.parse(user);
-      }
-    } catch (error) {
-      console.error("Failed to parse user data:", error);
-      parsedUser = null;
-    }
-
     const expirationDate = localStorage.getItem("tokenExpiration");
 
-    if (token && expirationDate && Date.now() < expirationDate) {
-      return { isAuthenticated: true, token, user: parsedUser };
+    // Add debug logging
+    console.log("Initial auth state check:", {
+      hasToken: !!token,
+      hasUser: !!user,
+      expiration: expirationDate,
+      now: Date.now(),
+    });
+
+    try {
+      if (token && expirationDate && Date.now() < parseInt(expirationDate)) {
+        const parsedUser = user ? JSON.parse(user) : null;
+        return { isAuthenticated: true, token, user: parsedUser };
+      }
+    } catch (error) {
+      console.error("Auth state initialization error:", error);
     }
 
-    // Clear invalid or expired data
+    // Clear storage if token is invalid or expired
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
     localStorage.removeItem("tokenExpiration");
@@ -32,33 +34,36 @@ export const AuthProvider = ({ children }) => {
   });
 
   const login = (token, user) => {
-    const tokenExpirationTime = 3600 * 1000; // 1 hour in milliseconds
+    const tokenExpirationTime = 24 * 3600 * 1000; // Increase to 24 hours
     const expirationDate = Date.now() + tokenExpirationTime;
 
     try {
       localStorage.setItem("authToken", token);
       localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("tokenExpiration", expirationDate);
+      localStorage.setItem("tokenExpiration", expirationDate.toString());
+
+      console.log("Login data saved:", {
+        token: token.substring(0, 20) + "...",
+        expirationDate,
+        user,
+      });
+
+      setAuthState({ isAuthenticated: true, token, user });
+
+      // Set timeout for auto-logout
+      const timeoutId = setTimeout(logout, tokenExpirationTime);
+      return () => clearTimeout(timeoutId);
     } catch (error) {
       console.error("Failed to save auth data:", error);
     }
-
-    setAuthState({ isAuthenticated: true, token, user });
-
-    // Set a timeout to auto-logout when the token expires
-    setTimeout(logout, tokenExpirationTime);
   };
 
   const logout = () => {
-    try {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      localStorage.removeItem("tokenExpiration");
-    } catch (error) {
-      console.error("Failed to clear auth data:", error);
-    } finally {
-      setAuthState({ isAuthenticated: false, token: null, user: null });
-    }
+    console.log("Logging out, clearing auth data");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("tokenExpiration");
+    setAuthState({ isAuthenticated: false, token: null, user: null });
   };
 
   return (

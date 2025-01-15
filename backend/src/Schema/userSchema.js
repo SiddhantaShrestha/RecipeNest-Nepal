@@ -13,7 +13,7 @@ let registerSchema = Schema(
     email: {
       type: String,
       required: [true, "email is required."],
-      unique: true, // Ensure the email is unique
+      unique: true,
     },
     contact: {
       type: String,
@@ -30,11 +30,19 @@ let registerSchema = Schema(
     },
     role: {
       type: String,
+      enum: ["user", "admin", "superadmin"],
+      default: "user",
     },
     isVerifiedEmail: {
       type: Boolean,
       default: false,
     },
+    bookmarkedRecipes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Recipe",
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -119,6 +119,7 @@ export const loginUser = async (req, res, next) => {
         if (isValidpassword) {
           let infoObj = {
             _id: user._id,
+            role: user.role, // Include the user's role in the token
           };
           let expiryInfo = {
             expiresIn: "365d",
@@ -380,6 +381,89 @@ export const resetPassword = async (req, res, next) => {
     });
   } catch (error) {
     res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const toggleBookmark = async (req, res) => {
+  try {
+    const { recipeId } = req.body;
+    const userId = req._id; // This comes from your isAuthenticated middleware
+
+    const user = await Register.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const bookmarkIndex = user.bookmarkedRecipes.indexOf(recipeId);
+
+    if (bookmarkIndex === -1) {
+      // Add bookmark
+      user.bookmarkedRecipes.push(recipeId);
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        isBookmarked: true,
+        message: "Recipe bookmarked successfully",
+      });
+    } else {
+      // Remove bookmark
+      user.bookmarkedRecipes.splice(bookmarkIndex, 1);
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        isBookmarked: false,
+        message: "Recipe removed from bookmarks",
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getBookmarkedRecipes = async (req, res) => {
+  console.log("getBookmarkedRecipes called with:", {
+    userId: req._id,
+    headers: req.headers,
+  });
+
+  try {
+    if (!req._id) {
+      console.log("No user ID in request");
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const user = await Register.findById(req._id).populate("bookmarkedRecipes");
+    console.log("User found:", !!user);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Bookmarked recipes fetched successfully",
+      bookmarkedRecipes: user.bookmarkedRecipes,
+    });
+  } catch (error) {
+    console.error("Error in getBookmarkedRecipes:", error);
+    res.status(500).json({
       success: false,
       message: error.message,
     });

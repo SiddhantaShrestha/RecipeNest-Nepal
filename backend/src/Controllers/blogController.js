@@ -68,7 +68,8 @@ export const getBlogById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const blog = await Blog.findById(id);
+    const blog = await Blog.findById(id).populate("comments.user", "username"); // Add this line to populate user info
+
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
@@ -142,29 +143,41 @@ export const deleteBlog = async (req, res) => {
 
 export const addComment = async (req, res) => {
   const { id } = req.params; // Blog ID
-  const { user, text } = req.body; // Comment fields
+  const { text } = req.body;
+  const userId = req.user._id || req._id; // Try both options
 
   // Input validation
-  if (!user || !text) {
-    return res
-      .status(400)
-      .json({ message: "User and text fields are required." });
+  if (!text) {
+    return res.status(400).json({ message: "Comment text is required." });
   }
 
   try {
-    // Find blog and push new comment
     const blog = await Blog.findById(id);
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
 
-    const newComment = { user, text, createdAt: new Date() };
+    const newComment = {
+      user: userId,
+      text,
+      createdAt: new Date(),
+    };
+
     blog.comments.push(newComment);
     await blog.save();
 
-    res
-      .status(201)
-      .json({ message: "Comment added successfully", comment: newComment });
+    // Get the newly added comment with populated user data
+    const updatedBlog = await Blog.findById(id).populate(
+      "comments.user",
+      "username"
+    );
+
+    const addedComment = updatedBlog.comments[updatedBlog.comments.length - 1];
+
+    res.status(201).json({
+      message: "Comment added successfully",
+      comment: addedComment,
+    });
   } catch (error) {
     console.error("Error adding comment:", error);
     res.status(500).json({ message: "Server error" });

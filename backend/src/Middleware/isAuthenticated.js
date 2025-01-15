@@ -3,9 +3,11 @@ import { secretKey } from "../constant.js";
 
 let isAuthenticated = async (req, res, next) => {
   try {
+    console.log("Headers received:", req.headers);
     const tokenString = req.headers.authorization;
 
     if (!tokenString || !tokenString.startsWith("Bearer ")) {
+      console.log("Token string invalid:", { tokenString });
       return res.status(401).json({
         success: false,
         message: "Authorization token missing or invalid format",
@@ -13,21 +15,22 @@ let isAuthenticated = async (req, res, next) => {
     }
 
     const token = tokenString.split(" ")[1];
+    const decoded = await jwt.verify(token, secretKey);
 
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Token not provided",
-      });
-    }
+    // Pass both ID and role to the request object
+    req.user = decoded;
+    req._id = decoded._id;
+    req.role = decoded.role;
 
-    const user = await jwt.verify(token, secretKey);
-    req._id = user._id;
+    console.log("Authenticated user:", { id: req._id, role: req.role });
+
     next();
   } catch (error) {
+    console.error("Authentication error:", error);
     res.status(401).json({
       success: false,
       message: "Invalid or malformed token",
+      error: error.message,
     });
   }
 };

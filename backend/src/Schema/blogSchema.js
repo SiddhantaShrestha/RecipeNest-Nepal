@@ -3,10 +3,9 @@ import mongoose from "mongoose";
 // Define a sub-schema for comments
 export const commentSchema = new mongoose.Schema({
   user: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Register", // Reference to your user model
     required: true,
-    minlength: 1,
-    maxlength: 50,
   },
   text: {
     type: String,
@@ -15,10 +14,9 @@ export const commentSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now, // Automatically set the current timestamp
+    default: Date.now,
   },
 });
-
 const blogSchema = new mongoose.Schema(
   {
     title: {

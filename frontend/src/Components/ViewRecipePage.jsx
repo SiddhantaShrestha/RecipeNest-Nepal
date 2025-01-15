@@ -1,18 +1,85 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import Navbar from "./Navbar";
+import { setCurrentRecipe, setBookmarkStatus } from "../slices/recipeSlice";
 
 const ViewRecipePage = () => {
-  const { id } = useParams(); // Get the recipe ID from the URL
-  const [recipe, setRecipe] = useState(null);
+  const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  const token = localStorage.getItem("authToken");
+  const recipe = useSelector((state) => state.recipes.currentRecipe);
+  const isBookmarked = useSelector((state) => state.recipes.isBookmarked);
+
+  // Fetch recipe and bookmark status
   useEffect(() => {
+    // Fetch recipe details
     axios
       .get(`http://localhost:8000/recipes/${id}`)
-      .then((response) => setRecipe(response.data.recipe))
-      .catch((error) => console.error("Error fetching recipe:", error));
-  }, [id]);
+      .then((response) => {
+        dispatch(setCurrentRecipe(response.data.recipe));
+      })
+      .catch((error) => {
+        console.error("Recipe fetch error:", error);
+      });
+
+    // Fetch bookmarked recipes to check status
+    if (token) {
+      axios
+        .get("http://localhost:8000/register/bookmarks", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          const bookmarkedRecipes = response.data.bookmarkedRecipes;
+          dispatch(
+            setBookmarkStatus(
+              bookmarkedRecipes.some((recipe) => recipe._id === id)
+            )
+          );
+        })
+        .catch((error) => {
+          console.error("Bookmark fetch error:", error);
+          if (error.response?.status === 401) {
+            navigate("/login");
+          }
+        });
+    }
+  }, [id, token, dispatch, navigate]);
+
+  // Handle bookmark toggle
+  const handleBookmarkToggle = async () => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/register/toggle-bookmark",
+        { recipeId: id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      dispatch(setBookmarkStatus(response.data.isBookmarked));
+      alert(response.data.message);
+    } catch (error) {
+      console.error("Bookmark toggle error:", error);
+      if (error.response?.status === 401) {
+        alert("You need to log in again.");
+        navigate("/login");
+      } else {
+        alert("Error bookmarking recipe. Please try again.");
+      }
+    }
+  };
 
   if (!recipe) {
     return (
@@ -23,49 +90,56 @@ const ViewRecipePage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate("/recipes")}
-        className="mb-4 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-      >
-        Back to Recipes
-      </button>
+    <div>
+      <Navbar />
+      <div className="w-full sm:max-w-7xl mx-auto sm:px-12 px-6 py-8">
+        {/* Recipe Title and Actions */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold">{recipe.title}</h1>
+          <div className="mt-4 flex justify-center space-x-4">
+            <button className="px-4 py-2 bg-green-400 text-white rounded-lg">
+              Premium
+            </button>
+            <button
+              onClick={handleBookmarkToggle}
+              className={`px-4 py-2 border rounded-lg flex items-center ${
+                isBookmarked
+                  ? "bg-green-400 text-white border-green-400"
+                  : "border-green-400 text-green-400"
+              }`}
+            >
+              {isBookmarked ? "Bookmarked" : "Bookmark"}
+            </button>
+          </div>
+        </div>
 
-      {/* Recipe Content */}
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* Recipe Image */}
+        {/* Main Recipe Image */}
         <img
-          src={recipe.image || "https://via.placeholder.com/500x300"}
+          src={recipe.image || "https://via.placeholder.com/800x400"}
           alt={recipe.title}
-          className="w-full h-64 object-cover"
+          className="w-full object-cover rounded-lg mb-8 max-h-96"
+          style={{ objectFit: "cover", objectPosition: "center" }}
         />
-        <div className="p-6">
-          {/* Recipe Title */}
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            {recipe.title}
-          </h1>
 
-          {/* Recipe Description */}
-          <p className="text-lg text-gray-700 mb-4">{recipe.description}</p>
-
-          {/* Preparation Time and Servings */}
-          <div className="mb-6">
-            <p className="text-lg font-medium text-gray-700">
-              <strong>Preparation Time:</strong> {recipe.prepTime} minutes
-            </p>
-            <p className="text-lg font-medium text-gray-700">
-              <strong>Servings:</strong> {recipe.servings}
-            </p>
+        {/* Recipe Details */}
+        <div className="space-y-6">
+          {/* Preparation Time */}
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Preparation Time</h2>
+            <p className="text-gray-600">{recipe.prepTime}</p>
           </div>
 
-          {/* Ingredients Section */}
+          {/* Serving Size */}
           <div>
-            <h2 className="text-2xl font-semibold text-gray-800">
-              Ingredients
-            </h2>
-            <ul className="list-disc pl-5 mb-4">
-              {recipe.ingredients.map((ingredient, index) => (
+            <h2 className="text-xl font-semibold mb-2">Serving Size</h2>
+            <p className="text-gray-600">{recipe.servings}</p>
+          </div>
+
+          {/* Ingredients */}
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Ingredients Required</h2>
+            <ul className="list-decimal pl-5 space-y-2">
+              {recipe.ingredients?.map((ingredient, index) => (
                 <li key={index} className="text-gray-600">
                   {ingredient}
                 </li>
@@ -73,29 +147,32 @@ const ViewRecipePage = () => {
             </ul>
           </div>
 
-          {/* Steps Section */}
+          {/* Steps */}
           <div>
-            <h2 className="text-2xl font-semibold text-gray-800">Steps</h2>
-            <ol className="list-decimal pl-5">
-              {recipe.steps.map((step, index) => (
-                <li key={index} className="mb-4">
-                  <p className="text-gray-600">{step.description}</p>
+            <h2 className="text-xl font-semibold mb-4">Steps</h2>
+            <div className="space-y-6">
+              {recipe.steps?.map((step, index) => (
+                <div key={index}>
+                  <p className="text-gray-600 mb-4">
+                    <span className="font-semibold">Step {index + 1}:</span>{" "}
+                    {step.description}
+                  </p>
                   {step.image && (
                     <img
                       src={step.image}
                       alt={`Step ${index + 1}`}
-                      className="mt-2 w-full h-48 object-cover rounded-lg"
+                      className="w-full object-cover rounded-lg max-h-64 mb-4"
+                      style={{
+                        objectFit: "cover",
+                        objectPosition: "center",
+                        maxHeight: "300px",
+                      }}
                     />
                   )}
-                </li>
+                </div>
               ))}
-            </ol>
+            </div>
           </div>
-
-          {/* Category */}
-          <p className="mt-4 text-lg text-gray-500">
-            <strong>Category:</strong> {recipe.category}
-          </p>
         </div>
       </div>
     </div>

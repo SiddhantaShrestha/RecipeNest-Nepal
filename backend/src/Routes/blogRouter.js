@@ -51,6 +51,6 @@ blogRouter
 blogRouter.route("/myblogs").get(isAuthenticated, getMyBlogs);
 
 // Comment route
-blogRouter.route("/:id/comments").post(addComment);
+blogRouter.route("/:id/comments").post(isAuthenticated, addComment);
 
 export default blogRouter;

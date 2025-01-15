@@ -5,6 +5,9 @@ import FormikInput from "./FormikComponents/FormikInput";
 import FormikTextArea from "./FormikComponents/FormikTextArea";
 import FormikCategorySelect from "./FormikComponents/FormikCategorySelect";
 import Navbar from "./Navbar";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBlogs } from "../slices/blogsSlice"; // For updating blog state after creation
+import { logout } from "../slices/authSlice";
 
 const validate = (values) => {
   const errors = {};
@@ -26,6 +29,8 @@ const validate = (values) => {
 
 const CreateBlogPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
+  const { token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   const initialValues = {
     title: "",
@@ -34,11 +39,10 @@ const CreateBlogPage = () => {
     image: "",
   };
 
-  const handleSubmit = (values, { setSubmitting }) => {
-    const token = localStorage.getItem("authToken");
-
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     if (!token) {
       alert("You must be logged in to create a blog!");
+      dispatch(logout());
       return;
     }
 
@@ -48,23 +52,27 @@ const CreateBlogPage = () => {
     formData.append("category", values.category);
     formData.append("image", values.image);
 
-    axios
-      .post("http://localhost:8000/blogs", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
-        alert("Blog created successfully!");
-      })
-      .catch((err) => {
-        console.error(err.response ? err.response.data : err.message);
-        alert(err.response?.data?.message || "Failed to create blog.");
-      })
-      .finally(() => {
-        setSubmitting(false);
-      });
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/blogs",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("Blog created successfully!");
+      dispatch(fetchBlogs()); // Refresh the blogs list after creation
+      resetForm();
+      setImagePreview(null);
+    } catch (err) {
+      console.error(err.response ? err.response.data : err.message);
+      alert(err.response?.data?.message || "Failed to create blog.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleImageChange = (event, setFieldValue) => {
@@ -86,102 +94,93 @@ const CreateBlogPage = () => {
     <div>
       <Navbar />
 
-      <div className="create-blog-page p-6 lg:p-12">
-        <h1 className="text-4xl font-bold mb-6 text-center">Create New Blog</h1>
-        <Formik
-          initialValues={initialValues}
-          validate={validate}
-          onSubmit={handleSubmit}
-        >
-          {({ setFieldValue, values, isSubmitting }) => (
-            <Form className="max-w-2xl mx-auto">
-              <div className="mb-4">
-                <FormikInput
-                  name="title"
-                  label="Title"
-                  required={true}
-                  placeholder="Enter blog title"
-                />
-              </div>
+      <div
+        className="relative bg-cover bg-center bg-no-repeat min-h-screen"
+        style={{
+          backgroundImage: `url('/Images/RecipeBg.png')`,
+        }}
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
 
-              <div className="mb-4">
-                <FormikTextArea
-                  name="description"
-                  label="Description"
-                  required={true}
-                  placeholder="Enter blog description"
-                />
-              </div>
+        <div className="relative create-blog-page p-6 lg:p-12">
+          <h1 className="text-4xl font-bold mb-6 text-center text-white">
+            Create New Blog
+          </h1>
+          <Formik
+            initialValues={initialValues}
+            validate={validate}
+            onSubmit={handleSubmit}
+          >
+            {({ setFieldValue, values, isSubmitting }) => (
+              <Form className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+                <div className="mb-4">
+                  <FormikInput
+                    name="title"
+                    label="Title"
+                    required={true}
+                    placeholder="Enter blog title"
+                  />
+                </div>
 
-              <div className="mb-4">
-                <FormikCategorySelect
-                  name="category"
-                  selectedCategory={values.category}
-                  setFieldValue={setFieldValue}
-                  required={true}
-                />
-              </div>
+                <div className="mb-4">
+                  <FormikTextArea
+                    name="description"
+                    label="Description"
+                    required={true}
+                    placeholder="Enter blog description"
+                  />
+                </div>
 
-              <div className="mb-4">
-                <label htmlFor="image" className="block font-bold mb-1">
-                  Image
-                </label>
-                <input
-                  id="image"
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => handleImageChange(event, setFieldValue)}
-                  required
-                  className="border py-2 px-3 rounded w-full"
-                />
+                <div className="mb-4">
+                  <FormikCategorySelect
+                    name="category"
+                    selectedCategory={values.category}
+                    setFieldValue={setFieldValue}
+                    required={true}
+                  />
+                </div>
 
-                {/* Image Preview Section */}
-                {imagePreview && (
-                  <div className="mt-4">
-                    <p className="font-bold mb-2">Image Preview:</p>
-                    <div className="relative w-full max-w-md mx-auto">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-64 object-cover rounded-lg shadow-md"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setImagePreview(null);
-                          setFieldValue("image", "");
-                        }}
-                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
+                <div className="mb-4">
+                  <label htmlFor="image" className="block font-bold mb-1">
+                    Image
+                  </label>
+                  <input
+                    id="image"
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) =>
+                      handleImageChange(event, setFieldValue)
+                    }
+                    required
+                    className="border py-2 px-3 rounded w-full"
+                  />
+
+                  {imagePreview && (
+                    <div className="mt-4">
+                      <p className="font-bold mb-2">Image Preview:</p>
+                      <div className="relative w-full max-w-md mx-auto">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-64 object-cover rounded-lg shadow-md"
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-2 px-4 bg-[#8b5e34] text-white rounded-lg hover:bg-[#724c2a] transition-colors"
-              >
-                {isSubmitting ? "Submitting..." : "Create Blog"}
-              </button>
-            </Form>
-          )}
-        </Formik>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-2 px-4 bg-[#8b5e34] text-white rounded-lg hover:bg-[#724c2a] transition-colors"
+                >
+                  {isSubmitting ? "Submitting..." : "Create Blog"}
+                </button>
+              </Form>
+            )}
+          </Formik>
+        </div>
       </div>
     </div>
   );

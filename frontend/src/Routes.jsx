@@ -21,10 +21,15 @@ import UpdateBlogPage from "./Components/UpdateBlogPage.jsx";
 import Navbar from "./Components/Navbar.jsx";
 import AddRecipePage from "./Components/AddRecipePage.jsx";
 import RecipeListPage from "./Components/RecipeListPage.jsx";
+// import UpdateRecipePage from "./Components/UpdateRecipePage.jsx";
 import ViewRecipePage from "./Components/ViewRecipePage.jsx";
 import MyProfile from "./Components/MyProfile.jsx";
 import ChangePassword from "./Components/ChangePassword.jsx";
 import MyBlogs from "./Components/MyBlogs.jsx";
+import CheckDesign from "./Components/checkdesign.jsx";
+import SavedRecipes from "./Components/SavedRecipes.jsx";
+import MyRecipesPage from "./Components/MyRecipesPage.jsx";
+import EditRecipe from "./Components/EditRecipe.jsx";
 
 // Protected Route for authenticated pages
 const ProtectedRoute = ({ children }) => {
@@ -37,7 +42,7 @@ const AppRoutes = () => {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Signup />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/home" element={<HomePage />} />
@@ -49,10 +54,16 @@ const AppRoutes = () => {
         <Route path="/blog/:id" element={<BlogDetailsPage />} />
         <Route path="/blogs/edit/:id" element={<UpdateBlogPage />} />
         <Route path="/addrecipes" element={<AddRecipePage />} />
+        <Route path="/recipes/edit/:id" element={<EditRecipe />} />
         <Route path="/recipes" element={<RecipeListPage />} />
         <Route path="/recipes/:id" element={<ViewRecipePage />} />
+        {/* <Route path="/recipes/edit/:id" element={<UpdateRecipePage />} /> */}
+        <Route path="/my-recipes" element={<MyRecipesPage />} />
+
         <Route path="/my-profile" element={<MyProfile />} />
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/design" element={<CheckDesign />} />
+        <Route path="/saved-recipes" element={<SavedRecipes />} />
 
         {/* Protected Routes */}
         {/* <Route

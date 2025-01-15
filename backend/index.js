@@ -22,6 +22,13 @@ expressApp.get("/ping", (req, res) => {
   res.send("Test");
 });
 
+expressApp.use(
+  cors({
+    origin: "http://localhost:3000", // Frontend origin
+    credentials: true, // Allow cookies and headers
+  })
+);
+
 // Routes
 expressApp.use("/register", registerRouter); // User registration routes
 expressApp.use("/blogs", blogRouter); // Blog routes

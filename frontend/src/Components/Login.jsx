@@ -1,14 +1,15 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormikInput from "./FormikComponents/FormikInput";
 import axios from "axios";
 import "../CSS/auth.css";
-import { AuthContext } from "../AuthContext"; // Import AuthContext
+import { useDispatch } from "react-redux"; // Import useDispatch for dispatching actions
+import { login } from "../slices/authSlice"; // Import login action from authSlice
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Login = () => {
-  const { login } = useContext(AuthContext); // Access login function from context
+  const dispatch = useDispatch(); // Initialize the dispatch function from Redux
   const navigate = useNavigate(); // Use navigate hook from react-router-dom
 
   const initialValues = {
@@ -23,9 +24,8 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      console.log("Login Values", values);
+      console.log("Attempting login with:", values.email);
 
-      // Send a POST request to the backend
       const response = await axios.post(
         "http://localhost:8000/register/login",
         {
@@ -34,23 +34,35 @@ const Login = () => {
         }
       );
 
-      // Handle successful login
-      if (response.data.success) {
-        // Call the login method from AuthContext
-        login(response.data.token, response.data.user);
+      console.log("Login response:", {
+        success: response.data.success,
+        hasToken: !!response.data.token,
+        user: response.data.user,
+      });
 
-        // Redirect the user to the homepage or dashboard
-        navigate("/blog");
+      if (response.data.success && response.data.token) {
+        // Calculate expiration date (24 hours from now)
+        const expirationDate = Date.now() + 24 * 60 * 60 * 1000;
+
+        // Dispatch the login action with token, user data, and expiration
+        dispatch(
+          login({
+            token: response.data.token,
+            user: response.data.user,
+            expirationDate: expirationDate, // Add the calculated expiration date
+          })
+        );
+
+        // Add a small delay before navigation
+        setTimeout(() => {
+          navigate("/blog");
+        }, 100);
       } else {
-        // Handle unsuccessful login
-        alert(response.data.message || "Invalid credentials!");
+        alert(response.data.message || "Login failed - no token received");
       }
     } catch (error) {
-      console.error(
-        "Login error",
-        error.response?.data?.message || error.message
-      );
-      alert("An error occurred. Please try again.");
+      console.error("Login error:", error.response?.data || error);
+      alert(error.response?.data?.message || "An error occurred during login");
     } finally {
       setSubmitting(false);
     }

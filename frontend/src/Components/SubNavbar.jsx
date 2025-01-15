@@ -15,7 +15,6 @@ const SubNavbar = () => {
         >
           Profile Overview
         </NavLink>
-
         <NavLink
           to="/saved-recipes"
           className={({ isActive }) =>
@@ -26,7 +25,16 @@ const SubNavbar = () => {
         >
           Saved Recipes
         </NavLink>
-
+        <NavLink
+          to="/my-recipes"
+          className={({ isActive }) =>
+            `text-gray-700 font-medium hover:text-blue-500 ${
+              isActive ? "text-blue-600 border-b-2 border-blue-600" : ""
+            }`
+          }
+        >
+          My Recipes
+        </NavLink>
         <NavLink
           to="/subscriptions"
           className={({ isActive }) =>
@@ -37,7 +45,6 @@ const SubNavbar = () => {
         >
           Subscriptions
         </NavLink>
-
         <NavLink
           to="/my-orders"
           className={({ isActive }) =>
@@ -48,7 +55,6 @@ const SubNavbar = () => {
         >
           My Orders
         </NavLink>
-
         <NavLink
           to="/change-password"
           className={({ isActive }) =>
