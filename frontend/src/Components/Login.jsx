@@ -5,7 +5,7 @@ import FormikInput from "./FormikComponents/FormikInput";
 import axios from "axios";
 import "../CSS/auth.css";
 import { useDispatch } from "react-redux"; // Import useDispatch for dispatching actions
-import { login } from "../slices/authSlice"; // Import login action from authSlice
+import { login } from "../redux/features/auth/authSlice"; // Import login action from authSlice
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Login = () => {
@@ -27,7 +27,7 @@ const Login = () => {
       console.log("Attempting login with:", values.email);
 
       const response = await axios.post(
-        "http://localhost:8000/register/login",
+        "http://localhost:8000/api/users/login",
         {
           email: values.email,
           password: values.password,

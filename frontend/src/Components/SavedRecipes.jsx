@@ -20,7 +20,7 @@ const SavedRecipes = () => {
       const fetchBookmarkedRecipes = async () => {
         try {
           const response = await axios.get(
-            "http://localhost:8000/register/bookmarks",
+            "http://localhost:8000/api/users/bookmarks",
             {
               headers: {
                 Authorization: `Bearer ${token}`,

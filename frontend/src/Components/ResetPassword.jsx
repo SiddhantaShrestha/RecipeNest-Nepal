@@ -16,7 +16,9 @@ const ResetPassword = () => {
   };
 
   const validationSchema = Yup.object({
-    password: Yup.string().min(8, "Password must be at least 8 characters").required("Password is required"),
+    password: Yup.string()
+      .min(8, "Password must be at least 8 characters")
+      .required("Password is required"),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm Password is required"),
@@ -25,7 +27,7 @@ const ResetPassword = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const response = await axios.patch(
-        "http://localhost:8000/register/reset-password",
+        "http://localhost:8000/api/users/reset-password",
         {
           password: values.password,
         },
@@ -42,7 +44,10 @@ const ResetPassword = () => {
         alert(response.data.message || "Unable to reset password.");
       }
     } catch (error) {
-      console.error("Reset Password Error:", error.response?.data?.message || error.message);
+      console.error(
+        "Reset Password Error:",
+        error.response?.data?.message || error.message
+      );
       alert("An error occurred. Please try again.");
     } finally {
       setSubmitting(false);
@@ -57,7 +62,7 @@ const ResetPassword = () => {
           <p className="mb-4">You can now log in with your new password.</p>
           <button
             className="py-2 px-4 bg-[#8b5e34] text-white rounded"
-            onClick={() => window.location.href = "/login"}
+            onClick={() => (window.location.href = "/login")}
           >
             Back to Login
           </button>

@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SubNavbar from "./SubNavbar"; // Import SubNavbar component
 import Navbar from "./Navbar";
+import { Link } from "react-router-dom";
 
 const MyProfile = () => {
   const [profile, setProfile] = useState({});
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     contact: "",
     email: "",
   });
@@ -20,7 +22,7 @@ const MyProfile = () => {
   const fetchProfile = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/register/my-profile",
+        "http://localhost:8000/api/users/my-profile",
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
@@ -28,8 +30,10 @@ const MyProfile = () => {
         }
       );
       setProfile(response.data.data);
+      console.log(response.data.data);
       setFormData({
         name: response.data.data.name,
+        username: response.data.data.username,
         contact: response.data.data.contact,
         email: response.data.data.email,
       });
@@ -48,7 +52,7 @@ const MyProfile = () => {
     e.preventDefault();
     try {
       const response = await axios.patch(
-        "http://localhost:8000/register/update-profile",
+        "http://localhost:8000/api/users/update-profile",
         formData,
         {
           headers: {
@@ -73,7 +77,7 @@ const MyProfile = () => {
       {/* Profile Container */}
       <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg mt-6">
         <h1 className="text-2xl font-bold text-center mb-6">
-          Welcome, {profile.name}
+          Welcome, {profile.username}
         </h1>
 
         {/* View or Edit Profile */}
@@ -88,12 +92,22 @@ const MyProfile = () => {
             <p>
               <strong>Contact:</strong> {profile.contact}
             </p>
+            <p>
+              <strong>Status:</strong> {`${profile.isAdmin}`}
+            </p>
             <button
               onClick={() => setEditMode(true)}
               className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600"
             >
               Edit Profile
             </button>
+            I
+            <Link
+              to="/user-orders"
+              className="bg-pink-600 text-white py-2 px-4 rounded hover:bg-pink-700"
+            >
+              My Orders
+            </Link>
           </div>
         ) : (
           <form onSubmit={handleUpdateProfile} className="space-y-4">

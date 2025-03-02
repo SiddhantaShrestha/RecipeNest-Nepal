@@ -1,11 +1,12 @@
 import React from "react";
-import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
+import Navigation from "./Components/E-commerce components/Navigation";
 import axios from "axios";
-import store, { persistor } from "./redux/store";
-import AppRoutes from "./Routes";
 import { useDispatch, useSelector } from "react-redux";
-import { restoreAuth, updateUser } from "./slices/authSlice"; // Replace setUser with updateUser
+import { restoreAuth, updateUser } from "./slices/authSlice";
+import { Outlet } from "react-router-dom";
+import Navbar from "./Components/Navbar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Separate Authentication wrapper component
 const AuthWrapper = ({ children }) => {
@@ -13,12 +14,9 @@ const AuthWrapper = ({ children }) => {
   const { isAuthenticated, loading } = useSelector((state) => state.auth);
 
   React.useEffect(() => {
-    // Restore auth state
     const initializeAuth = async () => {
       try {
         await dispatch(restoreAuth()).unwrap();
-
-        // Check for token and fetch user data if token exists
         const token = localStorage.getItem("authToken");
         if (token) {
           const response = await axios.get(
@@ -29,8 +27,6 @@ const AuthWrapper = ({ children }) => {
               },
             }
           );
-
-          // Update user data in Redux store
           dispatch(updateUser(response.data.data));
         }
       } catch (error) {
@@ -44,7 +40,7 @@ const AuthWrapper = ({ children }) => {
   }, [dispatch, isAuthenticated, loading]);
 
   if (loading) {
-    return <div>Loading...</div>; // Or your loading component
+    return <div>Loading...</div>;
   }
 
   return children;
@@ -52,7 +48,30 @@ const AuthWrapper = ({ children }) => {
 
 // Main App component
 function App() {
-  return <AppRoutes />;
+  return (
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        limit={3}
+      />
+      {/* Uncomment AuthWrapper if you need it */}
+      {/* <AuthWrapper> */}
+      {/* <Navbar /> */}
+      <Navigation />
+      <main className="py-3">
+        <Outlet />
+      </main>
+      {/* </AuthWrapper> */}
+    </>
+  );
 }
 
 export default App;

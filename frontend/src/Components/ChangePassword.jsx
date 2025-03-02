@@ -21,7 +21,7 @@ const ChangePassword = () => {
 
     try {
       await axios.patch(
-        "http://localhost:8000/register/update-password",
+        "http://localhost:8000/api/users/update-password",
         {
           oldPassword,
           newPassword,
