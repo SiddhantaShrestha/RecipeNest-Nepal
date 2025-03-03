@@ -18,7 +18,6 @@ let registerSchema = Schema(
     contact: {
       type: String,
       required: [true, "contact is required."],
-      unique: true,
     },
     dob: {
       type: String,
@@ -28,10 +27,10 @@ let registerSchema = Schema(
       type: String,
       required: [true, "password is required."],
     },
-    role: {
-      type: String,
-      enum: ["user", "admin", "superadmin"],
-      default: "user",
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     isVerifiedEmail: {
       type: Boolean,

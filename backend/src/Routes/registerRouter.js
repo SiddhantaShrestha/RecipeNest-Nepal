@@ -19,6 +19,7 @@ import isAuthenticated from "../Middleware/isAuthenticated.js";
 import validation from "../Middleware/validation.js";
 import registerValidation from "../validation/registerValidation.js";
 import authorized from "../Middleware/authorized.js";
+import { authorizeAdmin } from "../Middleware/authMiddleware.js";
 
 //Register.create(data)
 //Register.find({})
@@ -48,13 +49,9 @@ registerRouter.route("/reset-password").patch(isAuthenticated, resetPassword);
 
 registerRouter
   .route("/:id")
-  .get(isAuthenticated, authorized(["admin", "superadmin"]), readSpecificUser)
-  .patch(
-    isAuthenticated,
-    authorized(["admin", "superadmin"]),
-    updateSpecificUser
-  ) // Admin and superadmin can update without token
-  .delete(isAuthenticated, authorized(["superadmin"]), deleteUser);
+  .get(isAuthenticated, authorized, readSpecificUser)
+  .patch(isAuthenticated, authorized, updateSpecificUser)
+  .delete(isAuthenticated, authorized, deleteUser);
 
 registerRouter.route("/toggle-bookmark").post(isAuthenticated, toggleBookmark);
 

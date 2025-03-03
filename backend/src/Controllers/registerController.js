@@ -3,10 +3,18 @@ import jwt from "jsonwebtoken";
 import { password, secretKey } from "../constant.js";
 import { Register } from "../Schema/model.js";
 import { sendMail } from "../utils/sendMail.js";
+import createToken from "../utils/createToken.js";
 
 export let createRegister = async (req, res) => {
   try {
     let data = req.body;
+
+    // Check if the request is from an existing admin
+    if (req.user && req.user.isAdmin) {
+      data.isAdmin = data.isAdmin || false;
+    } else {
+      data.isAdmin = false;
+    }
 
     // Check if email already exists
     let existingEmailUser = await Register.findOne({ email: data.email });
@@ -17,88 +25,108 @@ export let createRegister = async (req, res) => {
       });
     }
 
-    // Check if contact number already exists
-    let existingContactUser = await Register.findOne({ contact: data.contact });
-    if (existingContactUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Contact number is already in use.",
-      });
-    }
-
     // Hash the password
     let hashPassword = await bcrypt.hash(data.password, 10);
 
-    // Set the user data
-    data = {
+    // Create new user document
+    const userData = {
       ...data,
       isVerifiedEmail: false,
       password: hashPassword,
     };
 
     // Create new user
-    let result = await Register.create(data);
+    let newUser = await Register.create(userData);
 
-    // Generate token
-    let infoObj = {
-      _id: result._id,
-    };
+    // Generate token using only the user ID
+    const token = createToken(newUser._id);
 
-    let expiryInfo = {
-      expiresIn: "5d",
-    };
+    // Send verification email
+    try {
+      await sendMail({
+        from: "'RecipeNest Nepal' <sidmarkys2004@gmail.com>",
+        to: [data.email],
+        subject: "Account Created",
+        html: `
+          <h1>Your account has been created successfully.</h1>
+          <a href="http://localhost:3000/verify-email?token=${token}">Click here to verify your email.</a>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      // Continue with registration even if email fails
+    }
 
-    let token = await jwt.sign(infoObj, secretKey, expiryInfo);
-
-    // Send email with verification link
-    await sendMail({
-      from: "'RecipeNest Nepal' sidmarkys2004@gmail.com",
-      to: [data.email],
-      subject: "Account Created",
-      html: `
-        <h1>Your account has been created successfully.</h1>
-        <a href="http://localhost:3000/verify-email?token=${token}">Click here to verify your email.</a>
-      `,
-    });
-
+    // Return success response
     res.status(201).json({
       success: true,
-      message: "Register created successfully",
+      message:
+        "User created successfully. Please check your email for verification.",
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        username: newUser.username,
+        isVerifiedEmail: newUser.isVerifiedEmail,
+      },
     });
   } catch (error) {
+    console.error("Registration error:", error);
     res.status(400).json({
       success: false,
-      message: error.message,
+      message: error.message || "Registration failed",
     });
   }
 };
 
-export const verifyEmail = async (req, res, next) => {
+export const verifyEmail = async (req, res) => {
   try {
     let tokenString = req.headers.authorization;
-    let tokenArray = tokenString.split(" ");
-    let token = tokenArray[1];
-    // console.log(token);
+    if (!tokenString || !tokenString.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "No token provided or invalid token format",
+      });
+    }
 
-    //verify token
-    let infoObj = await jwt.verify(token, secretKey);
-    let userId = infoObj._id;
+    let token = tokenString.split(" ")[1];
+    console.log("Received token for verification:", token);
 
-    //Code to verify email
+    // Verify token using the same SECRET_KEY
+    let decoded = await jwt.verify(token, process.env.SECRET_KEY);
+    console.log("Decoded token:", decoded);
+
+    // Note: The token contains userId instead of _id
+    let userId = decoded.userId;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token structure",
+      });
+    }
+
+    // Update user verification status
     let result = await Register.findByIdAndUpdate(
       userId,
-      {
-        isVerifiedEmail: true,
-      },
-      {
-        new: true,
-      }
+      { isVerifiedEmail: true },
+      { new: true }
     );
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    console.log("Updated user:", result);
+
     res.status(200).json({
       success: true,
-      message: "email verified successfully",
+      message: "Email verified successfully",
     });
   } catch (error) {
+    console.error("Verification error:", error);
     res.status(400).json({
       success: false,
       message: error.message,
@@ -119,7 +147,7 @@ export const loginUser = async (req, res, next) => {
         if (isValidpassword) {
           let infoObj = {
             _id: user._id,
-            role: user.role, // Include the user's role in the token
+            isAdmin: user.isAdmin, // Include isAdmin in token
           };
           let expiryInfo = {
             expiresIn: "365d",
@@ -268,7 +296,7 @@ export const readSpecificUser = async (req, res, next) => {
 export let updateSpecificUser = async (req, res) => {
   let id = req.params.id;
   let data = req.body;
-  delete data.email;
+  // delete data.email;
   delete data.password;
 
   try {

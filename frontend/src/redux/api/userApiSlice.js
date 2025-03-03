@@ -25,6 +25,14 @@ export const userApiSlice = apiSlice.injectEndpoints({
       transformResponse: (response) => response.data,
       providesTags: (result, error, userId) => [{ type: "User", id: userId }],
     }),
+    getMyProfile: builder.query({
+      query: () => ({
+        url: `${BASE_URL}/api/users/my-profile`,
+        method: "GET",
+      }),
+      transformResponse: (response) => response.data,
+      providesTags: ["Profile"],
+    }),
     updateUser: builder.mutation({
       query: ({ userId, userData }) => ({
         url: `${BASE_URL}/api/users/${userId}`,
@@ -34,6 +42,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { userId }) => [
         { type: "User", id: userId },
         { type: "User", id: "LIST" },
+        "Profile",
       ],
     }),
     deleteUser: builder.mutation({
@@ -49,6 +58,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
 export const {
   useGetUsersQuery,
   useGetUserByIdQuery,
+  useGetMyProfileQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,
 } = userApiSlice;
