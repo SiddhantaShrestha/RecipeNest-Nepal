@@ -44,6 +44,8 @@ const Navbar = () => {
       console.error("Error fetching profile:", error.response?.data.message);
     }
   };
+
+  //for navigation
   const navigate = useNavigate();
 
   useEffect(() => {
