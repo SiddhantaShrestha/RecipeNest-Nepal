@@ -39,6 +39,7 @@ import EditRecipe from "./Components/EditRecipe.jsx";
 import ProtectedRoute from "./Components/ProtectedRoute.jsx";
 import AdminRoutes from "./Components/Admin/AdminRoutes.jsx";
 import UserList from "./Components/Admin/UserList.jsx";
+import CategoryList from "./Components/Admin/CategoryList.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -130,7 +131,9 @@ const router = createBrowserRouter(
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminRoutes />}>
         <Route path="userlist" element={<UserList />} />
+        <Route path="categorylist" element={<CategoryList />} />
       </Route>
+
       <Route path="*" element={<NotFound />} />
     </Route>
   )
