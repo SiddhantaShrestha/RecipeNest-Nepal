@@ -9,6 +9,7 @@ import recipeRouter from "./src/Routes/recipeRouter.js";
 import FileRouter from "./src/Routes/fileRouter.js";
 import cookieParser from "cookie-parser";
 import categoryRouter from "./src/Routes/categoryRouter.js";
+import productRoutes from "./src/Routes/productRoutes.js";
 
 let expressApp = express();
 
@@ -41,6 +42,7 @@ expressApp.use("/blogs", blogRouter); // Blog routes
 expressApp.use("/recipes", recipeRouter); // Blog routes
 expressApp.use("/file", FileRouter); // Blog routes
 expressApp.use("/api/category", categoryRouter);
+expressApp.use("/api/products", productRoutes);
 
 // Start server and log the port
 expressApp.listen(port, () => {
