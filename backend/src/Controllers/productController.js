@@ -1,9 +1,11 @@
+import mongoose from "mongoose";
 import asyncHandler from "../Middleware/asyncHandler.js";
 import Product from "../Schema/productSchema.js";
 
 const addProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, description, price, category, quantity, brand } = req.fields;
+    // Change req.fields to req.body since you're using multer
+    const { name, description, price, category, quantity, brand } = req.body;
 
     // Validation
     switch (true) {
@@ -21,7 +23,13 @@ const addProduct = asyncHandler(async (req, res) => {
         return res.json({ error: "Quantity is required" });
     }
 
-    const product = new Product({ ...req.fields });
+    // Create a new product with the data from req.body
+    const product = new Product({
+      ...req.body,
+      // Add the image path if an image was uploaded
+      image: req.file ? `/${req.file.filename}` : null,
+    });
+
     await product.save();
     res.json(product);
   } catch (error) {
@@ -32,7 +40,8 @@ const addProduct = asyncHandler(async (req, res) => {
 
 const updateProductDetails = asyncHandler(async (req, res) => {
   try {
-    const { name, description, price, category, quantity, brand } = req.fields;
+    // Changed from req.fields to req.body
+    const { name, description, price, category, quantity, brand } = req.body;
 
     // Validation
     switch (true) {
@@ -50,15 +59,31 @@ const updateProductDetails = asyncHandler(async (req, res) => {
         return res.json({ error: "Quantity is required" });
     }
 
-    const product = await Product.findByIdAndUpdate(
+    // Find the current product
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Create an update object with the new data
+    const updateData = {
+      ...req.body,
+    };
+
+    // Only update the image if a new one was uploaded
+    if (req.file) {
+      updateData.image = `/${req.file.filename}`;
+    }
+
+    // Update the product
+    const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { ...req.fields },
-      { new: true } //populating new data
+      updateData,
+      { new: true } // Return the updated document
     );
 
-    await product.save();
-
-    res.json(product);
+    res.json(updatedProduct);
   } catch (error) {
     console.error(error);
     res.status(400).json(error.message);
@@ -138,6 +163,7 @@ const addProductReview = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
+      // First check if already reviewed
       const alreadyReviewed = product.reviews.find(
         (r) => r.user.toString() === req.user._id.toString()
       );
@@ -147,17 +173,26 @@ const addProductReview = asyncHandler(async (req, res) => {
         throw new Error("Product already reviewed");
       }
 
+      // Fetch the complete user data
+      const userData = await mongoose.model("Register").findById(req.user._id);
+      console.log(userData);
+
+      if (!userData) {
+        res.status(404);
+        throw new Error("User not found");
+      }
+
+      // Create review with the complete user data
       const review = {
-        name: req.user.username,
+        name: userData.username, // Now we have the username
         rating: Number(rating),
         comment,
         user: req.user._id,
       };
 
+      // Rest of your code remains the same
       product.reviews.push(review);
-
       product.numReviews = product.reviews.length;
-
       product.rating =
         product.reviews.reduce((acc, item) => item.rating + acc, 0) /
         product.reviews.length;
@@ -174,6 +209,26 @@ const addProductReview = asyncHandler(async (req, res) => {
   }
 });
 
+const fetchTopProducts = asyncHandler(async (req, res) => {
+  try {
+    const products = await Product.find({}).sort({ rating: -1 }).limit(4);
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json(error.message);
+  }
+});
+
+const fetchNewProducts = asyncHandler(async (req, res) => {
+  try {
+    const products = await Product.find().sort({ _id: -1 }).limit(5);
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json(error.message);
+  }
+});
+
 export {
   addProduct,
   updateProductDetails,
@@ -182,4 +237,6 @@ export {
   fetchProductById,
   fetchAllProducts,
   addProductReview,
+  fetchTopProducts,
+  fetchNewProducts,
 };
