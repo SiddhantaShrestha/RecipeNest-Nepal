@@ -73,7 +73,10 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white p-4 shadow-md relative" style={{ height: "60px" }}>
+    <nav
+      className="bg-gray-900 p-4 shadow-md relative border-b border-gray-800"
+      style={{ height: "60px" }}
+    >
       <div className="flex items-center justify-between h-full">
         {/* Logo */}
         <div className="flex items-center flex-shrink-0">
@@ -89,39 +92,39 @@ const Navbar = () => {
         <div
           className={`${
             menuOpen ? "block" : "hidden"
-          } lg:flex flex-col lg:flex-row lg:items-center lg:space-x-6 absolute lg:relative top-full left-0 lg:top-0 lg:left-auto bg-orange-100 w-full lg:w-auto lg:bg-transparent z-10`}
+          } lg:flex flex-col lg:flex-row lg:items-center lg:space-x-6 absolute lg:relative top-full left-0 lg:top-0 lg:left-auto bg-gray-800 w-full lg:w-auto lg:bg-transparent z-10`}
         >
           <Link
             to="/"
-            className="block px-4 py-2 text-black hover:text-orange-600"
+            className="block px-4 py-2 text-gray-300 hover:text-yellow-400"
             onClick={() => setMenuOpen(false)}
           >
             Home
           </Link>
           <Link
             to="/recipes"
-            className="block px-4 py-2 text-black hover:text-orange-600"
+            className="block px-4 py-2 text-gray-300 hover:text-yellow-400"
             onClick={() => setMenuOpen(false)}
           >
             Recipes
           </Link>
           <Link
             to="/marketplace"
-            className="block px-4 py-2 text-black hover:text-orange-600"
+            className="block px-4 py-2 text-gray-300 hover:text-yellow-400"
             onClick={() => setMenuOpen(false)}
           >
             Marketplace
           </Link>
           <Link
             to="/blog"
-            className="block px-4 py-2 text-black hover:text-orange-600"
+            className="block px-4 py-2 text-gray-300 hover:text-yellow-400"
             onClick={() => setMenuOpen(false)}
           >
             Blogs
           </Link>
           <Link
             to="/about"
-            className="block px-4 py-2 text-black hover:text-orange-600"
+            className="block px-4 py-2 text-gray-300 hover:text-yellow-400"
             onClick={() => setMenuOpen(false)}
           >
             About Us
@@ -130,7 +133,7 @@ const Navbar = () => {
 
         {/* Right Section: Hamburger Menu & Auth */}
         <div className="flex items-center space-x-4">
-          <p>
+          <p className="text-gray-300">
             <strong></strong> {profile.username}
           </p>
 
@@ -139,16 +142,16 @@ const Navbar = () => {
             <div className="hidden lg:flex relative">
               <button
                 onClick={toggleDropdown}
-                className="p-2 rounded-full text-gray-700 hover:text-gray-900 flex items-center"
+                className="p-2 rounded-full text-gray-300 hover:text-yellow-400 flex items-center"
               >
                 <FaUserCircle size={28} />
               </button>
 
               {dropdownVisible && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-lg border z-20">
+                <div className="absolute right-0 mt-2 w-48 bg-gray-800 shadow-md rounded-lg border border-gray-700 z-20">
                   <button
                     onClick={handleProfileClick}
-                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                    className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                   >
                     My Profile
                   </button>
@@ -156,13 +159,13 @@ const Navbar = () => {
                   {/* Admin-only options */}
                   {profile.isAdmin && (
                     <>
-                      <div className="px-4 py-1 bg-gray-100 text-sm font-semibold">
+                      <div className="px-4 py-1 bg-gray-700 text-sm font-semibold text-gray-300">
                         Admin Options
                       </div>
 
                       <Link
                         to="/admin/dashboard"
-                        className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                         onClick={() => setDropdownVisible(false)}
                       >
                         Dashboard
@@ -170,7 +173,7 @@ const Navbar = () => {
 
                       <Link
                         to="/admin/productlist"
-                        className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                         onClick={() => setDropdownVisible(false)}
                       >
                         Products
@@ -178,7 +181,7 @@ const Navbar = () => {
 
                       <Link
                         to="/admin/categorylist"
-                        className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                         onClick={() => setDropdownVisible(false)}
                       >
                         Category
@@ -186,7 +189,7 @@ const Navbar = () => {
 
                       <Link
                         to="/admin/orderlist"
-                        className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                         onClick={() => setDropdownVisible(false)}
                       >
                         Orders
@@ -194,7 +197,7 @@ const Navbar = () => {
 
                       <Link
                         to="/admin/userlist"
-                        className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                         onClick={() => setDropdownVisible(false)}
                       >
                         Users
@@ -204,7 +207,7 @@ const Navbar = () => {
 
                   <button
                     onClick={handleLogout}
-                    className="block w-full px-4 py-2 text-left hover:bg-gray-100 text-red-600"
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-700 text-red-400"
                   >
                     Logout
                   </button>
@@ -217,7 +220,7 @@ const Navbar = () => {
           {!authToken && (
             <button
               onClick={() => navigate("/login")}
-              className="hidden lg:inline-block px-4 py-2 rounded-lg bg-yellow-400 text-black hover:bg-yellow-500"
+              className="hidden lg:inline-block px-4 py-2 rounded-lg bg-yellow-500 text-gray-900 hover:bg-yellow-400"
             >
               Sign In
             </button>
@@ -225,14 +228,20 @@ const Navbar = () => {
 
           {/* Hamburger Menu for Small Screens */}
           <div className="lg:hidden">
-            <button onClick={toggleMenu} className="text-black">
+            <button
+              onClick={toggleMenu}
+              className="text-gray-300 hover:text-yellow-400"
+            >
               {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
             </button>
           </div>
 
           {/* Admin dropdown toggle button */}
           {authToken && profile.isAdmin && (
-            <button onClick={toggleAdminDropdown}>
+            <button
+              onClick={toggleAdminDropdown}
+              className="text-gray-300 hover:text-yellow-400"
+            >
               {/* SVG Arrow */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -253,11 +262,11 @@ const Navbar = () => {
 
               {/* Admin quick-access dropdown */}
               {dropdownOpen && (
-                <ul className="absolute right-0 mt-2 mr-14 space-y-2 bg-white text-gray-600 -top-80 shadow-md rounded-lg border z-20 p-2">
+                <ul className="absolute right-0 mt-2 mr-14 space-y-2 bg-gray-800 text-gray-300 -top-80 shadow-md rounded-lg border border-gray-700 z-20 p-2">
                   <li>
                     <Link
                       to="/admin/dashboard"
-                      className="block px-4 py-2 hover:bg-gray-100 rounded"
+                      className="block px-4 py-2 hover:bg-gray-700 rounded"
                     >
                       Dashboard
                     </Link>
@@ -265,7 +274,7 @@ const Navbar = () => {
                   <li>
                     <Link
                       to="/admin/productlist"
-                      className="block px-4 py-2 hover:bg-gray-100 rounded"
+                      className="block px-4 py-2 hover:bg-gray-700 rounded"
                     >
                       Products
                     </Link>
@@ -273,7 +282,7 @@ const Navbar = () => {
                   <li>
                     <Link
                       to="/admin/categorylist"
-                      className="block px-4 py-2 hover:bg-gray-100 rounded"
+                      className="block px-4 py-2 hover:bg-gray-700 rounded"
                     >
                       Category
                     </Link>
@@ -281,7 +290,7 @@ const Navbar = () => {
                   <li>
                     <Link
                       to="/admin/orderlist"
-                      className="block px-4 py-2 hover:bg-gray-100 rounded"
+                      className="block px-4 py-2 hover:bg-gray-700 rounded"
                     >
                       Orders
                     </Link>
@@ -289,7 +298,7 @@ const Navbar = () => {
                   <li>
                     <Link
                       to="/admin/userlist"
-                      className="block px-4 py-2 hover:bg-gray-100 rounded"
+                      className="block px-4 py-2 hover:bg-gray-700 rounded"
                     >
                       Users
                     </Link>
@@ -301,10 +310,10 @@ const Navbar = () => {
 
           {/* Mobile menu profile options */}
           {menuOpen && authToken && (
-            <div className="lg:hidden absolute top-full right-0 bg-orange-100 w-full pt-2 border-t border-orange-200 mt-4 z-20">
+            <div className="lg:hidden absolute top-full right-0 bg-gray-800 w-full pt-2 border-t border-gray-700 mt-4 z-20">
               <button
                 onClick={handleProfileClick}
-                className="block w-full px-4 py-2 text-left hover:bg-orange-200"
+                className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
               >
                 My Profile
               </button>
@@ -312,13 +321,13 @@ const Navbar = () => {
               {/* Admin-only options for mobile */}
               {profile.isAdmin && (
                 <>
-                  <div className="px-4 py-1 bg-orange-200 text-sm font-semibold">
+                  <div className="px-4 py-1 bg-gray-700 text-sm font-semibold text-gray-300">
                     Admin Options
                   </div>
 
                   <Link
                     to="/admin/dashboard"
-                    className="block w-full px-4 py-2 text-left hover:bg-orange-200"
+                    className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                     onClick={() => setMenuOpen(false)}
                   >
                     Dashboard
@@ -326,7 +335,7 @@ const Navbar = () => {
 
                   <Link
                     to="/admin/productlist"
-                    className="block w-full px-4 py-2 text-left hover:bg-orange-200"
+                    className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                     onClick={() => setMenuOpen(false)}
                   >
                     Products
@@ -334,7 +343,7 @@ const Navbar = () => {
 
                   <Link
                     to="/admin/categorylist"
-                    className="block w-full px-4 py-2 text-left hover:bg-orange-200"
+                    className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                     onClick={() => setMenuOpen(false)}
                   >
                     Category
@@ -342,7 +351,7 @@ const Navbar = () => {
 
                   <Link
                     to="/admin/orderlist"
-                    className="block w-full px-4 py-2 text-left hover:bg-orange-200"
+                    className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                     onClick={() => setMenuOpen(false)}
                   >
                     Orders
@@ -350,7 +359,7 @@ const Navbar = () => {
 
                   <Link
                     to="/admin/userlist"
-                    className="block w-full px-4 py-2 text-left hover:bg-orange-200"
+                    className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
                     onClick={() => setMenuOpen(false)}
                   >
                     Users
@@ -360,7 +369,7 @@ const Navbar = () => {
 
               <button
                 onClick={handleLogout}
-                className="block w-full px-4 py-2 text-left hover:bg-orange-200 text-red-600"
+                className="block w-full px-4 py-2 text-left hover:bg-gray-700 text-red-400"
               >
                 Logout
               </button>
@@ -369,13 +378,13 @@ const Navbar = () => {
 
           {/* Sign-In Button for Small Screens */}
           {!authToken && menuOpen && (
-            <div className="lg:hidden absolute top-full right-0 bg-orange-100 w-full pt-2 border-t border-orange-200 mt-4 z-20">
+            <div className="lg:hidden absolute top-full right-0 bg-gray-800 w-full pt-2 border-t border-gray-700 mt-4 z-20">
               <button
                 onClick={() => {
                   navigate("/login");
                   setMenuOpen(false);
                 }}
-                className="block w-full px-4 py-2 text-center bg-yellow-400 hover:bg-yellow-500 mx-auto my-2"
+                className="block w-full px-4 py-2 text-center bg-yellow-500 text-gray-900 hover:bg-yellow-400 mx-auto my-2"
               >
                 Sign In
               </button>

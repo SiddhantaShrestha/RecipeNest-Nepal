@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { setError } from "../slices/recipeSlice";
+import { setError } from "../../slices/recipeSlice";
 
 const EditRecipe = () => {
   const { id } = useParams();

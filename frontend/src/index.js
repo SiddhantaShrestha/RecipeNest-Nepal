@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
+import "./index.css";
 import {
   RouterProvider,
   createBrowserRouter,
@@ -22,12 +23,12 @@ import NotFound from "./Components/NotFound";
 import HomePage from "./Components/HomePage.jsx";
 import ResetPassword from "./Components/ResetPassword";
 import ForgotPassword from "./Components/ForgotPassword.jsx";
-import BlogSection from "./Components/BlogSection.jsx";
-import CreateBlogPage from "./Components/CreateBlogPage.jsx";
-import BlogDetailsPage from "./Components/BlogDetailsPage.jsx";
+import BlogSection from "./Components/Blog/BlogSection.jsx";
+import CreateBlogPage from "./Components/Blog/CreateBlogPage.jsx";
+import BlogDetailsPage from "./Components/Blog/BlogDetailsPage.jsx";
 import UpdateBlogPage from "./Components/UpdateBlogPage.jsx";
-import AddRecipePage from "./Components/AddRecipePage.jsx";
-import RecipeListPage from "./Components/RecipeListPage.jsx";
+import AddRecipePage from "./Components/Recipe/AddRecipePage.jsx";
+import RecipeListPage from "./Components/Recipe/RecipeListPage.jsx";
 import ViewRecipePage from "./Components/ViewRecipePage.jsx";
 import MyProfile from "./Components/MyProfile.jsx";
 import ChangePassword from "./Components/ChangePassword.jsx";
@@ -35,11 +36,12 @@ import MyBlogs from "./Components/MyBlogs.jsx";
 import CheckDesign from "./Components/checkdesign.jsx";
 import SavedRecipes from "./Components/SavedRecipes.jsx";
 import MyRecipesPage from "./Components/MyRecipesPage.jsx";
-import EditRecipe from "./Components/EditRecipe.jsx";
+import EditRecipe from "./Components/Recipe/EditRecipe.jsx";
 import ProtectedRoute from "./Components/ProtectedRoute.jsx";
 import AdminRoutes from "./Components/Admin/AdminRoutes.jsx";
 import UserList from "./Components/Admin/UserList.jsx";
 import CategoryList from "./Components/Admin/CategoryList.jsx";
+import ProductList from "./Components/Admin/ProductList.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -132,6 +134,7 @@ const router = createBrowserRouter(
       <Route path="/admin" element={<AdminRoutes />}>
         <Route path="userlist" element={<UserList />} />
         <Route path="categorylist" element={<CategoryList />} />
+        <Route path="productlist" element={<ProductList />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

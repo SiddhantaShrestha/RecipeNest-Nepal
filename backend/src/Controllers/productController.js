@@ -4,8 +4,7 @@ import Product from "../Schema/productSchema.js";
 
 const addProduct = asyncHandler(async (req, res) => {
   try {
-    // Change req.fields to req.body since you're using multer
-    const { name, description, price, category, quantity, brand } = req.body;
+    const { name, description, price, category, quantity, brand } = req.fields;
 
     // Validation
     switch (true) {
@@ -23,13 +22,7 @@ const addProduct = asyncHandler(async (req, res) => {
         return res.json({ error: "Quantity is required" });
     }
 
-    // Create a new product with the data from req.body
-    const product = new Product({
-      ...req.body,
-      // Add the image path if an image was uploaded
-      image: req.file ? `/${req.file.filename}` : null,
-    });
-
+    const product = new Product({ ...req.fields });
     await product.save();
     res.json(product);
   } catch (error) {
@@ -40,8 +33,7 @@ const addProduct = asyncHandler(async (req, res) => {
 
 const updateProductDetails = asyncHandler(async (req, res) => {
   try {
-    // Changed from req.fields to req.body
-    const { name, description, price, category, quantity, brand } = req.body;
+    const { name, description, price, category, quantity, brand } = req.fields;
 
     // Validation
     switch (true) {
@@ -59,31 +51,15 @@ const updateProductDetails = asyncHandler(async (req, res) => {
         return res.json({ error: "Quantity is required" });
     }
 
-    // Find the current product
-    const product = await Product.findById(req.params.id);
-
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    // Create an update object with the new data
-    const updateData = {
-      ...req.body,
-    };
-
-    // Only update the image if a new one was uploaded
-    if (req.file) {
-      updateData.image = `/${req.file.filename}`;
-    }
-
-    // Update the product
-    const updatedProduct = await Product.findByIdAndUpdate(
+    const product = await Product.findByIdAndUpdate(
       req.params.id,
-      updateData,
-      { new: true } // Return the updated document
+      { ...req.fields },
+      { new: true }
     );
 
-    res.json(updatedProduct);
+    await product.save();
+
+    res.json(product);
   } catch (error) {
     console.error(error);
     res.status(400).json(error.message);

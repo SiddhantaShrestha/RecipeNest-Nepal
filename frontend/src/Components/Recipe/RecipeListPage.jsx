@@ -3,9 +3,9 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux"; // Import useDispatch and useSelector
-import { setRecipes } from "../slices/recipeSlice"; // Import the setRecipes action
-import Navbar from "./Navbar";
-import bgImage from "../Images/RecipeBg.png";
+import { setRecipes } from "../../slices/recipeSlice"; // Import the setRecipes action
+import Navbar from "../Navbar";
+import bgImage from "../../Images/RecipeBg.png";
 
 const RecipeListPage = () => {
   const dispatch = useDispatch();

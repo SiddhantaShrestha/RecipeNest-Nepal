@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Formik, Form, Field } from "formik";
 import Select from "react-select";
-import Navbar from "./Navbar";
-import { fetchBlogs, deleteBlog } from "../slices/blogsSlice";
-import { categories } from "../categories";
-import "../CSS/blog.css";
+import Navbar from "../Navbar"; // Updated path
+import { fetchBlogs, deleteBlog } from "../../slices/blogsSlice"; // Updated path
+import { categories } from "../../categories"; // Updated path
+import "../../CSS/blog.css"; // Keep the same if the CSS location is unchanged
 
 const BlogSection = () => {
   const dispatch = useDispatch();

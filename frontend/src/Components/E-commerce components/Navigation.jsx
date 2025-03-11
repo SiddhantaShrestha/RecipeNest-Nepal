@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AiOutlineHome,
   AiOutlineShopping,
@@ -7,20 +6,61 @@ import {
   AiOutlineUserAdd,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaUserCircle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import "../../CSS/navigation.css";
+import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../redux/features/auth/authSlice1";
-import { userApiSlice } from "../../redux/api/userApiSlice";
+import "../../CSS/navigation.css";
 
 const Navigation = () => {
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
-  console.log("Auth state:", { user, isAuthenticated });
-
+  // States
+  const [authToken, setAuthToken] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [profile, setProfile] = useState({});
+  const [formData, setFormData] = useState({
+    username: "",
+    name: "",
+    contact: "",
+    email: "",
+  });
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // Check for authentication on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    setAuthToken(token);
+    if (token) {
+      fetchProfile();
+    }
+  }, []);
+
+  // Fetch user profile data
+  const fetchProfile = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8000/api/users/my-profile",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }
+      );
+      setProfile(response.data.data);
+      setFormData({
+        name: response.data.data.name,
+        username: response.data.data.username,
+        contact: response.data.data.contact,
+        email: response.data.data.email,
+      });
+    } catch (error) {
+      console.error("Error fetching profile:", error.response?.data.message);
+    }
+  };
+
+  // Toggle functions
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -33,18 +73,22 @@ const Navigation = () => {
     setShowSidebar(false);
   };
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // Handle profile click
+  const handleProfileClick = () => {
+    navigate("/my-profile");
+    setDropdownOpen(false);
+  };
 
-  const logoutHandler = async () => {
-    try {
-      // Clear user data from cache when logging out
-      dispatch(userApiSlice.util.resetApiState());
-      dispatch(logout());
-      navigate("/login");
-    } catch (error) {
-      console.error(error);
-    }
+  // Logout handler
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("tokenExpiration");
+    setAuthToken(null);
+    // If using Redux, dispatch logout action
+    // dispatch(logout());
+    navigate("/login");
+    setDropdownOpen(false);
   };
 
   return (
@@ -84,118 +128,128 @@ const Navigation = () => {
           <FaHeart className="mr-2 mt-[3rem]" size={26} />
           <div className="span hidden nav-item-name mt-[3rem]">Favorite</div>
         </Link>
-
-        {/* Add User Management link for admin users */}
-        {isAuthenticated && user?.isAdmin && (
-          <Link
-            to="/admin/users"
-            className="flex items-center transition-transform transform hover:translate-x-2"
-          >
-            <AiOutlineUserAdd className="mr-2 mt-[3rem]" size={26} />
-            <div className="span hidden nav-item-name mt-[3rem]">Users</div>
-          </Link>
-        )}
       </div>
 
-      <div className="relative">
+      {/* User Profile and Dropdown */}
+      <div className="relative mb-24">
         <button
           onClick={toggleDropdown}
-          className="flex items-center text-gray-8000 focus:outline-none"
+          className="flex items-center text-white focus:outline-none mt-[-4px]"
         >
-          {isAuthenticated && user ? (
-            <span className="text-white">
-              {user.name ||
-                user.username ||
-                user.email?.split("@")[0] ||
-                "User"}
-            </span>
-          ) : (
-            <span className="text-white">Guest</span>
-          )}
-          {user && (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className={`h-4 w-4 ml-1 ${
-                dropdownOpen ? "transform rotate-180" : ""
-              }`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d={dropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"}
-              />
-            </svg>
-          )}
+          <FaUserCircle className="mr-2" size={20} />
+          <span className="text-white hidden nav-item-name">
+            {authToken ? profile.username || "User" : "Guest"}
+          </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className={`h-4 w-4 ml-1 hidden nav-item-name mt-[-4px] ${
+              dropdownOpen ? "transform rotate-180" : ""
+            }`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="white"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d={dropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"}
+            />
+          </svg>
         </button>
 
-        {/* Add dropdown menu for logged-in users */}
-        {dropdownOpen && isAuthenticated && (
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
-            <Link
-              to="/profile"
-              className="block px-4 py-2 text-black hover:bg-gray-100"
-            >
-              Profile
-            </Link>
-            {user?.isAdmin && (
-              <Link
-                to="/admin/users"
-                className="block px-4 py-2 text-black hover:bg-gray-100"
-              >
-                User Management
-              </Link>
-            )}
+        {/* Dropdown Menu */}
+        {dropdownOpen && authToken && (
+          <div className="absolute left-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 border border-gray-700 z-20">
             <button
-              onClick={logoutHandler}
-              className="block w-full text-left px-4 py-2 text-black hover:bg-gray-100"
+              onClick={handleProfileClick}
+              className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
             >
-              Logout
+              My Profile
             </button>
+
+            {/* Admin Options */}
+            {profile.isAdmin && (
+              <>
+                <div className="px-4 py-1 bg-gray-700 text-sm font-semibold text-gray-300">
+                  Admin Options
+                </div>
+                <Link
+                  to="/admin/dashboard"
+                  className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/admin/productlist"
+                  className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Products
+                </Link>
+                <Link
+                  to="/admin/categorylist"
+                  className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Category
+                </Link>
+                <Link
+                  to="/admin/orderlist"
+                  className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Orders
+                </Link>
+                <Link
+                  to="/admin/userlist"
+                  className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Users
+                </Link>
+              </>
+            )}
           </div>
         )}
       </div>
 
-      {/* Auth links - conditionally render based on authentication status */}
-      <ul>
-        {!isAuthenticated ? (
-          <>
-            <li>
-              <Link
-                to="/login"
-                className="flex items-center transition-transform transform hover:translate-x-2"
-              >
-                <AiOutlineLogin className="mr-2 mt-[3rem]" size={26} />
-                <div className="span hidden nav-item-name mt-[3rem]">Login</div>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/signup"
-                className="flex items-center transition-transform transform hover:translate-x-2"
-              >
-                <AiOutlineUserAdd className="mr-2 mt-[3rem]" size={26} />
-                <div className="span hidden nav-item-name mt-[3rem]">
-                  Register
-                </div>
-              </Link>
-            </li>
-          </>
-        ) : (
+      {/* Auth links */}
+      {!authToken ? (
+        <ul className="mb-8">
           <li>
-            <button
-              onClick={logoutHandler}
+            <Link
+              to="/login"
+              className="flex items-center transition-transform transform hover:translate-x-2 mb-4"
+            >
+              <AiOutlineLogin className="mr-2" size={26} />
+              <div className="span hidden nav-item-name">Login</div>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/signup"
               className="flex items-center transition-transform transform hover:translate-x-2"
             >
-              <AiOutlineLogin className="mr-2 mt-[3rem]" size={26} />
-              <div className="span hidden nav-item-name mt-[3rem]">Logout</div>
+              <AiOutlineUserAdd className="mr-2" size={26} />
+              <div className="span hidden nav-item-name">Register</div>
+            </Link>
+          </li>
+        </ul>
+      ) : (
+        <ul className="mb-8">
+          <li>
+            <button
+              onClick={handleLogout}
+              className="flex items-center transition-transform transform hover:translate-x-2"
+            >
+              <AiOutlineLogin className="mr-2" size={26} />
+              <div className="span hidden nav-item-name">Logout</div>
             </button>
           </li>
-        )}
-      </ul>
+        </ul>
+      )}
     </div>
   );
 };

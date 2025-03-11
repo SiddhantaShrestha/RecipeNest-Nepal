@@ -23,8 +23,8 @@ import upload from "../Middleware/multer.js";
 router.route("/").get(fetchProducts).post(
   isAuthenticated,
   authorized,
-  // formidable(),
-  upload.single("image"),
+  formidable(),
+  // upload.single("image"),
   addProduct
 );
 
@@ -39,12 +39,7 @@ router.get("/new", fetchNewProducts);
 router
   .route("/:id")
   .get(fetchProductById)
-  .put(
-    isAuthenticated,
-    authorized,
-    upload.single("image"), // Change from formidable to Multer
-    updateProductDetails
-  )
+  .put(isAuthenticated, authorized, formidable(), updateProductDetails)
   .delete(isAuthenticated, authorized, removeProduct);
 
 export default router;

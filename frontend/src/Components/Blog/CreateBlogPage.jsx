@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Formik, Form } from "formik";
-import FormikInput from "./FormikComponents/FormikInput";
-import FormikTextArea from "./FormikComponents/FormikTextArea";
-import FormikCategorySelect from "./FormikComponents/FormikCategorySelect";
-import Navbar from "./Navbar";
+import FormikInput from "../FormikComponents/FormikInput";
+import FormikTextArea from "../FormikComponents/FormikTextArea";
+import FormikCategorySelect from "../FormikComponents/FormikCategorySelect";
+import Navbar from "../Navbar";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBlogs } from "../slices/blogsSlice"; // For updating blog state after creation
-import { logout } from "../slices/authSlice";
+import { fetchBlogs } from "../../slices/blogsSlice"; // Updated path
+import { logout } from "../../slices/authSlice"; // Updated path
 
 const validate = (values) => {
   const errors = {};

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import Navbar from "./Navbar";
+import Navbar from "../Navbar"; // Updated path
 
 const BlogDetailsPage = () => {
   const { id } = useParams();

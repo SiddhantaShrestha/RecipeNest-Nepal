@@ -1,5 +1,4 @@
 import React from "react";
-import { FaCheck } from "react-icons/fa";
 
 const EditModal = ({
   selectedUser,
@@ -9,88 +8,94 @@ const EditModal = ({
   editLoading,
   setIsEditModalOpen,
 }) => {
-  if (!selectedUser) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Edit User</h2>
-        <form onSubmit={handleUpdateUser}>
-          {/* Name Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Name</label>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+      <div className="bg-gray-800 border border-gray-700 p-6 rounded-lg w-full max-w-md shadow-xl animate-slideIn">
+        <h2 className="text-xl font-bold mb-4 text-blue-400 border-b border-gray-700 pb-2">
+          Edit User
+        </h2>
+        <form onSubmit={handleUpdateUser} className="space-y-4">
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-400 mb-1"
+            >
+              Name
+            </label>
             <input
               type="text"
               name="name"
+              id="name"
               value={editFormData.name}
               onChange={handleEditInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               required
             />
           </div>
-
-          {/* Username Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Username</label>
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-400 mb-1"
+            >
+              Username
+            </label>
             <input
               type="text"
               name="username"
+              id="username"
               value={editFormData.username}
               onChange={handleEditInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               required
             />
           </div>
-
-          {/* Email Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Email</label>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-400 mb-1"
+            >
+              Email
+            </label>
             <input
               type="email"
               name="email"
+              id="email"
               value={editFormData.email}
               onChange={handleEditInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               required
             />
           </div>
-
-          {/* Admin Status Checkbox */}
-          <div className="mb-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                name="isAdmin"
-                checked={editFormData.isAdmin}
-                onChange={handleEditInputChange}
-                className="mr-2"
-              />
-              <span className="text-gray-700">Admin Status</span>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              name="isAdmin"
+              id="isAdmin"
+              checked={editFormData.isAdmin}
+              onChange={handleEditInputChange}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700"
+            />
+            <label
+              htmlFor="isAdmin"
+              className="ml-2 block text-sm font-medium text-gray-300"
+            >
+              Admin User
             </label>
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end space-x-3 pt-4 mt-6 border-t border-gray-700">
             <button
               type="button"
               onClick={() => setIsEditModalOpen(false)}
-              className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
+              className="px-4 py-2 border border-gray-600 rounded text-gray-300 hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-300"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:bg-blue-900 disabled:text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
               disabled={editLoading}
             >
-              {editLoading ? (
-                <span className="flex items-center">
-                  <span className="mr-2">Updating...</span>
-                  <FaCheck className="animate-spin" />
-                </span>
-              ) : (
-                "Update"
-              )}
+              {editLoading ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

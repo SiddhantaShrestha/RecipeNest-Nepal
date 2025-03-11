@@ -10,6 +10,8 @@ import FileRouter from "./src/Routes/fileRouter.js";
 import cookieParser from "cookie-parser";
 import categoryRouter from "./src/Routes/categoryRouter.js";
 import productRoutes from "./src/Routes/productRoutes.js";
+import uploadRoutes from "./src/Routes/uploadRoutes.js";
+import path from "path";
 
 let expressApp = express();
 
@@ -43,6 +45,10 @@ expressApp.use("/recipes", recipeRouter); // Blog routes
 expressApp.use("/file", FileRouter); // Blog routes
 expressApp.use("/api/category", categoryRouter);
 expressApp.use("/api/products", productRoutes);
+expressApp.use("/api/upload", uploadRoutes);
+
+const __dirname = path.resolve();
+expressApp.use("/uploads", express.static(path.join(__dirname + "/uploads")));
 
 // Start server and log the port
 expressApp.listen(port, () => {

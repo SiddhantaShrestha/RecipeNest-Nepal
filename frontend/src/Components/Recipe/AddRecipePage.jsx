@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { addRecipe } from "../slices/recipeSlice"; // Import the action
+import { addRecipe } from "../../slices/recipeSlice";
 import axios from "axios";
-import Navbar from "./Navbar";
+import Navbar from "../Navbar";
 
 const AddRecipePage = () => {
   const navigate = useNavigate();
