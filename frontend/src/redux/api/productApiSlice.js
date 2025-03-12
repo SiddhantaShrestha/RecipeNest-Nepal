@@ -21,6 +21,8 @@ export const productApiSlice = apiSlice.injectEndpoints({
 
     allProducts: builder.query({
       query: () => `${PRODUCT_URL}/allProducts`,
+      // Add this line if it's not already there
+      providesTags: ["Products"],
     }),
 
     getProductDetails: builder.query({
@@ -45,6 +47,11 @@ export const productApiSlice = apiSlice.injectEndpoints({
         method: "PUT",
         body: formData,
       }),
+      // Invalidate both the Products list and the specific Product
+      invalidatesTags: (result, error, { productId }) => [
+        "Products",
+        { type: "Product", id: productId },
+      ],
     }),
 
     uploadProductImage: builder.mutation({
@@ -60,7 +67,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
         url: `${PRODUCT_URL}/${productId}`,
         method: "DELETE",
       }),
-      providesTags: ["Product"],
+      invalidatesTags: ["Products"],
     }),
 
     createReview: builder.mutation({

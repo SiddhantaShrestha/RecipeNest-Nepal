@@ -5,9 +5,10 @@ import {
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,
   useFetchCategoriesQuery,
-} from "../../redux/api/categoryApiSlice";
-import CategoryForm from "../E-commerce components/CategoryForm";
-import Modal from "../E-commerce components/Modal";
+} from "../../../redux/api/categoryApiSlice";
+import CategoryForm from "../../E-commerce components/CategoryForm";
+import Modal from "../../E-commerce components/Modal";
+import AdminMenu from "./AdminMenu";
 
 const CategoryList = () => {
   const { data: categories } = useFetchCategoriesQuery();
@@ -67,9 +68,10 @@ const CategoryList = () => {
   };
 
   return (
-    <div className="flex flex-col items-center bg-gray-100 min-h-screen py-10">
-      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-3xl">
-        <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">
+    <div className="flex flex-col items-center min-h-screen py-10">
+      <AdminMenu />
+      <div className="bg-gray-900 shadow-xl rounded-lg p-6 w-full max-w-3xl border border-gray-800">
+        <h2 className="text-2xl font-bold text-center text-purple-400 mb-6">
           Manage Categories
         </h2>
 
@@ -80,14 +82,14 @@ const CategoryList = () => {
           handleSubmit={handleCreateCategory}
         />
 
-        <hr className="my-6 border-gray-300" />
+        <hr className="my-6 border-gray-700" />
 
         {/* Category List */}
         <div className="flex flex-wrap justify-center gap-4">
           {categories?.map((category) => (
             <button
               key={category._id}
-              className="bg-purple-500 text-white px-6 py-2 rounded-lg transition-all duration-300 hover:bg-purple-600"
+              className="bg-purple-700 text-white px-6 py-2 rounded-lg transition-all duration-300 hover:bg-purple-600 hover:shadow-lg shadow-md"
               onClick={() => {
                 setModalVisible(true);
                 setSelectedCategory(category);
@@ -102,13 +104,15 @@ const CategoryList = () => {
 
       {/* Modal */}
       <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
-        <CategoryForm
-          value={updatingName}
-          setValue={(value) => setUpdatingName(value)}
-          handleSubmit={handleUpdateCategory}
-          buttonText="Update"
-          handleDelete={handleDeleteCategory}
-        />
+        <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
+          <CategoryForm
+            value={updatingName}
+            setValue={(value) => setUpdatingName(value)}
+            handleSubmit={handleUpdateCategory}
+            buttonText="Update"
+            handleDelete={handleDeleteCategory}
+          />
+        </div>
       </Modal>
     </div>
   );

@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import {
   useCreateProductMutation,
   useUploadProductImageMutation,
-} from "../../redux/api/productApiSlice";
-import { useFetchCategoriesQuery } from "../../redux/api/categoryApiSlice";
+} from "../../../redux/api/productApiSlice";
+import { useFetchCategoriesQuery } from "../../../redux/api/categoryApiSlice";
 import { toast } from "react-toastify";
 import AdminMenu from "./AdminMenu";
 
@@ -44,7 +44,7 @@ const ProductList = () => {
         toast.error("Product create failed. Try Again.");
       } else {
         toast.success(`${data.name} is created`);
-        navigate("/");
+        navigate("/admin/allproductslist");
       }
     } catch (error) {
       console.error(error);
@@ -53,16 +53,23 @@ const ProductList = () => {
   };
 
   const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
     const formData = new FormData();
-    formData.append("image", e.target.files[0]);
+    formData.append("image", file);
+
+    // Create a local preview URL
+    setImageUrl(URL.createObjectURL(file));
 
     try {
       const res = await uploadProductImage(formData).unwrap();
       toast.success(res.message);
       setImage(res.image);
-      setImageUrl(res.image);
+      // Once upload succeeds, you can set the actual server URL if needed
+      // setImageUrl(res.image); // Use this if res.image is a full URL
     } catch (error) {
       toast.error(error?.data?.message || error.error);
+      // Reset on error
+      setImageUrl(null);
     }
   };
 

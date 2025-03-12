@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import FormikInput from "./FormikComponents/FormikInput";
+import FormikInput from "../FormikComponents/FormikInput";
 
 const ForgotPassword = () => {
   const [emailSent, setEmailSent] = useState(false);

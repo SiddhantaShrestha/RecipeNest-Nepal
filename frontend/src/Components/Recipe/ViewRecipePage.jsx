@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import Navbar from "./Navbar";
-import { setCurrentRecipe, setBookmarkStatus } from "../slices/recipeSlice";
+import Navbar from "../Navbar";
+import { setCurrentRecipe, setBookmarkStatus } from "../../slices/recipeSlice";
 
 const ViewRecipePage = () => {
   const { id } = useParams();

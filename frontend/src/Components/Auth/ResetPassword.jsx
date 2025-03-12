@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import FormikInput from "./FormikComponents/FormikInput";
+import FormikInput from "../FormikComponents/FormikInput";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();

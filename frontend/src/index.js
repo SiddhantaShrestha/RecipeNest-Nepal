@@ -16,32 +16,35 @@ import "react-toastify/dist/ReactToastify.css";
 import App from "./App";
 import "./index.css";
 import { PersistGate } from "redux-persist/lib/integration/react";
-import Signup from "./Components/Signup.jsx";
-import Login from "./Components/Login.jsx";
-import VerifyEmail from "./Components/VerifyEmail";
+import Signup from "./Components/Auth/Signup.jsx";
+import Login from "./Components/Auth/Login.jsx";
+import VerifyEmail from "./Components/Auth/VerifyEmail.jsx";
 import NotFound from "./Components/NotFound";
 import HomePage from "./Components/HomePage.jsx";
-import ResetPassword from "./Components/ResetPassword";
-import ForgotPassword from "./Components/ForgotPassword.jsx";
+import ResetPassword from "./Components/Auth/ResetPassword";
+import ForgotPassword from "./Components/Auth/ForgotPassword.jsx";
 import BlogSection from "./Components/Blog/BlogSection.jsx";
 import CreateBlogPage from "./Components/Blog/CreateBlogPage.jsx";
 import BlogDetailsPage from "./Components/Blog/BlogDetailsPage.jsx";
-import UpdateBlogPage from "./Components/UpdateBlogPage.jsx";
+import UpdateBlogPage from "./Components/Blog/UpdateBlogPage.jsx";
 import AddRecipePage from "./Components/Recipe/AddRecipePage.jsx";
 import RecipeListPage from "./Components/Recipe/RecipeListPage.jsx";
-import ViewRecipePage from "./Components/ViewRecipePage.jsx";
-import MyProfile from "./Components/MyProfile.jsx";
-import ChangePassword from "./Components/ChangePassword.jsx";
+import ViewRecipePage from "./Components/Recipe/ViewRecipePage.jsx";
+import MyProfile from "./Components/Auth/MyProfile.jsx";
+import ChangePassword from "./Components/Auth/ChangePassword.jsx";
 import MyBlogs from "./Components/MyBlogs.jsx";
 import CheckDesign from "./Components/checkdesign.jsx";
 import SavedRecipes from "./Components/SavedRecipes.jsx";
-import MyRecipesPage from "./Components/MyRecipesPage.jsx";
+import MyRecipesPage from "./Components/Auth/MyRecipesPage.jsx";
 import EditRecipe from "./Components/Recipe/EditRecipe.jsx";
 import ProtectedRoute from "./Components/ProtectedRoute.jsx";
 import AdminRoutes from "./Components/Admin/AdminRoutes.jsx";
-import UserList from "./Components/Admin/UserList.jsx";
-import CategoryList from "./Components/Admin/CategoryList.jsx";
-import ProductList from "./Components/Admin/ProductList.jsx";
+import UserList from "./Components/Pages/Admin/UserList.jsx";
+import CategoryList from "./Components/Pages/Admin/CategoryList.jsx";
+import ProductList from "./Components/Pages/Admin/ProductList.jsx";
+import ProductUpdate from "./Components/Pages/Admin/ProductUpdate.jsx";
+// import AdminProductUpdate from "./Components/Admin/ProductUpdate.jsx";
+import AllProducts from "./Components/Admin/AllProducts.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -135,6 +138,9 @@ const router = createBrowserRouter(
         <Route path="userlist" element={<UserList />} />
         <Route path="categorylist" element={<CategoryList />} />
         <Route path="productlist" element={<ProductList />} />
+        <Route path="allproductslist" element={<AllProducts />} />
+        <Route path="productlist/:pageNumber" element={<ProductList />} />
+        <Route path="product/update/:_id" element={<ProductUpdate />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

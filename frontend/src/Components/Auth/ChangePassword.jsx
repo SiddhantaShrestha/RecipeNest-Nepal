@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import Navbar from "./Navbar"; // Import Navbar component
-import SubNavbar from "./SubNavbar"; // Import SubNavbar component
+import Navbar from "../Navbar"; // Import Navbar component
+import SubNavbar from "../SubNavbar"; // Import SubNavbar component
 
 const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState("");

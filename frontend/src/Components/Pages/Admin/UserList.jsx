@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { FaTrash, FaEdit, FaCheck, FaTimes, FaEye } from "react-icons/fa";
-import Loader from "../Loader";
+import Loader from "../../Loader.jsx";
 import { toast } from "react-toastify";
-import Navbar from "../Navbar";
-import EditModal from "./EditModal";
+import EditModal from "./EditModal.jsx";
 import {
   useGetUsersQuery,
   useGetUserByIdQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,
-} from "../../redux/api/userApiSlice.js";
+} from "../../../redux/api/userApiSlice.js";
+import AdminMenu from "./AdminMenu.jsx";
 
 const UserList = () => {
   // State for modals and selected user
@@ -213,7 +213,7 @@ const UserList = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar />
+      <AdminMenu />
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-white">User Management</h1>

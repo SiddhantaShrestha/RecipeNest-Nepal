@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux"; // To dispatch actions
-import { login } from "../slices/authSlice"; // Import the login action
+import { login } from "../../slices/authSlice"; // Import the login action
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import FormikInput from "./FormikComponents/FormikInput";
+import FormikInput from "../FormikComponents/FormikInput";
 import axios from "axios";
-import "../CSS/auth.css";
+import "../../CSS/auth.css";
 
 const Signup = () => {
   const dispatch = useDispatch(); // Hook to dispatch actions

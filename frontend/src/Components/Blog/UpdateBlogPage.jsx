@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBlog } from "../slices/blogsSlice"; // Import the fetchBlog action
+import { fetchBlog } from "../../slices/blogsSlice"; // Import the fetchBlog action
 import axios from "axios";
 import { Formik, Form } from "formik";
-import FormikInput from "./FormikComponents/FormikInput";
-import FormikTextArea from "./FormikComponents/FormikTextArea";
-import FormikCategorySelect from "./FormikComponents/FormikCategorySelect";
-import Navbar from "./Navbar";
+import FormikInput from "../FormikComponents/FormikInput";
+import FormikTextArea from "../FormikComponents/FormikTextArea";
+import FormikCategorySelect from "../FormikComponents/FormikCategorySelect";
+import Navbar from "../Navbar";
 
 const UpdateBlogPage = () => {
   const { id } = useParams();

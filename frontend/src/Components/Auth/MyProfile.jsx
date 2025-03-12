@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import SubNavbar from "./SubNavbar";
-import Navbar from "./Navbar";
+import SubNavbar from "../SubNavbar";
+import Navbar from "../Navbar";
 import {
   useGetMyProfileQuery,
   useUpdateUserMutation,
-} from "../redux/api/userApiSlice";
+} from "../../redux/api/userApiSlice";
 import { toast } from "react-toastify"; // Assuming you have react-toastify for notifications
 
 const MyProfile = () => {

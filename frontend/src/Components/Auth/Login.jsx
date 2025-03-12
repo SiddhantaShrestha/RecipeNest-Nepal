@@ -1,11 +1,11 @@
 import React from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import FormikInput from "./FormikComponents/FormikInput";
+import FormikInput from "../FormikComponents/FormikInput";
 import axios from "axios";
-import "../CSS/auth.css";
+import "../../CSS/auth.css";
 import { useDispatch } from "react-redux"; // Import useDispatch for dispatching actions
-import { login } from "../redux/features/auth/authSlice"; // Import login action from authSlice
+import { login } from "../../redux/features/auth/authSlice"; // Import login action from authSlice
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Login = () => {

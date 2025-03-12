@@ -7,9 +7,9 @@ import {
   setLoading,
   setError,
   deleteRecipe,
-} from "../slices/recipeSlice";
-import Navbar from "./Navbar";
-import SubNavbar from "./SubNavbar";
+} from "../../slices/recipeSlice";
+import Navbar from "../Navbar";
+import SubNavbar from "../SubNavbar";
 
 const MyRecipesPage = () => {
   const dispatch = useDispatch();
