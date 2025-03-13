@@ -38,19 +38,26 @@ import SavedRecipes from "./Components/SavedRecipes.jsx";
 import MyRecipesPage from "./Components/Auth/MyRecipesPage.jsx";
 import EditRecipe from "./Components/Recipe/EditRecipe.jsx";
 import ProtectedRoute from "./Components/ProtectedRoute.jsx";
-import AdminRoutes from "./Components/Admin/AdminRoutes.jsx";
+import AdminRoutes from "./Components/Pages/Admin/AdminRoutes.jsx";
 import UserList from "./Components/Pages/Admin/UserList.jsx";
 import CategoryList from "./Components/Pages/Admin/CategoryList.jsx";
 import ProductList from "./Components/Pages/Admin/ProductList.jsx";
 import ProductUpdate from "./Components/Pages/Admin/ProductUpdate.jsx";
 // import AdminProductUpdate from "./Components/Admin/ProductUpdate.jsx";
-import AllProducts from "./Components/Admin/AllProducts.jsx";
+import AllProducts from "./Components/Pages/Admin/AllProducts.jsx";
+import Home from "./Home.jsx";
+import Favorites from "./Components/Products/Favorites.jsx";
+import ProductDetails from "./Components/Products/ProductDetails.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
+      <Route index={true} path="/" element={<Home />} />
+      <Route path="/favorite" element={<Favorites />} />
+      <Route path="/product/:id" element={<ProductDetails />} />
+
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />

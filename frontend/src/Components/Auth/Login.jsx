@@ -55,7 +55,7 @@ const Login = () => {
 
         // Add a small delay before navigation
         setTimeout(() => {
-          navigate("/blog");
+          navigate("/");
         }, 100);
       } else {
         alert(response.data.message || "Login failed - no token received");

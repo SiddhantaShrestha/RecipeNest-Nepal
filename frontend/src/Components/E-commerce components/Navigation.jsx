@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import "../../CSS/navigation.css";
+import FavoritesCount from "../Products/FavoritesCount";
 
 const Navigation = () => {
   // States
@@ -126,7 +127,10 @@ const Navigation = () => {
           className="flex items-center transition-transform transform hover:translate-x-2"
         >
           <FaHeart className="mr-2 mt-[3rem]" size={26} />
-          <div className="span hidden nav-item-name mt-[3rem]">Favorite</div>
+          <div className="span hidden nav-item-name mt-[3rem]">
+            Favorites
+            <FavoritesCount />
+          </div>
         </Link>
       </div>
 

@@ -161,17 +161,24 @@ const addProductReview = asyncHandler(async (req, res) => {
       // Create review with the complete user data
       const review = {
         name: userData.username, // Now we have the username
-        rating: Number(rating),
+        rating: Number(rating), // Ensure rating is a number
         comment,
         user: req.user._id,
       };
 
-      // Rest of your code remains the same
+      // Add the review
       product.reviews.push(review);
       product.numReviews = product.reviews.length;
+
+      // Calculate the new average rating - Fixed this line
+      console.log(
+        "Reviews:",
+        product.reviews.map((r) => ({ name: r.name, rating: r.rating }))
+      );
       product.rating =
-        product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+        product.reviews.reduce((acc, item) => acc + Number(item.rating), 0) /
         product.reviews.length;
+      console.log("New average rating:", product.rating);
 
       await product.save();
       res.status(201).json({ message: "Review added" });

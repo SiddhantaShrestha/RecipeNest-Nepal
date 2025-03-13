@@ -4,6 +4,10 @@ import { apiSlice } from "./api/apiSlice";
 import authReducer from "./features/auth/authSlice";
 import recipeReducer from "../slices/recipeSlice";
 import blogsReducer from "../slices/blogsSlice";
+import favoritesReducer from "../redux/features/favorites/favoriteSlice";
+import { getFavoritesFromLocalStorage } from "../Utils/localStorage";
+
+const initialFavorites = getFavoritesFromLocalStorage() || [];
 
 const store = configureStore({
   reducer: {
@@ -11,6 +15,11 @@ const store = configureStore({
     auth: authReducer,
     recipes: recipeReducer,
     blogs: blogsReducer,
+    favorites: favoritesReducer,
+  },
+
+  preloadedState: {
+    favorites: initialFavorites,
   },
 
   middleware: (getDefaultMiddleware) =>
