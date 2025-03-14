@@ -43,9 +43,12 @@ import UserList from "./Components/Pages/Admin/UserList.jsx";
 import CategoryList from "./Components/Pages/Admin/CategoryList.jsx";
 import ProductList from "./Components/Pages/Admin/ProductList.jsx";
 import ProductUpdate from "./Components/Pages/Admin/ProductUpdate.jsx";
+
+import Cart from "./Components/Pages/Cart.jsx";
+import Shop from "./Components/Pages/Shop.jsx";
 // import AdminProductUpdate from "./Components/Admin/ProductUpdate.jsx";
 import AllProducts from "./Components/Pages/Admin/AllProducts.jsx";
-import Home from "./Home.jsx";
+import Home from "./Components/Pages/Home.jsx";
 import Favorites from "./Components/Products/Favorites.jsx";
 import ProductDetails from "./Components/Products/ProductDetails.jsx";
 
@@ -57,6 +60,8 @@ const router = createBrowserRouter(
       <Route index={true} path="/" element={<Home />} />
       <Route path="/favorite" element={<Favorites />} />
       <Route path="/product/:id" element={<ProductDetails />} />
+      <Route path="/cart" element={<Cart />} />
+      <Route path="/shop" element={<Shop />} />
 
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/home" element={<HomePage />} />
@@ -160,7 +165,6 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        {/* Remove ToastContainer from here */}
         <RouterProvider router={router} />
       </PersistGate>
     </Provider>

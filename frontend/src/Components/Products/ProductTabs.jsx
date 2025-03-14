@@ -7,7 +7,6 @@ import Loader from "../Loader";
 
 const ProductTabs = ({
   loadingProductReview,
-  userInfo,
   submitHandler,
   rating,
   setRating,
