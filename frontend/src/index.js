@@ -51,6 +51,10 @@ import AllProducts from "./Components/Pages/Admin/AllProducts.jsx";
 import Home from "./Components/Pages/Home.jsx";
 import Favorites from "./Components/Products/Favorites.jsx";
 import ProductDetails from "./Components/Products/ProductDetails.jsx";
+import EsewaPayment from "./Components/Auth/ESewaPayment.jsx";
+import Shipping from "./Components/Pages/Orders/Shipping.jsx";
+import PlaceOrder from "./Components/Pages/Orders/PlaceOrder.jsx";
+import Order from "./Components/Pages/Orders/Order.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -67,6 +71,9 @@ const router = createBrowserRouter(
       <Route path="/home" element={<HomePage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+
+      <Route path="/esewa" element={<EsewaPayment />} />
+
       <Route path="/blog" element={<BlogSection />} />
       <Route
         path="/my-blogs"
@@ -124,6 +131,30 @@ const router = createBrowserRouter(
         element={
           <ProtectedRoute>
             <MyProfile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shipping"
+        element={
+          <ProtectedRoute>
+            <Shipping />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/order/:id"
+        element={
+          <ProtectedRoute>
+            <Order />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/placeorder"
+        element={
+          <ProtectedRoute>
+            <PlaceOrder />
           </ProtectedRoute>
         }
       />

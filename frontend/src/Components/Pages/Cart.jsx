@@ -18,10 +18,18 @@ const Cart = () => {
     dispatch(removeFromCart(id));
   };
 
-  const checkoutHandler = () => {
-    navigate("/login?redirect=/shipping");
-  };
+  // Update your selector to access the auth state correctly
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
+  const checkoutHandler = () => {
+    if (isAuthenticated) {
+      // User is already logged in, go directly to shipping
+      navigate("/shipping");
+    } else {
+      // User is not logged in, redirect to login with return URL
+      navigate("/login?redirect=/shipping");
+    }
+  };
   return (
     <>
       <div className="container flex justify-around items-start flex wrap mx-auto mt-8">

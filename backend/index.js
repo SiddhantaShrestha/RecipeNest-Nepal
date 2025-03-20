@@ -6,11 +6,14 @@ import bodyParser from "body-parser";
 import registerRouter from "./src/Routes/registerRouter.js";
 import blogRouter from "./src/Routes/blogRouter.js"; // Import the blogRouter
 import recipeRouter from "./src/Routes/recipeRouter.js";
+import orderRoutes from "./src/Routes/orderRoutes.js";
 import FileRouter from "./src/Routes/fileRouter.js";
 import cookieParser from "cookie-parser";
 import categoryRouter from "./src/Routes/categoryRouter.js";
 import productRoutes from "./src/Routes/productRoutes.js";
 import uploadRoutes from "./src/Routes/uploadRoutes.js";
+import esewaRoutes from "./src/Routes/eSewaRoutes.js";
+
 import path from "path";
 
 let expressApp = express();
@@ -46,6 +49,9 @@ expressApp.use("/file", FileRouter); // Blog routes
 expressApp.use("/api/category", categoryRouter);
 expressApp.use("/api/products", productRoutes);
 expressApp.use("/api/upload", uploadRoutes);
+expressApp.use("/api/orders", orderRoutes);
+
+expressApp.use("/api/esewa", esewaRoutes);
 
 const __dirname = path.resolve();
 expressApp.use("/uploads", express.static(path.join(__dirname + "/uploads")));
