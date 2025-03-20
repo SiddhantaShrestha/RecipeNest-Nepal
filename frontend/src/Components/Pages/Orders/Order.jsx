@@ -26,7 +26,16 @@ const Order = () => {
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
   const [deliverOrder, { isLoading: loadingDeliver }] =
     useDeliverOrderMutation();
-  const { userInfo } = useSelector((state) => state.auth);
+
+  // Fix: Access user data with better error handling
+  const auth = useSelector((state) => state.auth);
+  const user = auth?.user || {};
+
+  // Debug the user data when component mounts
+  useEffect(() => {
+    console.log("Current auth state:", auth);
+    console.log("User data in Order component:", user);
+  }, [auth, user]);
 
   // Handle eSewa payment
   const handleEsewaPayment = async () => {
@@ -142,7 +151,6 @@ const Order = () => {
             location.pathname.includes(`/order/${orderId}`) &&
             storedTransactionId
           ) {
-            // We're on the right order page but no data param - try to verify with backend
             try {
               const verifyResponse = await axios.post(
                 "http://localhost:8000/api/esewa/verify",
@@ -365,7 +373,7 @@ const Order = () => {
         )}
 
         {loadingDeliver && <Loader />}
-        {userInfo && userInfo.isAdmin && order.isPaid && !order.isDelivered && (
+        {user && user.isAdmin && order.isPaid && !order.isDelivered && (
           <div>
             <button
               type="button"

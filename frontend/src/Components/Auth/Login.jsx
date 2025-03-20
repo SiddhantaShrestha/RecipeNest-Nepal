@@ -4,13 +4,14 @@ import * as Yup from "yup";
 import FormikInput from "../FormikComponents/FormikInput";
 import axios from "axios";
 import "../../CSS/auth.css";
-import { useDispatch } from "react-redux"; // Import useDispatch for dispatching actions
-import { login } from "../../redux/features/auth/authSlice"; // Import login action from authSlice
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useDispatch } from "react-redux";
+import { login, updateUser } from "../../redux/features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../redux/constants"; // Import your BASE_URL
 
 const Login = () => {
-  const dispatch = useDispatch(); // Initialize the dispatch function from Redux
-  const navigate = useNavigate(); // Use navigate hook from react-router-dom
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const initialValues = {
     email: "",
@@ -21,6 +22,24 @@ const Login = () => {
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string().required("Password is required"),
   });
+
+  const fetchUserProfile = async (token) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/users/my-profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data && response.data.data) {
+        return response.data.data;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      return null;
+    }
+  };
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
@@ -37,26 +56,38 @@ const Login = () => {
       console.log("Login response:", {
         success: response.data.success,
         hasToken: !!response.data.token,
-        user: response.data.user,
+        user: response.data.data,
       });
 
       if (response.data.success && response.data.token) {
-        // Calculate expiration date (24 hours from now)
+        // Store the token
+        const token = response.data.token;
         const expirationDate = Date.now() + 24 * 60 * 60 * 1000;
 
-        // Dispatch the login action with token, user data, and expiration
+        // Dispatch the login action with token and expiration, but with a placeholder for user
         dispatch(
           login({
-            token: response.data.token,
-            user: response.data.user,
-            expirationDate: expirationDate, // Add the calculated expiration date
+            token: token,
+            user: {}, // Empty placeholder
+            expirationDate: expirationDate,
           })
         );
 
-        // Add a small delay before navigation
+        // Now fetch the user profile
+        const userProfile = await fetchUserProfile(token);
+
+        if (userProfile) {
+          // Update the user data in the store
+          dispatch(updateUser(userProfile));
+          console.log("User profile fetched and stored:", userProfile);
+        } else {
+          console.warn("Failed to fetch user profile");
+        }
+
+        // Navigate to home page
         setTimeout(() => {
           navigate("/");
-        }, 100);
+        }, 200);
       } else {
         alert(response.data.message || "Login failed - no token received");
       }
@@ -100,7 +131,7 @@ const Login = () => {
 
                 <p
                   className="text-right text-sm text-[#8b5e34] mb-4 cursor-pointer"
-                  onClick={() => navigate("/forgot-password")} // Use navigate hook for Forgot Password
+                  onClick={() => navigate("/forgot-password")}
                 >
                   Forgot Password?
                 </p>
@@ -122,7 +153,7 @@ const Login = () => {
         <h2 className="font-bold text-3xl lg:text-4xl mb-4">New Here?</h2>
         <p className="text-lg lg:text-2xl mb-5">Create a Free account.</p>
         <button
-          onClick={() => navigate("/signup")} // Use navigate hook for Sign Up
+          onClick={() => navigate("/signup")}
           className="py-2 px-4 lg:px-6 text-lg bg-[#d9e85e] rounded-md cursor-pointer"
         >
           Sign Up

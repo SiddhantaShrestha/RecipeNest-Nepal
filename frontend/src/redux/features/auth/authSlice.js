@@ -19,6 +19,8 @@ const authSlice = createSlice({
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("tokenExpiration", expirationDate);
 
+      // console.log("User data after storing:", localStorage.getItem("user"));
+
       state.isAuthenticated = true;
       state.token = token;
       state.user = user;
