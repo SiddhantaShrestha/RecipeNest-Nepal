@@ -20,9 +20,9 @@ let isAuthenticated = async (req, res, next) => {
     // Pass both ID and role to the request object
     req.user = decoded;
     req._id = decoded._id;
-    req.role = decoded.role;
+    req.isAdmin = decoded.isAdmin;
 
-    console.log("Authenticated user:", { id: req._id, role: req.role });
+    console.log("Authenticated user:", { id: req._id, role: req.isAdmin });
 
     next();
   } catch (error) {

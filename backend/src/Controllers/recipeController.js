@@ -84,7 +84,10 @@ export const getRecipeById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const recipe = await Recipe.findById(id);
+    const recipe = await Recipe.findById(id).populate(
+      "comments.user",
+      "username"
+    );
     if (!recipe) {
       return res.status(404).json({ message: "Recipe not found" });
     }
@@ -238,5 +241,49 @@ export const deleteRecipe = async (req, res) => {
       message: "Error deleting recipe",
       error: error.message,
     });
+  }
+};
+
+export const addComment = async (req, res) => {
+  const { id } = req.params; // recipe ID
+  const { text } = req.body;
+  const userId = req.user._id || req._id; // Try both options
+
+  // Input validation
+  if (!text) {
+    return res.status(400).json({ message: "Comment text is required." });
+  }
+
+  try {
+    const recipe = await Recipe.findById(id);
+    if (!recipe) {
+      return res.status(404).json({ message: "recipe not found" });
+    }
+
+    const newComment = {
+      user: userId,
+      text,
+      createdAt: new Date(),
+    };
+
+    recipe.comments.push(newComment);
+    await recipe.save();
+
+    // Get the newly added comment with populated user data
+    const updatedRecipe = await Recipe.findById(id).populate(
+      "comments.user",
+      "username"
+    );
+
+    const addedComment =
+      updatedRecipe.comments[updatedRecipe.comments.length - 1];
+
+    res.status(201).json({
+      message: "Comment added successfully",
+      comment: addedComment,
+    });
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

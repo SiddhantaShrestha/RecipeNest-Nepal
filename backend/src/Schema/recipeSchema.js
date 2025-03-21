@@ -1,5 +1,22 @@
 import mongoose from "mongoose";
 
+export const commentSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Register", // Reference to your user model
+    required: true,
+  },
+  text: {
+    type: String,
+    required: true,
+    minlength: 1,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 const recipeSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
@@ -20,6 +37,7 @@ const recipeSchema = new mongoose.Schema(
       ref: "Register",
       required: true,
     }, // Reference to user
+    comments: [commentSchema],
   },
 
   { timestamps: true }

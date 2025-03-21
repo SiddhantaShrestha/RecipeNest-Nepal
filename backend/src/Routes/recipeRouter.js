@@ -6,6 +6,7 @@ import {
   getRecipesByUser,
   updateRecipe,
   deleteRecipe,
+  addComment,
 } from "../Controllers/recipeController.js";
 import upload from "../Middleware/multer.js";
 import isAuthenticated from "../Middleware/isAuthenticated.js";
@@ -46,5 +47,7 @@ recipeRouter.route("/:id").put(
 
 // Protected route for deleting a recipe
 recipeRouter.route("/:id").delete(isAuthenticated, deleteRecipe);
+
+recipeRouter.route("/:id/comments").post(isAuthenticated, addComment);
 
 export default recipeRouter;

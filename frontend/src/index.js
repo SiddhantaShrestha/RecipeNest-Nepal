@@ -12,6 +12,7 @@ import { persistor } from "./redux/stores";
 import store from "./redux/store.js";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { restoreAuth } from "./slices/authSlice";
 
 import App from "./App";
 import "./index.css";
@@ -55,6 +56,7 @@ import EsewaPayment from "./Components/Auth/ESewaPayment.jsx";
 import Shipping from "./Components/Pages/Orders/Shipping.jsx";
 import PlaceOrder from "./Components/Pages/Orders/PlaceOrder.jsx";
 import Order from "./Components/Pages/Orders/Order.jsx";
+import AdminRecipeApproval from "./Components/Recipe/AdminApproval.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -71,6 +73,7 @@ const router = createBrowserRouter(
       <Route path="/home" element={<HomePage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/admin-approve" element={<AdminRecipeApproval />} />
 
       <Route path="/esewa" element={<EsewaPayment />} />
 
@@ -190,6 +193,8 @@ const router = createBrowserRouter(
     </Route>
   )
 );
+
+store.dispatch(restoreAuth());
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

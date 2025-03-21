@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addRecipe } from "../../slices/recipeSlice";
@@ -9,6 +9,7 @@ const AddRecipePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated); // Access auth state
+  console.log(isAuthenticated);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [ingredients, setIngredients] = useState([{ name: "" }]);
@@ -175,6 +176,10 @@ const AddRecipePage = () => {
     setSteps(updatedSteps);
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    console.log("Token in localStorage:", token ? "exists" : "missing");
+  }, []);
   return (
     <div>
       <Navbar />

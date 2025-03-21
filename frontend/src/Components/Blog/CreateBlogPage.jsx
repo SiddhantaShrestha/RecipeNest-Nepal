@@ -29,7 +29,11 @@ const validate = (values) => {
 
 const CreateBlogPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
-  const { token } = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
+
+  console.log("Auth State:", auth); // This will show the entire auth state
+  const token = auth.token || localStorage.getItem("authToken");
+
   const dispatch = useDispatch();
 
   const initialValues = {

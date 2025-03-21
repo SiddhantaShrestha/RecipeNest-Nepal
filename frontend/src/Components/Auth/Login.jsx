@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import FormikInput from "../FormikComponents/FormikInput";
 import axios from "axios";
 import "../../CSS/auth.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login, updateUser } from "../../redux/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../redux/constants"; // Import your BASE_URL
@@ -40,6 +40,9 @@ const Login = () => {
       return null;
     }
   };
+
+  const authState = useSelector((state) => state.auth);
+  console.log("Auth State:", authState);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
