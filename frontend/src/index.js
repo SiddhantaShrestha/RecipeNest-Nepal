@@ -57,6 +57,9 @@ import Shipping from "./Components/Pages/Orders/Shipping.jsx";
 import PlaceOrder from "./Components/Pages/Orders/PlaceOrder.jsx";
 import Order from "./Components/Pages/Orders/Order.jsx";
 import AdminRecipeApproval from "./Components/Recipe/AdminApproval.jsx";
+import MyBlogsPage from "./Components/Auth/MyBlogsPage.jsx";
+import UserOrder from "./Components/Pages/Orders/UserOrder.jsx";
+import OrderList from "./Components/Pages/Admin/OrderList.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -68,6 +71,7 @@ const router = createBrowserRouter(
       <Route path="/product/:id" element={<ProductDetails />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/shop" element={<Shop />} />
+      <Route path="/user-orders" element={<UserOrder />} />
 
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/home" element={<HomePage />} />
@@ -130,6 +134,14 @@ const router = createBrowserRouter(
         }
       />
       <Route
+        path="/user-blogs"
+        element={
+          <ProtectedRoute>
+            <MyBlogsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/my-profile"
         element={
           <ProtectedRoute>
@@ -185,7 +197,8 @@ const router = createBrowserRouter(
         <Route path="categorylist" element={<CategoryList />} />
         <Route path="productlist" element={<ProductList />} />
         <Route path="allproductslist" element={<AllProducts />} />
-        <Route path="productlist/:pageNumber" element={<ProductList />} />
+        <Route path="orderlist" element={<OrderList />} />
+        {/* <Route path="productlist/:pageNumber" element={<ProductList />} /> */}
         <Route path="product/update/:_id" element={<ProductUpdate />} />
       </Route>
 

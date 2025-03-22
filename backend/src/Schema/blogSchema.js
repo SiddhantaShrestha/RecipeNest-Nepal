@@ -84,7 +84,7 @@ const blogSchema = new mongoose.Schema(
     },
     //pass image --> upload image to server --> link --> store link to database
     creator: {
-      type: mongoose.Types.ObjectId, // Reference to the user who created the blog
+      type: mongoose.Schema.Types.ObjectId, // Reference to the user who created the blog
       ref: "Register",
       required: true,
     },

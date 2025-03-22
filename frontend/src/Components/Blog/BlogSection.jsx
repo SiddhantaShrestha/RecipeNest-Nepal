@@ -4,9 +4,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { Formik, Form, Field } from "formik";
 import Select from "react-select";
 import Navbar from "../Navbar"; // Updated path
-import { fetchBlogs, deleteBlog } from "../../slices/blogsSlice"; // Updated path
+import { fetchBlogs } from "../../slices/blogsSlice"; // Updated path
 import { categories } from "../../categories"; // Updated path
-import "../../CSS/blog.css"; // Keep the same if the CSS location is unchanged
+import "../../CSS/blog.css";
 
 const BlogSection = () => {
   const dispatch = useDispatch();
@@ -16,7 +16,6 @@ const BlogSection = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredBlogs, setFilteredBlogs] = useState([]);
-  const [loadingId, setLoadingId] = useState(null);
 
   useEffect(() => {
     if (status === "idle") {
@@ -27,23 +26,6 @@ const BlogSection = () => {
   useEffect(() => {
     setFilteredBlogs(blogs);
   }, [blogs]);
-
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this blog?"
-    );
-    if (confirmDelete) {
-      setLoadingId(id);
-      try {
-        await dispatch(deleteBlog(id));
-        alert("Blog deleted successfully.");
-      } catch (err) {
-        alert("Failed to delete blog.");
-      } finally {
-        setLoadingId(null);
-      }
-    }
-  };
 
   const categoryOptions = [
     { value: "All", label: "All" },
@@ -155,23 +137,6 @@ const BlogSection = () => {
                   >
                     Read More
                   </Link>
-                  <Link
-                    to={`/blogs/edit/${blog._id}`}
-                    className="py-2 px-4 bg-yellow-500 text-white rounded-lg"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(blog._id)}
-                    disabled={loadingId === blog._id}
-                    className={`py-2 px-4 ${
-                      loadingId === blog._id
-                        ? "bg-gray-500"
-                        : "bg-red-500 hover:bg-red-600"
-                    } text-white rounded-lg`}
-                  >
-                    {loadingId === blog._id ? "Deleting..." : "Delete"}
-                  </button>
                 </div>
               </div>
             ))

@@ -183,18 +183,27 @@ export const addComment = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-// Fetch blogs created by the authenticated user
-export const getMyBlogs = async (req, res) => {
+
+// Add this function to your blogController.js file
+export const getBlogsByUser = async (req, res) => {
   try {
-    const userId = req._id; // Retrieved from the token middleware
-    const blogs = await Blog.find({ creator: userId }).sort({ createdAt: -1 });
+    const creatorId = req._id; // Use the logged-in user's ID
+
+    const blogs = await Blog.find({ creator: creatorId }).sort({
+      createdAt: -1,
+    });
 
     res.status(200).json({
-      message: "Your blogs fetched successfully",
+      success: true,
+      message: "Blogs fetched successfully",
       blogs,
     });
   } catch (error) {
     console.error("Error fetching user-specific blogs:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching blogs",
+      error: error.message,
+    });
   }
 };
