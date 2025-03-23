@@ -50,7 +50,7 @@ const ViewRecipePage = () => {
     // Fetch bookmarked recipes to check status
     if (token) {
       axios
-        .get("http://localhost:8000/register/bookmarks", {
+        .get("http://localhost:8000/api/users/bookmarks", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -121,7 +121,7 @@ const ViewRecipePage = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/register/toggle-bookmark",
+        "http://localhost:8000/api/users/toggle-bookmark",
         { recipeId: id },
         {
           headers: {

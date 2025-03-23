@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { addRecipe } from "../../slices/recipeSlice";
 import axios from "axios";
 import Navbar from "../Navbar";
+import SubNavbar from "../SubNavbar";
 
 const AddRecipePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated); // Access auth state
-  console.log(isAuthenticated);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [ingredients, setIngredients] = useState([{ name: "" }]);
@@ -20,21 +21,19 @@ const AddRecipePage = () => {
   const [mainImage, setMainImage] = useState(null);
   const [mainImagePreview, setMainImagePreview] = useState("");
   const [prepTime, setPrepTime] = useState("");
-  const [prepTimeHours, setPrepTimeHours] = useState(0); // State for hours
-  const [prepTimeMinutes, setPrepTimeMinutes] = useState(0); // State for minutes
+  const [prepTimeHours, setPrepTimeHours] = useState(0);
+  const [prepTimeMinutes, setPrepTimeMinutes] = useState(0);
   const [servings, setServings] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false); // State to control modal visibility
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Handle changes to the hours dropdown
   // Handle changes to the hours input field
   const handlePrepTimeHoursChange = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
-      // Only allow numbers
       setPrepTimeHours(value);
-      updatePrepTime(value, prepTimeMinutes); // Update the final prep time string
+      updatePrepTime(value, prepTimeMinutes);
     }
   };
 
@@ -42,9 +41,8 @@ const AddRecipePage = () => {
   const handlePrepTimeMinutesChange = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
-      // Only allow numbers
       setPrepTimeMinutes(value);
-      updatePrepTime(prepTimeHours, value); // Update the final prep time string
+      updatePrepTime(prepTimeHours, value);
     }
   };
 
@@ -57,7 +55,7 @@ const AddRecipePage = () => {
     if (minutes && Number(minutes) > 0) {
       timeString += `${minutes} min`;
     }
-    setPrepTime(timeString.trim()); // Set the final prepTime string
+    setPrepTime(timeString.trim());
   };
 
   const handleIngredientChange = (index, value) => {
@@ -105,7 +103,7 @@ const AddRecipePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      setShowLoginModal(true); // Show modal if not authenticated
+      setShowLoginModal(true);
       return;
     }
     setLoading(true);
@@ -129,7 +127,7 @@ const AddRecipePage = () => {
 
       const stepsData = steps.map((step) => ({
         description: step.description,
-        image: "", // This will be updated by the backend
+        image: "",
       }));
       formData.append("steps", JSON.stringify(stepsData));
 
@@ -139,7 +137,7 @@ const AddRecipePage = () => {
         }
       });
 
-      const token = localStorage.getItem("authToken"); // Retrieve the token (ensure it matches your storage mechanism)
+      const token = localStorage.getItem("authToken");
 
       const response = await axios.post(
         "http://localhost:8000/recipes",
@@ -147,12 +145,12 @@ const AddRecipePage = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      dispatch(addRecipe(response.data)); // Dispatch the new recipe to Redux store
+      dispatch(addRecipe(response.data));
       navigate("/recipes");
     } catch (err) {
       setError(err.response?.data?.message || "Error adding recipe");
@@ -178,22 +176,33 @@ const AddRecipePage = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    console.log("Token in localStorage:", token ? "exists" : "missing");
+    if (!token) {
+      setShowLoginModal(true);
+    }
   }, []);
-  return (
-    <div>
-      <Navbar />
-      <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
-        <h1 className="text-3xl font-bold text-center mb-6">
-          Add a New Recipe
-        </h1>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+  return (
+    <div className="min-h-screen bg-gray-900 text-gray-100">
+      <Navbar />
+      <SubNavbar />
+      <div className="max-w-4xl mx-auto p-6 bg-gray-800 shadow-lg rounded-lg mt-10 border border-gray-700">
+        <h1 className="text-3xl font-bold text-center mb-6 text-emerald-400">
+          Create New Recipe
+        </h1>
+        {error && (
+          <div className="bg-red-900/40 border border-red-700 rounded-lg p-4 text-center text-red-200 mb-6">
+            <p>{error}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Title */}
           <div className="flex flex-col">
-            <label htmlFor="title" className="text-lg font-semibold">
-              Title
+            <label
+              htmlFor="title"
+              className="text-lg font-semibold mb-2 text-emerald-300"
+            >
+              Recipe Title
             </label>
             <input
               type="text"
@@ -201,14 +210,17 @@ const AddRecipePage = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="mt-2 p-2 border rounded-lg"
+              className="p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
               placeholder="Enter recipe title"
             />
           </div>
 
           {/* Description */}
           <div className="flex flex-col">
-            <label htmlFor="description" className="text-lg font-semibold">
+            <label
+              htmlFor="description"
+              className="text-lg font-semibold mb-2 text-emerald-300"
+            >
               Description
             </label>
             <textarea
@@ -217,194 +229,333 @@ const AddRecipePage = () => {
               onChange={(e) => setDescription(e.target.value)}
               required
               rows="4"
-              className="mt-2 p-2 border rounded-lg"
-              placeholder="Enter recipe description"
+              className="p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
+              placeholder="Briefly describe your recipe"
             />
-          </div>
-
-          {/* Category */}
-          <div className="flex flex-col">
-            <label htmlFor="category" className="text-lg font-semibold">
-              Category
-            </label>
-            <input
-              type="text"
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required
-              className="mt-2 p-2 border rounded-lg"
-              placeholder="e.g., Dessert, Main Course, etc."
-            />
-          </div>
-
-          {/* Preparation Time */}
-          <div className="flex flex-col">
-            <label htmlFor="prepTime" className="text-lg font-semibold">
-              Preparation Time
-            </label>
-            <div className="flex items-center mt-2 space-x-4">
-              <div>
-                <input
-                  type="number"
-                  value={prepTimeHours}
-                  onChange={handlePrepTimeHoursChange}
-                  className="p-2 border rounded-lg"
-                  placeholder="Hours"
-                  maxLength="2" // Limit input length to 2 digits for hours
-                />
-                <span className="ml-2">hr</span>
-              </div>
-
-              <div>
-                <input
-                  type="number"
-                  value={prepTimeMinutes}
-                  onChange={handlePrepTimeMinutesChange}
-                  className="p-2 border rounded-lg"
-                  placeholder="Minutes"
-                  maxLength="2" // Limit input length to 2 digits for minutes
-                />
-                <span className="ml-2">min</span>
-              </div>
-            </div>
-            {/* Display the selected preparation time */}
-            <input
-              type="text"
-              value={prepTime}
-              readOnly
-              className="mt-2 p-2 border rounded-lg"
-              placeholder="e.g., 1 hr 30 min"
-            />
-          </div>
-
-          {/* Servings */}
-          <div className="flex flex-col">
-            <label htmlFor="servings" className="text-lg font-semibold">
-              Servings
-            </label>
-            <input
-              type="number"
-              id="servings"
-              value={servings}
-              onChange={(e) => setServings(e.target.value)}
-              required
-              className="mt-2 p-2 border rounded-lg"
-              placeholder="e.g., 4"
-            />
-          </div>
-
-          {/* Ingredients */}
-          <div>
-            <label className="text-lg font-semibold">Ingredients</label>
-            {ingredients.map((ingredient, index) => (
-              <div key={index} className="flex items-center mt-2">
-                <input
-                  type="text"
-                  value={ingredient.name}
-                  onChange={(e) =>
-                    handleIngredientChange(index, e.target.value)
-                  }
-                  placeholder="Enter ingredient"
-                  required
-                  className="flex-1 p-2 border rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeIngredient(index)}
-                  className="ml-2 px-3 py-1 bg-red-500 text-white rounded-lg"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={addIngredient}
-              className="mt-4 p-2 bg-green-600 text-white rounded-lg"
-            >
-              Add Ingredient
-            </button>
           </div>
 
           {/* Main Recipe Image */}
           <div className="flex flex-col">
-            <label htmlFor="mainImage" className="text-lg font-semibold">
+            <label
+              htmlFor="mainImage"
+              className="text-lg font-semibold mb-2 text-emerald-300"
+            >
               Main Recipe Image
             </label>
-            <input
-              type="file"
-              id="mainImage"
-              accept="image/*"
-              onChange={handleMainImageChange}
-              required
-              className="mt-2 p-2 border rounded-lg"
-            />
-            {mainImagePreview && (
-              <div className="mt-2">
-                <img
-                  src={mainImagePreview}
-                  alt="Recipe preview"
-                  className="w-48 h-48 object-cover rounded-lg"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Steps */}
-          <div>
-            <label className="text-lg font-semibold">Recipe Steps</label>
-            {steps.map((step, index) => (
-              <div key={index} className="mt-4 p-4 border rounded-lg">
-                <div className="flex flex-col">
-                  <label className="font-medium">
-                    Step {index + 1} Description
-                  </label>
-                  <textarea
-                    value={step.description}
-                    onChange={(e) =>
-                      handleStepChange(index, "description", e.target.value)
-                    }
-                    required
-                    rows="2"
-                    placeholder="Enter step description"
-                    className="p-2 mt-2 border rounded-lg"
-                  />
-                </div>
-                <div className="flex flex-col mt-2">
-                  <label className="font-medium">
-                    Step {index + 1} Image (Optional)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleStepImageChange(index, e)}
-                    className="p-2 mt-2 border rounded-lg"
-                  />
-                  {step.imagePreview && (
-                    <div className="mt-2">
+            <div className="flex items-center justify-center w-full">
+              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-all overflow-hidden">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6 h-full w-full">
+                  {!mainImagePreview ? (
+                    <>
+                      <svg
+                        className="w-10 h-10 mb-3 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        ></path>
+                      </svg>
+                      <p className="mb-2 text-sm text-gray-400">
+                        <span className="font-semibold">Click to upload</span>{" "}
+                        or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        SVG, PNG, JPG or GIF
+                      </p>
+                    </>
+                  ) : (
+                    <div className="h-full w-full">
                       <img
-                        src={step.imagePreview}
-                        alt={`Step ${index + 1} preview`}
-                        className="w-32 h-32 object-cover rounded-lg"
+                        src={mainImagePreview}
+                        alt="Recipe preview"
+                        className="h-full w-full object-contain"
                       />
                     </div>
                   )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => removeStep(index)}
-                  className="mt-2 p-2 bg-red-500 text-white rounded-lg"
-                >
-                  Remove Step
-                </button>
+                <input
+                  type="file"
+                  id="mainImage"
+                  accept="image/*"
+                  onChange={handleMainImageChange}
+                  className="hidden"
+                  required
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Category */}
+            <div className="flex flex-col">
+              <label
+                htmlFor="category"
+                className="text-lg font-semibold mb-2 text-emerald-300"
+              >
+                Category
+              </label>
+              <input
+                type="text"
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                required
+                className="p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
+                placeholder="e.g., Dessert, Main Course"
+              />
+            </div>
+
+            {/* Preparation Time */}
+            <div className="flex flex-col">
+              <label
+                htmlFor="prepTime"
+                className="text-lg font-semibold mb-2 text-emerald-300"
+              >
+                Preparation Time
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center bg-gray-700 border border-gray-600 rounded-lg p-1">
+                  <input
+                    type="number"
+                    value={prepTimeHours}
+                    onChange={handlePrepTimeHoursChange}
+                    className="w-full p-2 bg-transparent focus:outline-none text-white"
+                    placeholder="0"
+                    min="0"
+                    max="99"
+                  />
+                  <span className="pr-2 text-gray-400">hr</span>
+                </div>
+                <div className="flex items-center bg-gray-700 border border-gray-600 rounded-lg p-1">
+                  <input
+                    type="number"
+                    value={prepTimeMinutes}
+                    onChange={handlePrepTimeMinutesChange}
+                    className="w-full p-2 bg-transparent focus:outline-none text-white"
+                    placeholder="0"
+                    min="0"
+                    max="59"
+                  />
+                  <span className="pr-2 text-gray-400">min</span>
+                </div>
               </div>
-            ))}
+              {prepTime && (
+                <div className="mt-2 text-sm text-emerald-400">
+                  Total prep time: {prepTime}
+                </div>
+              )}
+            </div>
+
+            {/* Servings */}
+            <div className="flex flex-col">
+              <label
+                htmlFor="servings"
+                className="text-lg font-semibold mb-2 text-emerald-300"
+              >
+                Servings
+              </label>
+              <input
+                type="number"
+                id="servings"
+                value={servings}
+                onChange={(e) => setServings(e.target.value)}
+                required
+                min="1"
+                className="p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
+                placeholder="e.g., 4"
+              />
+            </div>
+          </div>
+
+          {/* Ingredients */}
+          <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+            <label className="text-lg font-semibold mb-4 text-emerald-300 block">
+              Ingredients
+            </label>
+            <div className="space-y-3 mb-4">
+              {ingredients.map((ingredient, index) => (
+                <div key={index} className="flex items-center">
+                  <input
+                    type="text"
+                    value={ingredient.name}
+                    onChange={(e) =>
+                      handleIngredientChange(index, e.target.value)
+                    }
+                    placeholder="Enter ingredient with quantity (e.g., 2 cups flour)"
+                    required
+                    className="flex-1 p-3 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeIngredient(index)}
+                    className="ml-2 p-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={addIngredient}
+              className="w-full p-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center justify-center"
+            >
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                ></path>
+              </svg>
+              Add Ingredient
+            </button>
+          </div>
+
+          {/* Steps */}
+          <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+            <label className="text-lg font-semibold mb-4 text-emerald-300 block">
+              Recipe Steps
+            </label>
+            <div className="space-y-6 mb-4">
+              {steps.map((step, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-gray-800 rounded-lg border border-gray-600"
+                >
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-bold text-lg text-emerald-400">
+                      Step {index + 1}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => removeStep(index)}
+                      className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        ></path>
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="font-medium mb-2 text-emerald-300">
+                      Description
+                    </label>
+                    <textarea
+                      value={step.description}
+                      onChange={(e) =>
+                        handleStepChange(index, "description", e.target.value)
+                      }
+                      required
+                      rows="3"
+                      placeholder="Describe what to do in this step"
+                      className="p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white mb-4"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="font-medium mb-2 text-emerald-300">
+                      Step Image (Optional)
+                    </label>
+                    <div className="flex items-center justify-center w-full">
+                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-all overflow-hidden">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6 h-full w-full">
+                          {!step.imagePreview ? (
+                            <>
+                              <svg
+                                className="w-8 h-8 mb-3 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                ></path>
+                              </svg>
+                              <p className="text-xs text-gray-400">
+                                Upload an image for this step (optional)
+                              </p>
+                            </>
+                          ) : (
+                            <div className="h-full w-full">
+                              <img
+                                src={step.imagePreview}
+                                alt={`Step ${index + 1} preview`}
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleStepImageChange(index, e)}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
             <button
               type="button"
               onClick={addStep}
-              className="mt-4 p-2 bg-green-600 text-white rounded-lg"
+              className="w-full p-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center justify-center"
             >
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                ></path>
+              </svg>
               Add Step
             </button>
           </div>
@@ -413,33 +564,62 @@ const AddRecipePage = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full mt-6 py-2 ${
-              loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-            } text-white rounded-lg`}
+            className={`w-full py-3 px-4 rounded-lg text-lg font-bold ${
+              loading
+                ? "bg-gray-600 cursor-not-allowed"
+                : "bg-emerald-600 hover:bg-emerald-700 hover:shadow-lg transform hover:scale-105"
+            } text-white transition-all duration-300 flex items-center justify-center`}
           >
-            {loading ? "Adding Recipe..." : "Add Recipe"}
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></div>
+                Creating Recipe...
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-6 h-6 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  ></path>
+                </svg>
+                Create Recipe
+              </>
+            )}
           </button>
         </form>
       </div>
 
       {/* Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-semibold mb-4">Please Log In</h2>
-            <p className="mb-4">You need to be logged in to add a recipe.</p>
-            <div className="flex justify-end">
-              <button
-                onClick={() => navigate("/login")}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Log In
-              </button>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-xl w-96 border border-gray-700">
+            <h2 className="text-xl font-semibold mb-4 text-emerald-400">
+              Authentication Required
+            </h2>
+            <p className="mb-6 text-gray-300">
+              You need to be logged in to create a recipe.
+            </p>
+            <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowLoginModal(false)}
-                className="ml-2 px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition-colors"
               >
-                Close
+                Cancel
+              </button>
+              <button
+                onClick={() => navigate("/login")}
+                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-lg"
+              >
+                Log In
               </button>
             </div>
           </div>

@@ -33,7 +33,6 @@ import RecipeListPage from "./Components/Recipe/RecipeListPage.jsx";
 import ViewRecipePage from "./Components/Recipe/ViewRecipePage.jsx";
 import MyProfile from "./Components/Auth/MyProfile.jsx";
 import ChangePassword from "./Components/Auth/ChangePassword.jsx";
-import MyBlogs from "./Components/MyBlogs.jsx";
 import CheckDesign from "./Components/checkdesign.jsx";
 import SavedRecipes from "./Components/SavedRecipes.jsx";
 import MyRecipesPage from "./Components/Auth/MyRecipesPage.jsx";
@@ -61,6 +60,7 @@ import MyBlogsPage from "./Components/Auth/MyBlogsPage.jsx";
 import UserOrder from "./Components/Pages/Orders/UserOrder.jsx";
 import OrderList from "./Components/Pages/Admin/OrderList.jsx";
 import { AdminDashboard } from "./Components/Pages/Admin/AdminDashboard.jsx";
+import AboutUs from "./Components/Pages/AboutUs.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -68,9 +68,24 @@ const router = createBrowserRouter(
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
       <Route index={true} path="/" element={<Home />} />
-      <Route path="/favorite" element={<Favorites />} />
+      <Route path="/about" element={<AboutUs />} />
+      <Route
+        path="/favorite"
+        element={
+          <ProtectedRoute>
+            <Favorites />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/product/:id" element={<ProductDetails />} />
-      <Route path="/cart" element={<Cart />} />
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute>
+            <Cart />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/shop" element={<Shop />} />
       <Route path="/user-orders" element={<UserOrder />} />
 
@@ -87,7 +102,7 @@ const router = createBrowserRouter(
         path="/my-blogs"
         element={
           <ProtectedRoute>
-            <MyBlogs />
+            <MyBlogsPage />
           </ProtectedRoute>
         }
       />
@@ -134,14 +149,7 @@ const router = createBrowserRouter(
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/user-blogs"
-        element={
-          <ProtectedRoute>
-            <MyBlogsPage />
-          </ProtectedRoute>
-        }
-      />
+
       <Route
         path="/my-profile"
         element={

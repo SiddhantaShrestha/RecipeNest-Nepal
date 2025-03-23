@@ -47,15 +47,15 @@ registerRouter.route("/forgot-password").post(forgotPassword);
 
 registerRouter.route("/reset-password").patch(isAuthenticated, resetPassword);
 
+registerRouter.route("/toggle-bookmark").post(isAuthenticated, toggleBookmark);
+
+registerRouter.route("/bookmarks").get(isAuthenticated, getBookmarkedRecipes);
+
 registerRouter
   .route("/:id")
   .get(isAuthenticated, authorized, readSpecificUser)
   .patch(isAuthenticated, authorized, updateSpecificUser)
   .delete(isAuthenticated, authorized, deleteUser);
-
-registerRouter.route("/toggle-bookmark").post(isAuthenticated, toggleBookmark);
-
-registerRouter.route("/bookmarks").get(isAuthenticated, getBookmarkedRecipes);
 
 registerRouter.route("/bookmarks").get(
   (req, res, next) => {
