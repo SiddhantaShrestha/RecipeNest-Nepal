@@ -60,6 +60,7 @@ import AdminRecipeApproval from "./Components/Recipe/AdminApproval.jsx";
 import MyBlogsPage from "./Components/Auth/MyBlogsPage.jsx";
 import UserOrder from "./Components/Pages/Orders/UserOrder.jsx";
 import OrderList from "./Components/Pages/Admin/OrderList.jsx";
+import { AdminDashboard } from "./Components/Pages/Admin/AdminDashboard.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -200,6 +201,7 @@ const router = createBrowserRouter(
         <Route path="orderlist" element={<OrderList />} />
         {/* <Route path="productlist/:pageNumber" element={<ProductList />} /> */}
         <Route path="product/update/:_id" element={<ProductUpdate />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

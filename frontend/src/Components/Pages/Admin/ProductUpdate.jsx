@@ -12,7 +12,6 @@ import { toast } from "react-toastify";
 
 const AdminProductUpdate = () => {
   const params = useParams();
-
   const { data: productData, refetch } = useGetProductByIdQuery(params._id);
 
   const [image, setImage] = useState("");
@@ -24,18 +23,10 @@ const AdminProductUpdate = () => {
   const [brand, setBrand] = useState("");
   const [stock, setStock] = useState("");
 
-  // hook
   const navigate = useNavigate();
-
-  // Fetch categories using RTK Query
   const { data: categories = [] } = useFetchCategoriesQuery();
-
   const [uploadProductImage] = useUploadProductImageMutation();
-
-  // Define the update product mutation
   const [updateProduct] = useUpdateProductMutation();
-
-  // Define the delete product mutation
   const [deleteProduct] = useDeleteProductMutation();
 
   useEffect(() => {
@@ -45,7 +36,6 @@ const AdminProductUpdate = () => {
       setName(productData.name);
       setDescription(productData.description);
       setPrice(productData.price);
-      // Fix for category setting - handle both object and string cases
       setCategory(productData.category?._id || productData.category);
       setQuantity(productData.quantity);
       setBrand(productData.brand);
@@ -79,8 +69,7 @@ const AdminProductUpdate = () => {
       formData.append("brand", brand);
       formData.append("countInStock", stock);
 
-      // Update product using the RTK Query mutation
-      const result = await updateProduct({
+      await updateProduct({
         productId: params._id,
         formData,
       }).unwrap();
@@ -109,145 +98,225 @@ const AdminProductUpdate = () => {
     }
   };
 
-  // Debug: console log to check category values
-  console.log("Current category state:", category);
-  console.log("Available categories:", categories);
-  console.log("Product data category:", productData?.category);
-
   return (
-    <>
-      <div className="container  xl:mx-[9rem] sm:mx-[0]">
-        <div className="flex flex-col md:flex-row">
+    <div className="container mx-auto px-4 max-w-7xl">
+      <div className="flex flex-col md:flex-row gap-8">
+        <div className="md:w-1/4">
           <AdminMenu />
-          <div className="md:w-3/4 p-3">
-            <div className="h-12">Update / Delete Product</div>
+        </div>
 
-            {image && (
-              <div className="text-center">
-                <img
-                  src={`http://localhost:8000/${image}`}
-                  alt="product"
-                  className="block mx-auto max-h-[200px]"
-                />
-              </div>
-            )}
+        <div className="md:w-3/4 bg-gray-900 rounded-xl p-6 shadow-lg">
+          <h2 className="text-2xl font-bold text-white mb-6 pb-2 border-b border-gray-700">
+            Update / Delete Product
+          </h2>
 
-            <div className="mb-3">
-              <label className="text-white  py-2 px-4 block w-full text-center rounded-lg cursor-pointer font-bold py-11">
-                {image ? image.name : "Upload image"}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Image Upload Section */}
+            <div className="bg-gray-800 rounded-lg p-6 mb-6">
+              <h3 className="text-lg font-medium text-gray-300 mb-4">
+                Product Image
+              </h3>
+
+              {image && (
+                <div className="mb-4 flex justify-center">
+                  <img
+                    src={`http://localhost:8000/${image}`}
+                    alt={name}
+                    className="max-h-64 object-contain rounded-md border border-gray-700"
+                  />
+                </div>
+              )}
+
+              <label className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-600 rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
+                <div className="flex flex-col items-center justify-center">
+                  <svg
+                    className="w-8 h-8 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    ></path>
+                  </svg>
+                  <p className="mt-2 text-sm text-gray-300">
+                    {image ? "Change image" : "Upload product image"}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    PNG, JPG, WEBP (Max 5MB)
+                  </p>
+                </div>
                 <input
                   type="file"
                   name="image"
                   accept="image/*"
                   onChange={uploadFileHandler}
-                  className="text-white"
+                  className="hidden"
                 />
               </label>
             </div>
 
-            <div className="p-3">
-              <div className="flex flex-wrap">
-                <div className="one">
-                  <label htmlFor="name">Name</label> <br />
-                  <input
-                    type="text"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white mr-[5rem]"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
-
-                <div className="two">
-                  <label htmlFor="name block">Price</label> <br />
-                  <input
-                    type="number"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white "
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                  />
-                </div>
+            {/* Product Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  Product Name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter product name"
+                  required
+                />
               </div>
 
-              <div className="flex flex-wrap">
-                <div>
-                  <label htmlFor="name block">Quantity</label> <br />
-                  <input
-                    type="number"
-                    min="1"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white mr-[5rem]"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="name block">Brand</label> <br />
-                  <input
-                    type="text"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white "
-                    value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
-                  />
-                </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="price"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  Price
+                </label>
+                <input
+                  id="price"
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0.00"
+                  required
+                />
               </div>
 
-              <label htmlFor="" className="my-5">
+              <div className="space-y-2">
+                <label
+                  htmlFor="quantity"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  Quantity
+                </label>
+                <input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Quantity"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="brand"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  Brand
+                </label>
+                <input
+                  id="brand"
+                  type="text"
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Brand name"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="stock"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  Stock
+                </label>
+                <input
+                  id="stock"
+                  type="number"
+                  min="0"
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Available stock"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  Category
+                </label>
+                <select
+                  id="category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categories?.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-300"
+              >
                 Description
               </label>
               <textarea
-                type="text"
-                className="p-2 mb-3 bg-[#101011]  border rounded-lg w-[95%] text-white"
+                id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                rows="4"
+                className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Product description"
+                required
               />
-
-              <div className="flex justify-between">
-                <div>
-                  <label htmlFor="name block">Count In Stock</label> <br />
-                  <input
-                    type="text"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white "
-                    value={stock}
-                    onChange={(e) => setStock(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="">Category</label> <br />
-                  <select
-                    placeholder="Choose Category"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white mr-[5rem]"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                  >
-                    <option value="">Select a category</option>
-                    {categories?.map((c) => (
-                      <option key={c._id} value={c._id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="">
-                <button
-                  onClick={handleSubmit}
-                  className="py-4 px-10 mt-5 rounded-lg text-lg font-bold  bg-green-600 mr-6"
-                >
-                  Update
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="py-4 px-10 mt-5 rounded-lg text-lg font-bold  bg-pink-600"
-                >
-                  Delete
-                </button>
-              </div>
             </div>
-          </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-4 pt-4">
+              <button
+                type="submit"
+                className="flex-1 px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              >
+                Update Product
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="flex-1 px-6 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              >
+                Delete Product
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
