@@ -15,7 +15,7 @@ const VerifyEmail = () => {
       // Call the backend to verify the email
       axios
         .patch(
-          "http://localhost:8000/register/verify-email",
+          "http://localhost:8000/api/users/verify-email",
           {},
           {
             headers: {

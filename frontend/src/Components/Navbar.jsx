@@ -109,7 +109,7 @@ const Navbar = () => {
             Recipes
           </Link>
           <Link
-            to="/marketplace"
+            to="/shop"
             className="block px-4 py-2 text-gray-300 hover:text-yellow-400"
             onClick={() => setMenuOpen(false)}
           >

@@ -323,10 +323,10 @@ const Order = () => {
                           </td>
                           <td className="py-3 px-4 text-center">{item.qty}</td>
                           <td className="py-3 px-4 text-right">
-                            ${item.price.toFixed(2)}
+                            Rs{item.price.toFixed(2)}
                           </td>
                           <td className="py-3 px-4 text-right font-medium">
-                            ${(item.qty * item.price).toFixed(2)}
+                            Rs{(item.qty * item.price).toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -390,22 +390,22 @@ const Order = () => {
               <div className="space-y-3">
                 <div className="flex justify-between text-gray-300">
                   <span>Items</span>
-                  <span>${order.itemsPrice}</span>
+                  <span>Rs{order.itemsPrice}</span>
                 </div>
 
                 <div className="flex justify-between text-gray-300">
                   <span>Shipping</span>
-                  <span>${order.shippingPrice}</span>
+                  <span>Rs{order.shippingPrice}</span>
                 </div>
 
                 <div className="flex justify-between text-gray-300">
                   <span>Tax</span>
-                  <span>${order.taxPrice}</span>
+                  <span>Rs{order.taxPrice}</span>
                 </div>
 
                 <div className="flex justify-between text-xl font-bold text-white pt-3 border-t border-gray-700">
                   <span>Total</span>
-                  <span>${order.totalPrice}</span>
+                  <span>Rs{order.totalPrice}</span>
                 </div>
 
                 {!order.isPaid && (

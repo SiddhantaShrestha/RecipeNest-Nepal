@@ -7,6 +7,7 @@ import {
   FaPlus,
   FaClock,
   FaUtensils,
+  FaStar,
 } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { setRecipes } from "../../slices/recipeSlice";
@@ -23,6 +24,50 @@ const RecipeListPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const recipesPerPage = 3;
+
+  // Filter states
+  const [filterCuisine, setFilterCuisine] = useState([]);
+  const [filterCategory, setFilterCategory] = useState([]); // Added category filter
+  const [filterDietary, setFilterDietary] = useState([]);
+  const [filterCookingTime, setFilterCookingTime] = useState([]);
+  const [filterRating, setFilterRating] = useState([]); // Added rating filter
+  const [sortOption, setSortOption] = useState("Newest First");
+
+  // Available filter options based on your recipes data
+  const cuisineOptions = [
+    "Nepali",
+    "Indian",
+    "Chinese",
+    "Italian",
+    "Mexican",
+    "American",
+    "Thai",
+  ];
+  const categoryOptions = [
+    "Breakfast",
+    "Lunch",
+    "Dinner",
+    "Dessert",
+    "Snack",
+    "Appetizer",
+    "Soup",
+    "Salad",
+  ]; // Added category options
+  const dietaryOptions = [
+    "Vegetarian",
+    "Non-Vegetarian",
+    "Vegan",
+    "Gluten-Free",
+    "Dairy-Free",
+  ];
+  const cookingTimeOptions = ["Under 30 mins", "30-60 mins", "Over 60 mins"];
+  const ratingOptions = ["5★", "4★+", "3★+", "2★+", "1★+"]; // Added rating options
+  const sortOptions = [
+    "Newest First",
+    "Oldest First", // Added Oldest First option
+    "Highest Rated",
+    "Most Popular",
+  ];
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -47,15 +92,152 @@ const RecipeListPage = () => {
       "https://via.placeholder.com/400x300?text=No+Image+Available";
   };
 
+  // Apply filters when any filter condition changes
   useEffect(() => {
-    const filtered = recipes.filter(
-      (recipe) =>
-        recipe.title &&
-        recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    let filtered = [...recipes];
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (recipe) =>
+          recipe.title &&
+          recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply cuisine filter
+    if (filterCuisine.length > 0) {
+      filtered = filtered.filter((recipe) =>
+        filterCuisine.includes(recipe.cuisine)
+      );
+    }
+
+    // Apply category filter
+    if (filterCategory.length > 0) {
+      filtered = filtered.filter((recipe) =>
+        filterCategory.includes(recipe.category)
+      );
+    }
+
+    // Apply dietary filter
+    if (filterDietary.length > 0) {
+      filtered = filtered.filter((recipe) => {
+        // Check if any selected dietary preference matches recipe dietary info
+        return filterDietary.some((diet) => {
+          if (diet === "Vegetarian") return recipe.isVegetarian;
+          if (diet === "Non-Vegetarian") return !recipe.isVegetarian;
+          if (diet === "Vegan") return recipe.isVegan;
+          if (diet === "Gluten-Free") return recipe.isGlutenFree;
+          if (diet === "Dairy-Free") return recipe.isDairyFree;
+          return false;
+        });
+      });
+    }
+
+    // Apply cooking time filter
+    if (filterCookingTime.length > 0) {
+      filtered = filtered.filter((recipe) => {
+        const prepTimeMinutes = parseInt(recipe.prepTime);
+        return filterCookingTime.some((timeRange) => {
+          if (timeRange === "Under 30 mins") return prepTimeMinutes < 30;
+          if (timeRange === "30-60 mins")
+            return prepTimeMinutes >= 30 && prepTimeMinutes <= 60;
+          if (timeRange === "Over 60 mins") return prepTimeMinutes > 60;
+          return false;
+        });
+      });
+    }
+
+    // Apply rating filter
+    if (filterRating.length > 0) {
+      filtered = filtered.filter((recipe) => {
+        const recipeRating = recipe.rating || 0;
+        return filterRating.some((ratingOption) => {
+          const minRating = parseInt(ratingOption.charAt(0));
+          return recipeRating >= minRating;
+        });
+      });
+    }
+
+    // Apply sorting
+    if (sortOption === "Newest First") {
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortOption === "Oldest First") {
+      filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    } else if (sortOption === "Highest Rated") {
+      filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (sortOption === "Most Popular") {
+      filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
+    }
+
     setFilteredRecipes(filtered);
     setCurrentPage(1);
-  }, [searchQuery, recipes]);
+  }, [
+    searchQuery,
+    recipes,
+    filterCuisine,
+    filterCategory,
+    filterDietary,
+    filterCookingTime,
+    filterRating,
+    sortOption,
+  ]);
+
+  // Handle cuisine filter change
+  const handleCuisineChange = (cuisine) => {
+    if (filterCuisine.includes(cuisine)) {
+      setFilterCuisine(filterCuisine.filter((item) => item !== cuisine));
+    } else {
+      setFilterCuisine([...filterCuisine, cuisine]);
+    }
+  };
+
+  // Handle category filter change
+  const handleCategoryChange = (category) => {
+    if (filterCategory.includes(category)) {
+      setFilterCategory(filterCategory.filter((item) => item !== category));
+    } else {
+      setFilterCategory([...filterCategory, category]);
+    }
+  };
+
+  // Handle dietary filter change
+  const handleDietaryChange = (diet) => {
+    if (filterDietary.includes(diet)) {
+      setFilterDietary(filterDietary.filter((item) => item !== diet));
+    } else {
+      setFilterDietary([...filterDietary, diet]);
+    }
+  };
+
+  // Handle cooking time filter change
+  const handleCookingTimeChange = (time) => {
+    if (filterCookingTime.includes(time)) {
+      setFilterCookingTime(filterCookingTime.filter((item) => item !== time));
+    } else {
+      setFilterCookingTime([...filterCookingTime, time]);
+    }
+  };
+
+  // Handle rating filter change
+  const handleRatingChange = (rating) => {
+    if (filterRating.includes(rating)) {
+      setFilterRating(filterRating.filter((item) => item !== rating));
+    } else {
+      setFilterRating([...filterRating, rating]);
+    }
+  };
+
+  // Reset all filters
+  const resetFilters = () => {
+    setSearchQuery("");
+    setFilterCuisine([]);
+    setFilterCategory([]);
+    setFilterDietary([]);
+    setFilterCookingTime([]);
+    setFilterRating([]);
+    setSortOption("Newest First");
+  };
 
   const indexOfLastRecipe = currentPage * recipesPerPage;
   const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
@@ -104,6 +286,19 @@ const RecipeListPage = () => {
     );
   }
 
+  // Helper function to check if any filters are active
+  const hasActiveFilters = () => {
+    return (
+      filterCuisine.length > 0 ||
+      filterCategory.length > 0 ||
+      filterDietary.length > 0 ||
+      filterCookingTime.length > 0 ||
+      filterRating.length > 0 ||
+      sortOption !== "Newest First" ||
+      searchQuery !== ""
+    );
+  };
+
   return (
     <div className="bg-gray-900 min-h-screen">
       <Navbar />
@@ -138,7 +333,9 @@ const RecipeListPage = () => {
               </button>
               <div className="h-6 w-px bg-gray-600 mx-1"></div>
               <button
-                className="p-3 text-gray-300 hover:text-white transition-colors"
+                className={`p-3 ${
+                  hasActiveFilters() ? "text-indigo-400" : "text-gray-300"
+                } hover:text-white transition-colors`}
                 onClick={() => setShowFilters((prev) => !prev)}
               >
                 <FaFilter size={20} />
@@ -155,29 +352,54 @@ const RecipeListPage = () => {
         }`}
       >
         <div className="container mx-auto py-6 px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div className="bg-gray-700 rounded-lg p-4">
               <h2 className="text-xl font-semibold mb-3 text-indigo-300">
                 Cuisine
               </h2>
               <div className="space-y-2">
-                {["Nepali", "Indian", "Chinese", "Italian", "Mexican"].map(
-                  (cuisine) => (
-                    <div key={cuisine} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={cuisine}
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <label
-                        htmlFor={cuisine}
-                        className="ml-2 text-gray-300 cursor-pointer hover:text-white"
-                      >
-                        {cuisine}
-                      </label>
-                    </div>
-                  )
-                )}
+                {cuisineOptions.map((cuisine) => (
+                  <div key={cuisine} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={cuisine}
+                      checked={filterCuisine.includes(cuisine)}
+                      onChange={() => handleCuisineChange(cuisine)}
+                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor={cuisine}
+                      className="ml-2 text-gray-300 cursor-pointer hover:text-white"
+                    >
+                      {cuisine}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gray-700 rounded-lg p-4">
+              <h2 className="text-xl font-semibold mb-3 text-indigo-300">
+                Category
+              </h2>
+              <div className="space-y-2">
+                {categoryOptions.map((category) => (
+                  <div key={category} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={category}
+                      checked={filterCategory.includes(category)}
+                      onChange={() => handleCategoryChange(category)}
+                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor={category}
+                      className="ml-2 text-gray-300 cursor-pointer hover:text-white"
+                    >
+                      {category}
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -186,23 +408,23 @@ const RecipeListPage = () => {
                 Dietary
               </h2>
               <div className="space-y-2">
-                {["Vegetarian", "Non-Vegetarian", "Vegan", "Gluten-Free"].map(
-                  (diet) => (
-                    <div key={diet} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={diet}
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <label
-                        htmlFor={diet}
-                        className="ml-2 text-gray-300 cursor-pointer hover:text-white"
-                      >
-                        {diet}
-                      </label>
-                    </div>
-                  )
-                )}
+                {dietaryOptions.map((diet) => (
+                  <div key={diet} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={diet}
+                      checked={filterDietary.includes(diet)}
+                      onChange={() => handleDietaryChange(diet)}
+                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor={diet}
+                      className="ml-2 text-gray-300 cursor-pointer hover:text-white"
+                    >
+                      {diet}
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -211,11 +433,13 @@ const RecipeListPage = () => {
                 Cooking Time
               </h2>
               <div className="space-y-2">
-                {["Under 30 mins", "30-60 mins", "Over 60 mins"].map((time) => (
+                {cookingTimeOptions.map((time) => (
                   <div key={time} className="flex items-center">
                     <input
                       type="checkbox"
                       id={time}
+                      checked={filterCookingTime.includes(time)}
+                      onChange={() => handleCookingTimeChange(time)}
                       className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                     />
                     <label
@@ -231,49 +455,199 @@ const RecipeListPage = () => {
 
             <div className="bg-gray-700 rounded-lg p-4">
               <h2 className="text-xl font-semibold mb-3 text-indigo-300">
+                Rating
+              </h2>
+              <div className="space-y-2">
+                {ratingOptions.map((rating) => (
+                  <div key={rating} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={rating}
+                      checked={filterRating.includes(rating)}
+                      onChange={() => handleRatingChange(rating)}
+                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor={rating}
+                      className="ml-2 text-gray-300 cursor-pointer hover:text-white flex items-center"
+                    >
+                      {rating}{" "}
+                      <FaStar className="ml-1 text-yellow-400" size={12} />
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gray-700 rounded-lg p-4">
+              <h2 className="text-xl font-semibold mb-3 text-indigo-300">
                 Sort By
               </h2>
               <div className="space-y-2">
-                {["Newest First", "Highest Rated", "Most Popular"].map(
-                  (sort) => (
-                    <div key={sort} className="flex items-center">
-                      <input
-                        type="radio"
-                        id={sort}
-                        name="sort"
-                        className="h-4 w-4 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <label
-                        htmlFor={sort}
-                        className="ml-2 text-gray-300 cursor-pointer hover:text-white"
-                      >
-                        {sort}
-                      </label>
-                    </div>
-                  )
-                )}
+                {sortOptions.map((sort) => (
+                  <div key={sort} className="flex items-center">
+                    <input
+                      type="radio"
+                      id={sort}
+                      name="sort"
+                      checked={sortOption === sort}
+                      onChange={() => setSortOption(sort)}
+                      className="h-4 w-4 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor={sort}
+                      className="ml-2 text-gray-300 cursor-pointer hover:text-white"
+                    >
+                      {sort}
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
           <div className="flex justify-end mt-6">
-            <button className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 mr-2">
+            <button
+              className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 mr-2"
+              onClick={resetFilters}
+            >
               Reset
             </button>
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+            <button
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+              onClick={() => setShowFilters(false)}
+            >
               Apply Filters
             </button>
           </div>
         </div>
       </div>
 
+      {/* Active Filters Display */}
+      {hasActiveFilters() && (
+        <div className="container mx-auto px-4 pt-6">
+          <div className="bg-gray-800 rounded-lg p-4 mb-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-gray-400">Active Filters:</span>
+
+              {searchQuery && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200">
+                  Search: {searchQuery}
+                  <button
+                    className="ml-2 text-indigo-200 hover:text-white"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    &times;
+                  </button>
+                </span>
+              )}
+
+              {filterCuisine.map((cuisine) => (
+                <span
+                  key={cuisine}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200"
+                >
+                  {cuisine}
+                  <button
+                    className="ml-2 text-indigo-200 hover:text-white"
+                    onClick={() => handleCuisineChange(cuisine)}
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+
+              {filterCategory.map((category) => (
+                <span
+                  key={category}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200"
+                >
+                  {category}
+                  <button
+                    className="ml-2 text-indigo-200 hover:text-white"
+                    onClick={() => handleCategoryChange(category)}
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+
+              {filterDietary.map((diet) => (
+                <span
+                  key={diet}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200"
+                >
+                  {diet}
+                  <button
+                    className="ml-2 text-indigo-200 hover:text-white"
+                    onClick={() => handleDietaryChange(diet)}
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+
+              {filterCookingTime.map((time) => (
+                <span
+                  key={time}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200"
+                >
+                  {time}
+                  <button
+                    className="ml-2 text-indigo-200 hover:text-white"
+                    onClick={() => handleCookingTimeChange(time)}
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+
+              {filterRating.map((rating) => (
+                <span
+                  key={rating}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200"
+                >
+                  {rating}
+                  <button
+                    className="ml-2 text-indigo-200 hover:text-white"
+                    onClick={() => handleRatingChange(rating)}
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+
+              {sortOption !== "Newest First" && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200">
+                  Sort: {sortOption}
+                </span>
+              )}
+
+              <button
+                className="ml-auto text-indigo-400 hover:text-indigo-300 text-sm underline"
+                onClick={resetFilters}
+              >
+                Clear All Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rest of the component remains largely the same */}
       {/* Featured Recipes & Add Recipe Button */}
       <div className="container mx-auto px-4 py-10">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-white">
             <span className="inline-block border-b-2 border-indigo-500 pb-1">
-              Featured Recipes
+              {hasActiveFilters() ? "Filtered Recipes" : "Featured Recipes"}
             </span>
+            {hasActiveFilters() && (
+              <span className="ml-4 text-gray-400 text-lg">
+                {filteredRecipes.length}{" "}
+                {filteredRecipes.length === 1 ? "recipe" : "recipes"} found
+              </span>
+            )}
           </h2>
           <Link
             to="/addrecipes"
@@ -307,16 +681,43 @@ const RecipeListPage = () => {
                     {recipe.title}
                   </h3>
 
-                  <div className="flex items-center space-x-4 mb-3">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200">
-                      {recipe.category}
-                    </span>
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    {recipe.cuisine && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200">
+                        {recipe.cuisine}
+                      </span>
+                    )}
+                    {recipe.category && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-900 text-purple-200">
+                        {recipe.category}
+                      </span>
+                    )}
                     <span className="inline-flex items-center text-gray-400">
-                      <FaClock className="mr-1" /> {recipe.prepTime}
+                      <FaClock className="mr-1" /> {recipe.prepTime} min
                     </span>
                     <span className="inline-flex items-center text-gray-400">
                       <FaUtensils className="mr-1" /> Serves: {recipe.servings}
                     </span>
+                    {recipe.isVegetarian && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-900 text-green-200">
+                        Vegetarian
+                      </span>
+                    )}
+                    {recipe.isVegan && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-900 text-green-200">
+                        Vegan
+                      </span>
+                    )}
+                    {recipe.isGlutenFree && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-900 text-yellow-200">
+                        Gluten-Free
+                      </span>
+                    )}
+                    {recipe.isDairyFree && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-900 text-yellow-200">
+                        Dairy-Free
+                      </span>
+                    )}
                   </div>
 
                   <p className="text-gray-300 mb-4 line-clamp-3">
@@ -329,7 +730,9 @@ const RecipeListPage = () => {
                         <svg
                           key={star}
                           className={`w-5 h-5 ${
-                            star <= 4 ? "text-yellow-400" : "text-gray-600"
+                            star <= (recipe.rating || 4)
+                              ? "text-yellow-400"
+                              : "text-gray-600"
                           }`}
                           fill="currentColor"
                           viewBox="0 0 20 20"
@@ -357,18 +760,37 @@ const RecipeListPage = () => {
             <div className="bg-gray-700 rounded-full h-24 w-24 flex items-center justify-center mx-auto mb-6">
               <FaUtensils className="text-4xl text-gray-400" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">
-              No recipes found
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Be the first to add a recipe to our collection!
-            </p>
-            <Link
-              to="/addrecipes"
-              className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition duration-300"
-            >
-              Add Your First Recipe
-            </Link>
+            {hasActiveFilters() ? (
+              <>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  No matching recipes found
+                </h3>
+                <p className="text-gray-400 mb-6">
+                  Try adjusting your filters to find more recipes
+                </p>
+                <button
+                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
+                  onClick={resetFilters}
+                >
+                  Clear Filters
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  No recipes found
+                </h3>
+                <p className="text-gray-400 mb-6">
+                  Be the first to add a recipe to our collection!
+                </p>
+                <Link
+                  to="/addrecipes"
+                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition duration-300"
+                >
+                  Add Your First Recipe
+                </Link>
+              </>
+            )}
           </div>
         )}
 

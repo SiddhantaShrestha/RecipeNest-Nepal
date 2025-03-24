@@ -36,6 +36,14 @@ let registerSchema = Schema(
       type: Boolean,
       default: false,
     },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    premiumExpiryDate: {
+      type: Date,
+      default: null,
+    },
     bookmarkedRecipes: [
       {
         type: mongoose.Schema.Types.ObjectId,

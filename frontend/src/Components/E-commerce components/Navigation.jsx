@@ -96,6 +96,9 @@ const Navigation = () => {
     setDropdownOpen(false);
   };
 
+  // Check if user is an admin
+  const isAdmin = profile.isAdmin || false;
+
   return (
     <div
       style={{ zIndex: 999 }}
@@ -279,19 +282,21 @@ const Navigation = () => {
             </span>
           </Link>
 
-          <Link
-            to="/shop"
-            className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1 "
-          >
-            <AiOutlineShopping
-              size={24}
-              className="min-w-6 min-h-6 text-gray-300"
-            />
-
-            <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
-              Shop
-            </span>
-          </Link>
+          {/* Shop Link - Only visible for non-admin users */}
+          {authToken && !isAdmin && (
+            <Link
+              to="/shop"
+              className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
+            >
+              <AiOutlineShopping
+                size={24}
+                className="min-w-6 min-h-6 text-gray-300"
+              />
+              <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                Shop
+              </span>
+            </Link>
+          )}
 
           {/* Blog Link - NEW */}
           <Link
@@ -304,22 +309,24 @@ const Navigation = () => {
             </span>
           </Link>
 
-          {/* About Us Link - NEW */}
-          <Link
-            to="/about"
-            className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
-          >
-            <AiOutlineInfoCircle
-              size={24}
-              className="min-w-6 min-h-6 text-gray-300"
-            />
-            <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
-              About Us
-            </span>
-          </Link>
+          {/* About Us Link - Only visible for non-admin users */}
+          {authToken && !isAdmin && (
+            <Link
+              to="/about"
+              className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
+            >
+              <AiOutlineInfoCircle
+                size={24}
+                className="min-w-6 min-h-6 text-gray-300"
+              />
+              <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                About Us
+              </span>
+            </Link>
+          )}
 
-          {/* Cart Link - Only show when logged in */}
-          {authToken && (
+          {/* Cart Link - Only show when logged in and NOT admin */}
+          {authToken && !isAdmin && (
             <Link
               to="/cart"
               className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1 relative"
@@ -338,8 +345,8 @@ const Navigation = () => {
             </Link>
           )}
 
-          {/* Favorites Link - Only show when logged in */}
-          {authToken && (
+          {/* Favorites Link - Only show when logged in and NOT admin */}
+          {authToken && !isAdmin && (
             <Link
               to="/favorite"
               className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"

@@ -15,7 +15,7 @@ const AuthWrapper = ({ children }) => {
       const fetchUserData = async () => {
         try {
           const response = await axios.get(
-            "http://localhost:8000/register/my-profile",
+            "http://localhost:8000/api/users/my-profile",
             {
               headers: {
                 Authorization: `Bearer ${token}`,

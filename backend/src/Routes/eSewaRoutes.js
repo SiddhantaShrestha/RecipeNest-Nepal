@@ -78,16 +78,30 @@ router.get("/success", (req, res) => {
     const { data, orderId } = req.query;
     console.log("Success data received:", { data, orderId });
 
-    // Construct redirect URL with all the query parameters
-    const redirectUrl = new URL(`${FRONTEND_URL}/order/${orderId || ""}`);
+    // Check if this is a premium upgrade transaction
+    if (orderId && orderId.startsWith("PREMIUM-")) {
+      // Redirect to premium page
+      const redirectUrl = new URL(`${FRONTEND_URL}/premium`);
 
-    // Pass all query parameters to the frontend
-    Object.entries(req.query).forEach(([key, value]) => {
-      redirectUrl.searchParams.append(key, value);
-    });
+      // Pass all query parameters to the frontend
+      Object.entries(req.query).forEach(([key, value]) => {
+        redirectUrl.searchParams.append(key, value);
+      });
 
-    console.log("Redirecting to:", redirectUrl.toString());
-    res.redirect(redirectUrl.toString());
+      console.log("Redirecting to:", redirectUrl.toString());
+      res.redirect(redirectUrl.toString());
+    } else {
+      // Regular order transaction
+      const redirectUrl = new URL(`${FRONTEND_URL}/order/${orderId || ""}`);
+
+      // Pass all query parameters to the frontend
+      Object.entries(req.query).forEach(([key, value]) => {
+        redirectUrl.searchParams.append(key, value);
+      });
+
+      console.log("Redirecting to:", redirectUrl.toString());
+      res.redirect(redirectUrl.toString());
+    }
   } catch (error) {
     console.error("Error in success handler:", error);
     // On error, redirect to the order page without parameters

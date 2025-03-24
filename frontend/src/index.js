@@ -61,6 +61,7 @@ import UserOrder from "./Components/Pages/Orders/UserOrder.jsx";
 import OrderList from "./Components/Pages/Admin/OrderList.jsx";
 import { AdminDashboard } from "./Components/Pages/Admin/AdminDashboard.jsx";
 import AboutUs from "./Components/Pages/AboutUs.jsx";
+import PremiumUpgrade from "./Components/Auth/PremiumUpgrade.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -86,13 +87,22 @@ const router = createBrowserRouter(
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/premium-subscription"
+        element={
+          <ProtectedRoute>
+            <PremiumUpgrade />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/shop" element={<Shop />} />
-      <Route path="/user-orders" element={<UserOrder />} />
+      <Route path="/my-orders" element={<UserOrder />} />
 
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+
       <Route path="/admin-approve" element={<AdminRecipeApproval />} />
 
       <Route path="/esewa" element={<EsewaPayment />} />
