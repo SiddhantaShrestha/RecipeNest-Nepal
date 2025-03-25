@@ -75,37 +75,48 @@ router.post("/pay", async (req, res) => {
 // eSewa Payment Success Route
 router.get("/success", (req, res) => {
   try {
-    const { data, orderId } = req.query;
-    console.log("Success data received:", { data, orderId });
+    const {
+      data,
+      orderId,
+      "premium-subscription": premiumTransaction,
+      userId,
+    } = req.query;
+    console.log("Success data received:", {
+      data,
+      orderId,
+      premiumTransaction,
+      userId,
+    });
 
     // Check if this is a premium upgrade transaction
-    if (orderId && orderId.startsWith("PREMIUM-")) {
-      // Redirect to premium page
-      const redirectUrl = new URL(`${FRONTEND_URL}/premium`);
+    if (premiumTransaction) {
+      // Redirect to premium subscription page with specific parameters
+      const redirectUrl = new URL(`${FRONTEND_URL}/premium-subscription`);
 
-      // Pass all query parameters to the frontend
-      Object.entries(req.query).forEach(([key, value]) => {
-        redirectUrl.searchParams.append(key, value);
-      });
+      // Add query parameters for premium verification
+      redirectUrl.searchParams.append("payment", "success");
+      redirectUrl.searchParams.append("transactionId", premiumTransaction);
+      if (userId) {
+        redirectUrl.searchParams.append("userId", userId);
+      }
 
-      console.log("Redirecting to:", redirectUrl.toString());
+      console.log(
+        "Redirecting to premium subscription page:",
+        redirectUrl.toString()
+      );
+      res.redirect(redirectUrl.toString());
+    } else if (orderId) {
+      // Fallback for other transactions
+      const redirectUrl = new URL(`${FRONTEND_URL}/order/${orderId || ""}`);
       res.redirect(redirectUrl.toString());
     } else {
-      // Regular order transaction
-      const redirectUrl = new URL(`${FRONTEND_URL}/order/${orderId || ""}`);
-
-      // Pass all query parameters to the frontend
-      Object.entries(req.query).forEach(([key, value]) => {
-        redirectUrl.searchParams.append(key, value);
-      });
-
-      console.log("Redirecting to:", redirectUrl.toString());
-      res.redirect(redirectUrl.toString());
+      // Fallback redirect
+      res.redirect(FRONTEND_URL);
     }
   } catch (error) {
     console.error("Error in success handler:", error);
-    // On error, redirect to the order page without parameters
-    res.redirect(`${FRONTEND_URL}/order`);
+    // On error, redirect to the frontend base URL
+    res.redirect(FRONTEND_URL);
   }
 });
 
@@ -125,6 +136,52 @@ router.get("/failure", (req, res) => {
   } catch (error) {
     console.error("Error in failure handler:", error);
     res.redirect(`${FRONTEND_URL}/order`);
+  }
+});
+
+// Add this new route
+// In your eSewa routes file
+router.post("/premium-pay", async (req, res) => {
+  try {
+    const { amount, transaction_uuid, userId } = req.body;
+
+    if (!amount || !transaction_uuid || !userId) {
+      return res.status(400).json({
+        message: "Missing required parameters",
+      });
+    }
+
+    const total_amount = amount;
+    const signedFieldNames = "total_amount,transaction_uuid,product_code";
+    const productCode = MERCHANT_CODE;
+
+    // Generate signature
+    const stringToSign = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${productCode}`;
+    const signature = crypto
+      .createHmac("sha256", SECRET_KEY)
+      .update(stringToSign)
+      .digest("base64");
+
+    // Update success_url to a specific premium success endpoint
+    const esewaFormData = {
+      amount: amount,
+      tax_amount: "0",
+      total_amount: total_amount,
+      transaction_uuid: transaction_uuid,
+      product_code: productCode,
+      product_service_charge: "0",
+      product_delivery_charge: "0",
+      success_url: `${SUCCESS_URL}?premium-subscription=${transaction_uuid}&userId=${userId}`,
+      failure_url: `${FRONTEND_URL}/premium?payment=failed`,
+      signed_field_names: signedFieldNames,
+      signature: signature,
+    };
+
+    res.status(200).json({ formData: esewaFormData });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error processing payment", error: error.message });
   }
 });
 

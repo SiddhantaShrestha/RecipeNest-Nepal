@@ -61,7 +61,7 @@ import UserOrder from "./Components/Pages/Orders/UserOrder.jsx";
 import OrderList from "./Components/Pages/Admin/OrderList.jsx";
 import { AdminDashboard } from "./Components/Pages/Admin/AdminDashboard.jsx";
 import AboutUs from "./Components/Pages/AboutUs.jsx";
-import PremiumUpgrade from "./Components/Auth/PremiumUpgrade.jsx";
+import PremiumSubscription from "./Components/Auth/PremiumSubscription.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -91,7 +91,7 @@ const router = createBrowserRouter(
         path="/premium-subscription"
         element={
           <ProtectedRoute>
-            <PremiumUpgrade />
+            <PremiumSubscription />
           </ProtectedRoute>
         }
       />

@@ -4,8 +4,6 @@ import {
   deleteUser,
   forgotPassword,
   getBookmarkedRecipes,
-  getPremiumStatus,
-  initiatePremiumUpgrade,
   loginUser,
   myProfile,
   readAllUser,
@@ -16,13 +14,11 @@ import {
   updateProfile,
   updateSpecificUser,
   verifyEmail,
-  verifyPremiumUpgrade,
 } from "../Controllers/registerController.js";
 import isAuthenticated from "../Middleware/isAuthenticated.js";
 import validation from "../Middleware/validation.js";
 import registerValidation from "../validation/registerValidation.js";
 import authorized from "../Middleware/authorized.js";
-import isPremiumUser from "../Middleware/isPremiumUser.js";
 
 //Register.create(data)
 //Register.find({})

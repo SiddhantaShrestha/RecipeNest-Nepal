@@ -13,6 +13,7 @@ import categoryRouter from "./src/Routes/categoryRouter.js";
 import productRoutes from "./src/Routes/productRoutes.js";
 import uploadRoutes from "./src/Routes/uploadRoutes.js";
 import esewaRoutes from "./src/Routes/eSewaRoutes.js";
+import premiumRoutes from "./src/Routes/premiumRoutes.js";
 
 import path from "path";
 
@@ -52,6 +53,8 @@ expressApp.use("/api/upload", uploadRoutes);
 expressApp.use("/api/orders", orderRoutes);
 
 expressApp.use("/api/esewa", esewaRoutes);
+
+expressApp.use("/api/premium", premiumRoutes);
 
 const __dirname = path.resolve();
 expressApp.use("/uploads", express.static(path.join(__dirname + "/uploads")));
