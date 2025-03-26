@@ -27,9 +27,9 @@ const PremiumSubscription = () => {
     const handlePaymentReturn = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const paymentParam = urlParams.get("payment");
-      const transactionId = urlParams.get("transactionId");
+      let transactionId = urlParams.get("transactionId");
       const userId = urlParams.get("userId");
-      const dataParam = urlParams.get("data");
+      let dataParam = urlParams.get("data");
 
       if (transactionId && transactionId.includes("?data=")) {
         const [cleanTransactionId, encodedData] = transactionId.split("?data=");
@@ -61,11 +61,11 @@ const PremiumSubscription = () => {
 
           // Verify payment with backend
           const verifyResponse = await axios.post(
-            "http://localhost:8000/api/premium/verify",
+            "http://localhost:8000/api/esewa/verify",
             {
               transaction_uuid: transactionId,
               amount: localStorage.getItem("premiumAmount"),
-              userId: userId.split("?")[0], // Remove any additional query params
+              userId: auth.user._id,
             },
             {
               headers: {
@@ -136,6 +136,7 @@ const PremiumSubscription = () => {
       checkPremiumStatus();
     }
   }, [authToken]);
+
   const handleSubscribe = async () => {
     if (!authToken) {
       toast.error("Please login first");
@@ -212,73 +213,6 @@ const PremiumSubscription = () => {
     }
   };
 
-  // Check for payment return
-  // In your PremiumSubscription component
-  //   useEffect(() => {
-  //     const verifyPayment = async () => {
-  //       const urlParams = new URLSearchParams(window.location.search);
-  //       const paymentStatus = urlParams.get("payment");
-  //       const transactionId = urlParams.get("transactionId");
-  //       const userId = urlParams.get("userId");
-
-  //       if (paymentStatus === "success" && transactionId && userId) {
-  //         try {
-  //           setIsProcessing(true);
-
-  //           // Verify payment with backend
-  //           const verifyResponse = await axios.post(
-  //             "http://localhost:8000/api/premium/verify",
-  //             {
-  //               transaction_uuid: transactionId,
-  //               amount: localStorage.getItem("premiumAmount"),
-  //               userId: userId,
-  //             },
-  //             {
-  //               headers: {
-  //                 Authorization: `Bearer ${authToken}`,
-  //               },
-  //             }
-  //           );
-
-  //           console.log("Verify response:", verifyResponse.data);
-
-  //           // Clear URL parameters
-  //           window.history.replaceState({}, document.title, "/premium");
-
-  //           // Clear storage
-  //           localStorage.removeItem("premiumTransactionId");
-  //           localStorage.removeItem("premiumUserId");
-  //           localStorage.removeItem("premiumAmount");
-  //           localStorage.removeItem("premiumStartTime");
-
-  //           // Refresh premium status
-  //           const statusResponse = await axios.get(
-  //             "http://localhost:8000/api/premium/status",
-  //             {
-  //               headers: {
-  //                 Authorization: `Bearer ${authToken}`,
-  //               },
-  //             }
-  //           );
-  //           setPremiumStatus(statusResponse.data);
-
-  //           toast.success("Premium subscription activated!");
-  //         } catch (error) {
-  //           console.error("Payment verification error:", error);
-  //           toast.error("Payment verification failed");
-  //         } finally {
-  //           setIsProcessing(false);
-  //         }
-  //       } else if (paymentStatus === "failed") {
-  //         toast.error("Payment failed. Please try again.");
-  //         // Clear URL parameters
-  //         window.history.replaceState({}, document.title, "/premium");
-  //       }
-  //     };
-
-  //     verifyPayment();
-  //   }, [authToken]);
-
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -319,7 +253,7 @@ const PremiumSubscription = () => {
           {new Date(premiumStatus.expiryDate).toLocaleDateString()}.
         </p>
         <button
-          onClick={() => navigate("/profile")}
+          onClick={() => navigate("/my-profile")}
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         >
           Go to Profile
@@ -327,7 +261,7 @@ const PremiumSubscription = () => {
       </div>
     );
   }
-  // Add this right before your final return statement
+
   if (paymentStatus === "processing") {
     return (
       <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
@@ -426,6 +360,7 @@ const PremiumSubscription = () => {
       </div>
     );
   }
+
   return (
     <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">
@@ -444,7 +379,7 @@ const PremiumSubscription = () => {
             onClick={() => setSelectedPlan("monthly")}
           >
             <h4 className="font-bold">Monthly</h4>
-            <p className="text-2xl font-bold">Rs 500</p>
+            <p className="text-2xl font-bold">Rs 50</p>
             <p className="text-sm text-gray-600">Billed monthly</p>
           </div>
           <div
@@ -456,7 +391,7 @@ const PremiumSubscription = () => {
             onClick={() => setSelectedPlan("yearly")}
           >
             <h4 className="font-bold">Yearly</h4>
-            <p className="text-2xl font-bold">Rs 5000</p>
+            <p className="text-2xl font-bold">Rs 50</p>
             <p className="text-sm text-gray-600">Save 16%</p>
           </div>
         </div>

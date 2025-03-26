@@ -10,6 +10,9 @@ const SUCCESS_URL =
   process.env.ESEWA_SUCCESS_URL || "http://localhost:8000/api/esewa/success";
 const FAILURE_URL =
   process.env.ESEWA_FAILURE_URL || "http://localhost:8000/api/esewa/failure";
+const ESEWA_VERIFY_URL =
+  process.env.ESEWA_VERIFY_URL ||
+  "https://rc-epay.esewa.com.np/api/epay/transaction/status";
 
 export const initiatePremiumSubscription = async (req, res) => {
   try {
@@ -26,7 +29,7 @@ export const initiatePremiumSubscription = async (req, res) => {
     }
 
     // Calculate amount based on duration
-    const amount = duration === "monthly" ? 500 : 5000; // Example amounts in NPR
+    const amount = duration === "monthly" ? 50 : 500; // Corrected amounts
 
     res.status(200).json({
       success: true,
@@ -49,12 +52,21 @@ export const verifyPremiumPayment = async (req, res) => {
       amount,
       userId,
       merchantCode: process.env.ESEWA_MERCHANT_CODE,
+      verifyUrl: ESEWA_VERIFY_URL,
     });
 
+    // Validate input
+    if (!transaction_uuid || !amount || !userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required parameters",
+      });
+    }
+
     // Verify payment with eSewa
-    const stringToSign = `transaction_uuid=${transaction_uuid},amount=${amount},product_code=${process.env.ESEWA_MERCHANT_CODE}`;
+    const stringToSign = `merchant_code=${MERCHANT_CODE},transaction_uuid=${transaction_uuid},product_code=${MERCHANT_CODE}`;
     const signature = crypto
-      .createHmac("sha256", process.env.ESEWA_SECRET_KEY)
+      .createHmac("sha256", SECRET_KEY)
       .update(stringToSign)
       .digest("base64");
 
@@ -62,11 +74,11 @@ export const verifyPremiumPayment = async (req, res) => {
 
     try {
       const response = await axios.post(
-        "https://rc-epay.esewa.com.np/api/epay/main/v2/confirm",
+        ESEWA_VERIFY_URL,
         {
+          merchant_code: MERCHANT_CODE,
           transaction_uuid,
-          amount,
-          product_code: process.env.ESEWA_MERCHANT_CODE,
+          product_code: MERCHANT_CODE,
           signature,
         },
         {
@@ -77,11 +89,12 @@ export const verifyPremiumPayment = async (req, res) => {
         }
       );
 
-      console.log("eSewa Verification Response:", response.data);
+      console.log("eSewa Verification Full Response:", response);
+      console.log("eSewa Verification Response Data:", response.data);
 
       if (response.data.status === "COMPLETE") {
         // Payment verified - update user to premium
-        const duration = amount === 500 ? "monthly" : "yearly";
+        const duration = amount === 50 ? "monthly" : "yearly";
         const expiryDate = moment()
           .add(duration === "monthly" ? 30 : 365, "days")
           .toDate();
@@ -111,16 +124,22 @@ export const verifyPremiumPayment = async (req, res) => {
         });
       }
     } catch (verifyError) {
-      console.error("eSewa Verification Error:", {
+      console.error("eSewa Verification Complete Error:", {
         message: verifyError.message,
         response: verifyError.response?.data,
         status: verifyError.response?.status,
+        fullError: verifyError,
       });
 
       res.status(500).json({
         success: false,
         message: "Payment verification failed",
         error: verifyError.response?.data || verifyError.message,
+        details: {
+          verifyErrorMessage: verifyError.message,
+          responseStatus: verifyError.response?.status,
+          responseData: verifyError.response?.data,
+        },
       });
     }
   } catch (error) {
@@ -129,6 +148,7 @@ export const verifyPremiumPayment = async (req, res) => {
       success: false,
       message: "Internal Server Error",
       error: error.message,
+      details: error,
     });
   }
 };

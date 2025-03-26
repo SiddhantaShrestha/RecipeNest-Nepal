@@ -2,6 +2,8 @@ import express from "express";
 import axios from "axios";
 import crypto from "crypto";
 import dotenv from "dotenv";
+import { Register } from "../Schema/model.js"; // Adjust path as needed
+import moment from "moment";
 
 dotenv.config();
 
@@ -186,47 +188,75 @@ router.post("/premium-pay", async (req, res) => {
 });
 
 // eSewa Payment Verification Route
+// eSewa Payment Verification Route
+// eSewa Payment Verification Route
 router.post("/verify", async (req, res) => {
   try {
-    const { transaction_uuid, amount } = req.body;
+    const { transaction_uuid, amount, userId } = req.body;
 
-    console.log("Verification request:", { transaction_uuid, amount });
-
-    if (!transaction_uuid || !amount) {
+    if (!transaction_uuid || !amount || !userId) {
       return res.status(400).json({
         message: "Missing required parameters",
-        required: ["transaction_uuid", "amount"],
+        required: ["transaction_uuid", "amount", "userId"],
       });
     }
 
     // Generate signature for verification
-    const stringToSign = `transaction_uuid=${transaction_uuid},amount=${amount},product_code=${MERCHANT_CODE}`;
+    const stringToSign = `total_amount=${amount},transaction_uuid=${transaction_uuid},product_code=${MERCHANT_CODE}`;
     const signature = crypto
       .createHmac("sha256", SECRET_KEY)
       .update(stringToSign)
       .digest("base64");
 
-    console.log("Sending verification request to eSewa");
-
-    const response = await axios.post(
-      "https://rc-epay.esewa.com.np/api/epay/main/v2/confirm",
-      {
-        transaction_uuid,
-        amount,
-        product_code: MERCHANT_CODE,
-        signature,
-      },
+    // Use GET request with all required parameters
+    const response = await axios.get(
+      `https://rc-epay.esewa.com.np/api/epay/transaction/status?total_amount=${amount}&transaction_uuid=${transaction_uuid}&product_code=${MERCHANT_CODE}&signature=${encodeURIComponent(
+        signature
+      )}`,
       {
         headers: {
           "Content-Type": "application/json",
         },
+        timeout: 10000,
       }
     );
 
-    console.log("eSewa verification response:", response.data);
+    if (
+      response.data.status === "COMPLETE" ||
+      response.data.response_code === "SUCCESS"
+    ) {
+      // Payment verified - update user to premium
+      const duration = amount === "50" ? "monthly" : "yearly"; // Determine duration based on amount
+      const expiryDate = moment()
+        .add(duration === "monthly" ? 30 : 365, "days")
+        .toDate();
 
-    if (response.data.status === "COMPLETE") {
-      res.json({ success: true, message: "Payment Verified!" });
+      const updatedUser = await Register.findByIdAndUpdate(
+        userId,
+        {
+          isPremium: true,
+          premiumExpiryDate: expiryDate,
+          lastPayment: {
+            amount: amount,
+            transactionId: transaction_uuid,
+            date: new Date(),
+          },
+        },
+        { new: true } // Return the updated document
+      );
+
+      if (!updatedUser) {
+        throw new Error("User not found");
+      }
+
+      res.json({
+        success: true,
+        message: "Payment Verified and Premium Activated!",
+        user: {
+          isPremium: updatedUser.isPremium,
+          premiumExpiryDate: updatedUser.premiumExpiryDate,
+        },
+      });
     } else {
       res.status(400).json({
         success: false,
@@ -235,7 +265,11 @@ router.post("/verify", async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error verifying payment:", error);
+    console.error("Error verifying payment:", {
+      message: error.message,
+      response: error.response?.data,
+      stack: error.stack,
+    });
     res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -244,6 +278,7 @@ router.post("/verify", async (req, res) => {
   }
 });
 
+// Get payment status (useful for polling)
 // Get payment status (useful for polling)
 router.get("/status/:transactionId", async (req, res) => {
   try {
@@ -257,35 +292,35 @@ router.get("/status/:transactionId", async (req, res) => {
       });
     }
 
-    // Similar verification logic as in the verify endpoint
-    const stringToSign = `transaction_uuid=${transactionId},amount=${amount},product_code=${MERCHANT_CODE}`;
+    // Updated verification logic
+    const stringToSign = `total_amount=${amount},transaction_uuid=${transactionId},product_code=${MERCHANT_CODE}`;
     const signature = crypto
       .createHmac("sha256", SECRET_KEY)
       .update(stringToSign)
       .digest("base64");
 
-    const response = await axios.post(
-      "https://rc-epay.esewa.com.np/api/epay/main/v2/confirm",
-      {
-        transaction_uuid: transactionId,
-        amount,
-        product_code: MERCHANT_CODE,
-        signature,
-      },
+    const response = await axios.get(
+      `https://rc-epay.esewa.com.np/api/epay/transaction/status?total_amount=${amount}&transaction_uuid=${transactionId}&product_code=${MERCHANT_CODE}&signature=${encodeURIComponent(
+        signature
+      )}`,
       {
         headers: {
           "Content-Type": "application/json",
         },
+        timeout: 10000,
       }
     );
 
     res.json({
-      success: response.data.status === "COMPLETE",
-      status: response.data.status,
+      success:
+        response.data.status === "COMPLETE" ||
+        response.data.response_code === "SUCCESS",
+      status: response.data.status || response.data.response_code,
       message:
-        response.data.status === "COMPLETE"
+        response.data.message ||
+        (response.data.status === "COMPLETE"
           ? "Payment verified"
-          : "Payment not completed",
+          : "Payment not completed"),
     });
   } catch (error) {
     console.error("Error checking payment status:", error);
