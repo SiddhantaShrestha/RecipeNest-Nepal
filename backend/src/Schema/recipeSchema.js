@@ -37,6 +37,10 @@ const recipeSchema = new mongoose.Schema(
       ref: "Register",
       required: true,
     }, // Reference to user
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
     comments: [commentSchema],
   },
 

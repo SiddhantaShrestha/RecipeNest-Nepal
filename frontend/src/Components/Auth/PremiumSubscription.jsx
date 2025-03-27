@@ -4,12 +4,13 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../Components/Loader";
+import SubNavbar from "../SubNavbar";
+import Navbar from "../Navbar";
 
 const PremiumSubscription = () => {
   const [selectedPlan, setSelectedPlan] = useState("monthly");
   const [isProcessing, setIsProcessing] = useState(false);
   const [premiumStatus, setPremiumStatus] = useState(null);
-
   const [paymentStatus, setPaymentStatus] = useState(null);
   const navigate = useNavigate();
 
@@ -228,15 +229,27 @@ const PremiumSubscription = () => {
 
   if (!authToken) {
     return (
-      <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Please login to subscribe
+      <div className="max-w-md mx-auto my-10 p-6 bg-[#1a1a1c] rounded-xl shadow-2xl border border-gray-800">
+        <h2 className="text-2xl font-bold text-gray-200 mb-4 text-center">
+          Please Login to Subscribe
         </h2>
         <button
           onClick={() => navigate("/login")}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          className="w-full bg-blue-700 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors duration-300 flex items-center justify-center"
         >
-          Login
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H16a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Login to Continue
         </button>
       </div>
     );
@@ -244,33 +257,39 @@ const PremiumSubscription = () => {
 
   if (premiumStatus?.isPremium) {
     return (
-      <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-green-600 mb-4">
-          Premium Member
-        </h2>
-        <p className="mb-4">
-          You are already a premium member. Your subscription will expire on{" "}
-          {new Date(premiumStatus.expiryDate).toLocaleDateString()}.
-        </p>
-        <button
-          onClick={() => navigate("/my-profile")}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          Go to Profile
-        </button>
+      <div>
+        <Navbar />
+        <SubNavbar />
+        <div className="max-w-md mx-auto my-10 p-6 bg-[#1a1a1c] rounded-xl shadow-2xl border border-gray-800">
+          <h2 className="text-2xl font-bold text-green-400 mb-4 text-center">
+            Premium Member
+          </h2>
+          <p className="mb-4 text-gray-300 text-center">
+            You are already a premium member. Your subscription will expire on{" "}
+            <span className="text-green-400 font-semibold">
+              {new Date(premiumStatus.expiryDate).toLocaleDateString()}
+            </span>
+          </p>
+          <button
+            onClick={() => navigate("/my-profile")}
+            className="w-full bg-blue-700 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors duration-300"
+          >
+            Go to Profile
+          </button>
+        </div>
       </div>
     );
   }
 
   if (paymentStatus === "processing") {
     return (
-      <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-blue-600 mb-4">
+      <div className="max-w-md mx-auto my-10 p-6 bg-[#1a1a1c] rounded-xl shadow-2xl border border-gray-800">
+        <h2 className="text-2xl font-bold text-blue-400 mb-4 text-center">
           Processing Payment
         </h2>
         <div className="flex flex-col items-center">
           <Loader />
-          <p className="mt-4 text-gray-600">Verifying your payment...</p>
+          <p className="mt-4 text-gray-400">Verifying your payment...</p>
         </div>
       </div>
     );
@@ -278,12 +297,12 @@ const PremiumSubscription = () => {
 
   if (paymentStatus === "success") {
     return (
-      <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
+      <div className="max-w-md mx-auto my-10 p-6 bg-[#1a1a1c] rounded-xl shadow-2xl border border-gray-800">
         <div className="text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-10 w-10 text-green-600"
+              className="h-10 w-10 text-green-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -296,23 +315,23 @@ const PremiumSubscription = () => {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-green-600 mb-2">
+          <h2 className="text-2xl font-bold text-green-400 mb-2">
             Payment Successful!
           </h2>
-          <p className="text-gray-700 mb-6">
+          <p className="text-gray-300 mb-6">
             Your premium subscription has been activated.
           </p>
           {premiumStatus?.expiryDate && (
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-400 mb-6">
               Your premium access will expire on:{" "}
-              <span className="font-semibold">
+              <span className="font-semibold text-green-400">
                 {new Date(premiumStatus.expiryDate).toLocaleDateString()}
               </span>
             </p>
           )}
           <button
             onClick={() => navigate("/profile")}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            className="w-full bg-blue-700 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors duration-300"
           >
             Go to Profile
           </button>
@@ -323,12 +342,12 @@ const PremiumSubscription = () => {
 
   if (paymentStatus === "failed") {
     return (
-      <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
+      <div className="max-w-md mx-auto my-10 p-6 bg-[#1a1a1c] rounded-xl shadow-2xl border border-gray-800">
         <div className="text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-10 w-10 text-red-600"
+              className="h-10 w-10 text-red-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -341,10 +360,10 @@ const PremiumSubscription = () => {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-red-600 mb-2">
+          <h2 className="text-2xl font-bold text-red-400 mb-2">
             Payment Failed
           </h2>
-          <p className="text-gray-700 mb-6">
+          <p className="text-gray-300 mb-6">
             We couldn't process your payment. Please try again.
           </p>
           <button
@@ -352,7 +371,7 @@ const PremiumSubscription = () => {
               setPaymentStatus(null);
               window.location.reload();
             }}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            className="w-full bg-blue-700 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors duration-300"
           >
             Try Again
           </button>
@@ -362,76 +381,84 @@ const PremiumSubscription = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        Upgrade to Premium
-      </h2>
+    <div>
+      <Navbar />
+      <SubNavbar />
+      <div className="max-w-md mx-auto my-10 p-6 bg-[#1a1a1c] rounded-xl shadow-2xl border border-gray-800">
+        <h2 className="text-2xl font-bold text-gray-200 mb-6 text-center">
+          Upgrade to Premium
+        </h2>
 
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3">Select Plan</h3>
-        <div className="flex space-x-4">
-          <div
-            className={`flex-1 p-4 border rounded-lg cursor-pointer ${
-              selectedPlan === "monthly"
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-300"
-            }`}
-            onClick={() => setSelectedPlan("monthly")}
-          >
-            <h4 className="font-bold">Monthly</h4>
-            <p className="text-2xl font-bold">Rs 50</p>
-            <p className="text-sm text-gray-600">Billed monthly</p>
-          </div>
-          <div
-            className={`flex-1 p-4 border rounded-lg cursor-pointer ${
-              selectedPlan === "yearly"
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-300"
-            }`}
-            onClick={() => setSelectedPlan("yearly")}
-          >
-            <h4 className="font-bold">Yearly</h4>
-            <p className="text-2xl font-bold">Rs 50</p>
-            <p className="text-sm text-gray-600">Save 16%</p>
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3 text-gray-300">
+            Select Plan
+          </h3>
+          <div className="flex space-x-4">
+            <div
+              className={`flex-1 p-4 border rounded-lg cursor-pointer transition-all duration-300 ${
+                selectedPlan === "monthly"
+                  ? "border-blue-600 bg-blue-900/30"
+                  : "border-gray-700 hover:border-gray-600"
+              }`}
+              onClick={() => setSelectedPlan("monthly")}
+            >
+              <h4 className="font-bold text-gray-200">Monthly</h4>
+              <p className="text-2xl font-bold text-blue-400">Rs 50</p>
+              <p className="text-sm text-gray-400">Billed monthly</p>
+            </div>
+            <div
+              className={`flex-1 p-4 border rounded-lg cursor-pointer transition-all duration-300 ${
+                selectedPlan === "yearly"
+                  ? "border-blue-600 bg-blue-900/30"
+                  : "border-gray-700 hover:border-gray-600"
+              }`}
+              onClick={() => setSelectedPlan("yearly")}
+            >
+              <h4 className="font-bold text-gray-200">Yearly</h4>
+              <p className="text-2xl font-bold text-blue-400">Rs 100</p>
+              <p className="text-sm text-gray-400">Save 50%</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Premium Benefits</h3>
-        <ul className="list-disc pl-5 space-y-1">
-          <li>Access to exclusive recipes</li>
-          <li>Ad-free experience</li>
-          <li>Priority customer support</li>
-          <li>Early access to new features</li>
-        </ul>
-      </div>
-
-      {isProcessing ? (
-        <div className="flex justify-center">
-          <Loader />
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-2 text-gray-300">
+            Premium Benefits
+          </h3>
+          <ul className="list-disc pl-5 space-y-1 text-gray-400">
+            <li>Access to exclusive recipes</li>
+            <li>Ad-free experience</li>
+            <li>Priority customer support</li>
+            <li>Early access to new features</li>
+          </ul>
         </div>
-      ) : (
-        <button
-          onClick={handleSubscribe}
-          className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 flex items-center justify-center"
-          disabled={isProcessing}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2"
-            viewBox="0 0 20 20"
-            fill="currentColor"
+
+        {isProcessing ? (
+          <div className="flex justify-center">
+            <Loader />
+          </div>
+        ) : (
+          <button
+            onClick={handleSubscribe}
+            className="w-full bg-green-700 text-white py-3 rounded-lg hover:bg-green-600 transition-colors duration-300 flex items-center justify-center"
+            disabled={isProcessing}
           >
-            <path
-              fillRule="evenodd"
-              d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Subscribe with eSewa
-        </button>
-      )}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Subscribe with eSewa
+          </button>
+        )}
+      </div>
     </div>
   );
 };

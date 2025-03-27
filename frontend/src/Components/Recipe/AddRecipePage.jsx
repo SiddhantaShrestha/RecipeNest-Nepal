@@ -27,6 +27,7 @@ const AddRecipePage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
 
   // Handle changes to the hours input field
   const handlePrepTimeHoursChange = (e) => {
@@ -120,6 +121,7 @@ const AddRecipePage = () => {
       formData.append("category", category);
       formData.append("prepTime", prepTime);
       formData.append("servings", servings);
+      formData.append("isPremium", isPremium);
 
       if (mainImage) {
         formData.append("mainImage", mainImage);
@@ -309,6 +311,22 @@ const AddRecipePage = () => {
                 className="p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
                 placeholder="e.g., Dessert, Main Course"
               />
+            </div>
+
+            <div className="flex items-center mb-4">
+              <input
+                type="checkbox"
+                id="isPremium"
+                checked={isPremium}
+                onChange={(e) => setIsPremium(e.target.checked)}
+                className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <label
+                htmlFor="isPremium"
+                className="ml-2 text-lg text-emerald-300"
+              >
+                Premium Recipe (Only visible to premium users)
+              </label>
             </div>
 
             {/* Preparation Time */}

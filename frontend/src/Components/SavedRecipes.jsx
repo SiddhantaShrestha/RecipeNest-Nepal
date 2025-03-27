@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { setRecipes } from "../slices/recipeSlice";
-import { restoreAuth } from "../slices/authSlice";
 import Navbar from "./Navbar";
 import {
   FaClock,

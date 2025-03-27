@@ -10,6 +10,7 @@ import {
 } from "../Controllers/recipeController.js";
 import upload from "../Middleware/multer.js";
 import isAuthenticated from "../Middleware/isAuthenticated.js";
+import { checkPremiumStatus } from "../Middleware/premiumCheck.js";
 
 const recipeRouter = Router();
 
@@ -17,9 +18,9 @@ const recipeRouter = Router();
 recipeRouter.route("/my-recipes").get(isAuthenticated, getRecipesByUser);
 
 // Public route for fetching all recipes
-recipeRouter.route("/").get(getRecipes);
+recipeRouter.route("/").get(checkPremiumStatus, getRecipes);
 
-// Protected route for creating a new recipe (main image + step images)
+// Protected route for creating a new recipe
 recipeRouter.route("/").post(
   isAuthenticated,
   upload.fields([
@@ -30,10 +31,7 @@ recipeRouter.route("/").post(
 );
 
 // Public route for fetching a specific recipe by ID
-recipeRouter.route("/:id").get(getRecipeById);
-
-// Public route for fetching a specific recipe by ID
-recipeRouter.route("/:id").get(getRecipeById);
+recipeRouter.route("/:id").get(checkPremiumStatus, getRecipeById);
 
 // Protected route for updating a recipe
 recipeRouter.route("/:id").put(
@@ -48,6 +46,7 @@ recipeRouter.route("/:id").put(
 // Protected route for deleting a recipe
 recipeRouter.route("/:id").delete(isAuthenticated, deleteRecipe);
 
+// Protected route for adding comments
 recipeRouter.route("/:id/comments").post(isAuthenticated, addComment);
 
 export default recipeRouter;

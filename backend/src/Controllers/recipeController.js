@@ -11,6 +11,7 @@ export const createRecipe = async (req, res) => {
       category,
       prepTime,
       servings,
+      isPremium,
     } = req.body;
 
     // Parse ingredients and steps
@@ -46,6 +47,7 @@ export const createRecipe = async (req, res) => {
       servings: Number(servings),
       image: mainImagePath,
       user: req._id, // Assign the logged-in user's ID
+      isPremium: isPremium === "true",
     });
 
     await newRecipe.save();
@@ -68,14 +70,21 @@ export const createRecipe = async (req, res) => {
 // Get all recipes
 export const getRecipes = async (req, res) => {
   try {
-    const recipes = await Recipe.find().sort({ createdAt: -1 }); // Sort by most recent
+    // TEMPORARY: Bypass premium check
+    const recipes = await Recipe.find({}).sort({ createdAt: -1 });
+
     res.status(200).json({
+      success: true,
       message: "Recipes fetched successfully",
       recipes,
     });
   } catch (error) {
     console.error("Error fetching recipes:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
@@ -88,9 +97,21 @@ export const getRecipeById = async (req, res) => {
       "comments.user",
       "username"
     );
+
     if (!recipe) {
       return res.status(404).json({ message: "Recipe not found" });
     }
+
+    // TEMPORARY: Bypass premium check
+    // Original premium check code (commented out for reference):
+    /*
+    const isPremiumUser = req.user?.isPremium || false;
+    if (recipe.isPremium && !isPremiumUser) {
+      return res.status(403).json({
+        message: "This is a premium recipe. Upgrade your account to access it.",
+      });
+    }
+    */
 
     res.status(200).json({
       message: "Recipe fetched successfully",

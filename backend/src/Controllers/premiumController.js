@@ -47,13 +47,13 @@ export const verifyPremiumPayment = async (req, res) => {
   try {
     const { transaction_uuid, amount, userId } = req.body;
 
-    console.log("Verification Request Details:", {
-      transaction_uuid,
-      amount,
-      userId,
-      merchantCode: process.env.ESEWA_MERCHANT_CODE,
-      verifyUrl: ESEWA_VERIFY_URL,
-    });
+    // console.log("Verification Request Details:", {
+    //   transaction_uuid,
+    //   amount,
+    //   userId,
+    //   merchantCode: process.env.ESEWA_MERCHANT_CODE,
+    //   verifyUrl: ESEWA_VERIFY_URL,
+    // });
 
     // Validate input
     if (!transaction_uuid || !amount || !userId) {
@@ -70,7 +70,7 @@ export const verifyPremiumPayment = async (req, res) => {
       .update(stringToSign)
       .digest("base64");
 
-    console.log("Generated Signature:", signature);
+    // console.log("Generated Signature:", signature);
 
     try {
       const response = await axios.post(
@@ -89,8 +89,8 @@ export const verifyPremiumPayment = async (req, res) => {
         }
       );
 
-      console.log("eSewa Verification Full Response:", response);
-      console.log("eSewa Verification Response Data:", response.data);
+      // console.log("eSewa Verification Full Response:", response);
+      // console.log("eSewa Verification Response Data:", response.data);
 
       if (response.data.status === "COMPLETE") {
         // Payment verified - update user to premium

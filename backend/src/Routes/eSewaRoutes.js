@@ -23,11 +23,11 @@ router.post("/pay", async (req, res) => {
   try {
     const { amount, transaction_uuid, orderId } = req.body;
 
-    console.log("Payment request received:", {
-      amount,
-      transaction_uuid,
-      orderId,
-    });
+    // console.log("Payment request received:", {
+    //   amount,
+    //   transaction_uuid,
+    //   orderId,
+    // });
 
     if (!amount || !transaction_uuid) {
       return res.status(400).json({
@@ -63,7 +63,7 @@ router.post("/pay", async (req, res) => {
       signature: signature,
     };
 
-    console.log("Generated eSewa form data:", esewaFormData);
+    // console.log("Generated eSewa form data:", esewaFormData);
 
     res.status(200).json({ formData: esewaFormData });
   } catch (error) {
@@ -83,12 +83,12 @@ router.get("/success", (req, res) => {
       "premium-subscription": premiumTransaction,
       userId,
     } = req.query;
-    console.log("Success data received:", {
-      data,
-      orderId,
-      premiumTransaction,
-      userId,
-    });
+    // console.log("Success data received:", {
+    //   data,
+    //   orderId,
+    //   premiumTransaction,
+    //   userId,
+    // });
 
     // Check if this is a premium upgrade transaction
     if (premiumTransaction) {
@@ -126,7 +126,7 @@ router.get("/success", (req, res) => {
 router.get("/failure", (req, res) => {
   try {
     const { orderId } = req.query;
-    console.log("Payment failure for order:", orderId);
+    // console.log("Payment failure for order:", orderId);
 
     // If we have an order ID, redirect to that order page with failure status
     if (orderId) {

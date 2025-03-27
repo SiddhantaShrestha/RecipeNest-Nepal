@@ -151,7 +151,7 @@ const addProductReview = asyncHandler(async (req, res) => {
 
       // Fetch the complete user data
       const userData = await mongoose.model("Register").findById(req.user._id);
-      console.log(userData);
+      // console.log(userData);
 
       if (!userData) {
         res.status(404);
@@ -171,14 +171,14 @@ const addProductReview = asyncHandler(async (req, res) => {
       product.numReviews = product.reviews.length;
 
       // Calculate the new average rating - Fixed this line
-      console.log(
-        "Reviews:",
-        product.reviews.map((r) => ({ name: r.name, rating: r.rating }))
-      );
+      // console.log(
+      //   "Reviews:",
+      //   product.reviews.map((r) => ({ name: r.name, rating: r.rating }))
+      // );
       product.rating =
         product.reviews.reduce((acc, item) => acc + Number(item.rating), 0) /
         product.reviews.length;
-      console.log("New average rating:", product.rating);
+      // console.log("New average rating:", product.rating);
 
       await product.save();
       res.status(201).json({ message: "Review added" });

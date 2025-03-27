@@ -8,19 +8,26 @@ import {
   FaClock,
   FaUtensils,
   FaStar,
+  FaCrown,
 } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { setRecipes } from "../../slices/recipeSlice";
+import {
+  fetchRecipes,
+  setRecipes,
+  setLoading,
+  setError,
+} from "../../slices/recipeSlice";
 import Navbar from "../Navbar";
 import bgImage from "../../Images/RecipeBg.png";
 
 const RecipeListPage = () => {
   const dispatch = useDispatch();
-  const recipes = useSelector((state) => state.recipes.recipes);
+  const { recipes, isLoading, error } = useSelector((state) => state.recipes);
+
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const recipesPerPage = 3;
@@ -31,6 +38,7 @@ const RecipeListPage = () => {
   const [filterDietary, setFilterDietary] = useState([]);
   const [filterCookingTime, setFilterCookingTime] = useState([]);
   const [filterRating, setFilterRating] = useState([]); // Added rating filter
+  const [filterPremium, setFilterPremium] = useState("All"); // New: "All", "Premium", "Basic"
   const [sortOption, setSortOption] = useState("Newest First");
 
   // Available filter options based on your recipes data
@@ -62,6 +70,7 @@ const RecipeListPage = () => {
   ];
   const cookingTimeOptions = ["Under 30 mins", "30-60 mins", "Over 60 mins"];
   const ratingOptions = ["5★", "4★+", "3★+", "2★+", "1★+"]; // Added rating options
+  const premiumOptions = ["All", "Premium Only", "Basic Only"]; // New premium filter options
   const sortOptions = [
     "Newest First",
     "Oldest First", // Added Oldest First option
@@ -69,22 +78,11 @@ const RecipeListPage = () => {
     "Most Popular",
   ];
 
+  // Get user premium status from Redux or auth context
+  const isPremiumUser =
+    useSelector((state) => state.auth.user?.isPremium) || false;
   useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("http://localhost:8000/recipes");
-        dispatch(setRecipes(response.data.recipes));
-        setFilteredRecipes(response.data.recipes);
-      } catch (error) {
-        console.error("Error fetching recipes:", error);
-        setError("Failed to load recipes");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecipes();
+    dispatch(fetchRecipes());
   }, [dispatch]);
 
   const handleImageError = (e) => {
@@ -95,6 +93,18 @@ const RecipeListPage = () => {
   // Apply filters when any filter condition changes
   useEffect(() => {
     let filtered = [...recipes];
+
+    // Apply premium filter first
+    if (filterPremium === "Premium Only") {
+      filtered = filtered.filter((recipe) => recipe.isPremium);
+    } else if (filterPremium === "Basic Only") {
+      filtered = filtered.filter((recipe) => !recipe.isPremium);
+    }
+
+    // Apply user premium status filter
+    if (!isPremiumUser) {
+      filtered = filtered.filter((recipe) => !recipe.isPremium);
+    }
 
     // Apply search filter
     if (searchQuery) {
@@ -180,8 +190,15 @@ const RecipeListPage = () => {
     filterDietary,
     filterCookingTime,
     filterRating,
+    filterPremium,
     sortOption,
+    isPremiumUser,
   ]);
+
+  // Handle premium filter change
+  const handlePremiumChange = (premiumType) => {
+    setFilterPremium(premiumType);
+  };
 
   // Handle cuisine filter change
   const handleCuisineChange = (cuisine) => {
@@ -236,6 +253,7 @@ const RecipeListPage = () => {
     setFilterDietary([]);
     setFilterCookingTime([]);
     setFilterRating([]);
+    setFilterPremium("All");
     setSortOption("Newest First");
   };
 
@@ -252,7 +270,7 @@ const RecipeListPage = () => {
     setCurrentPage(pageNumber);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="animate-pulse flex space-x-4">
@@ -273,11 +291,11 @@ const RecipeListPage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-center p-8 bg-gray-800 rounded-lg shadow-xl">
-          <h2 className="text-2xl font-bold text-red-500 mb-4">Oops!</h2>
+          <h2 className="text-2xl font-bold text-red-500 mb-4">Error</h2>
           <p className="text-xl text-gray-300">{error}</p>
           <button
             className="mt-6 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
-            onClick={() => window.location.reload()}
+            onClick={() => dispatch(fetchRecipes())} // Retry fetching
           >
             Try Again
           </button>
@@ -294,6 +312,7 @@ const RecipeListPage = () => {
       filterDietary.length > 0 ||
       filterCookingTime.length > 0 ||
       filterRating.length > 0 ||
+      filterPremium !== "All" ||
       sortOption !== "Newest First" ||
       searchQuery !== ""
     );
@@ -481,6 +500,35 @@ const RecipeListPage = () => {
 
             <div className="bg-gray-700 rounded-lg p-4">
               <h2 className="text-xl font-semibold mb-3 text-indigo-300">
+                Recipe Type
+              </h2>
+              <div className="space-y-2">
+                {premiumOptions.map((option) => (
+                  <div key={option} className="flex items-center">
+                    <input
+                      type="radio"
+                      id={`premium-${option}`}
+                      name="premiumFilter"
+                      checked={filterPremium === option}
+                      onChange={() => handlePremiumChange(option)}
+                      className="h-4 w-4 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor={`premium-${option}`}
+                      className="ml-2 text-gray-300 cursor-pointer hover:text-white flex items-center"
+                    >
+                      {option}
+                      {option === "Premium Only" && (
+                        <FaCrown className="ml-1 text-yellow-400" size={12} />
+                      )}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gray-700 rounded-lg p-4">
+              <h2 className="text-xl font-semibold mb-3 text-indigo-300">
                 Sort By
               </h2>
               <div className="space-y-2">
@@ -617,6 +665,18 @@ const RecipeListPage = () => {
                 </span>
               ))}
 
+              {filterPremium !== "All" && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200">
+                  {filterPremium}
+                  <button
+                    className="ml-2 text-indigo-200 hover:text-white"
+                    onClick={() => setFilterPremium("All")}
+                  >
+                    &times;
+                  </button>
+                </span>
+              )}
+
               {sortOption !== "Newest First" && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200">
                   Sort: {sortOption}
@@ -634,8 +694,7 @@ const RecipeListPage = () => {
         </div>
       )}
 
-      {/* Rest of the component remains largely the same */}
-      {/* Featured Recipes & Add Recipe Button */}
+      {/* Recipe Cards */}
       <div className="container mx-auto px-4 py-10">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-white">
@@ -657,7 +716,7 @@ const RecipeListPage = () => {
           </Link>
         </div>
 
-        {/* Recipe Cards */}
+        {/* Recipe Cards grid */}
         <div className="grid grid-cols-1 gap-8">
           {currentRecipes.map((recipe) => (
             <div
@@ -675,12 +734,23 @@ const RecipeListPage = () => {
                     className="w-full h-full object-cover"
                     onError={handleImageError}
                   />
+                  {recipe.isPremium && (
+                    <div className="absolute top-2 left-2 bg-yellow-600 text-white px-2 py-1 rounded-md text-xs font-bold flex items-center">
+                      <FaCrown className="mr-1" /> PREMIUM
+                    </div>
+                  )}
                 </div>
                 <div className="p-6 md:w-2/3">
-                  <h3 className="text-2xl font-bold text-white mb-2">
-                    {recipe.title}
-                  </h3>
-
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-2xl font-bold text-white mb-2">
+                      {recipe.title}
+                    </h3>
+                    {!isPremiumUser && recipe.isPremium && (
+                      <span className="text-xs bg-yellow-900 text-yellow-200 px-2 py-1 rounded">
+                        Upgrade to view
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-wrap items-center gap-2 mb-3">
                     {recipe.cuisine && (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200">
@@ -755,7 +825,7 @@ const RecipeListPage = () => {
         </div>
 
         {/* Empty State */}
-        {filteredRecipes.length === 0 && !loading && !error && (
+        {filteredRecipes.length === 0 && !isLoading && !error && (
           <div className="text-center py-16 bg-gray-800 rounded-xl my-10 border border-gray-700">
             <div className="bg-gray-700 rounded-full h-24 w-24 flex items-center justify-center mx-auto mb-6">
               <FaUtensils className="text-4xl text-gray-400" />
@@ -774,6 +844,21 @@ const RecipeListPage = () => {
                 >
                   Clear Filters
                 </button>
+              </>
+            ) : !isPremiumUser && filterPremium === "Premium Only" ? (
+              <>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  Premium Recipes Locked
+                </h3>
+                <p className="text-gray-400 mb-6">
+                  Upgrade to premium to access exclusive recipes
+                </p>
+                <Link
+                  to="/subscription"
+                  className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-lg hover:from-yellow-700 hover:to-yellow-800 transition duration-300"
+                >
+                  Upgrade Now
+                </Link>
               </>
             ) : (
               <>

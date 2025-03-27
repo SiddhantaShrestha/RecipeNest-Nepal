@@ -15,22 +15,21 @@ const EditRecipe = () => {
   const [recipe, setRecipe] = useState({
     title: "",
     description: "",
-    ingredients: [],
-    steps: [],
+    ingredients: [{ name: "" }],
+    steps: [{ description: "", image: "", imagePreview: "" }],
     category: "",
     prepTime: "",
     servings: "",
     image: "",
+    isPremium: false,
   });
 
   const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
-  const [stepImages, setStepImages] = useState([]);
-  const [stepImagePreviews, setStepImagePreviews] = useState([]);
+  const [mainImage, setMainImage] = useState(null);
+  const [mainImagePreview, setMainImagePreview] = useState("");
   const [error, setErrorState] = useState("");
-  const [prepTimeHours, setPrepTimeHours] = useState("");
-  const [prepTimeMinutes, setPrepTimeMinutes] = useState("");
+  const [prepTimeHours, setPrepTimeHours] = useState(0);
+  const [prepTimeMinutes, setPrepTimeMinutes] = useState(0);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -42,18 +41,43 @@ const EditRecipe = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        setRecipe(response.data.recipe);
-        setImagePreview(response.data.recipe.image);
-        setStepImagePreviews(
-          response.data.recipe.steps.map((step) => step.image || "")
-        );
 
-        // Set the initial prepTime from the recipe (split it into hours and minutes)
-        const [hours, minutes] = response.data.recipe.prepTime
-          .split(" hr ")
-          .map((time) => time.replace(" min", ""));
-        setPrepTimeHours(hours || "");
-        setPrepTimeMinutes(minutes || "");
+        const recipeData = response.data.recipe;
+
+        // Format ingredients to match the new structure
+        const formattedIngredients = recipeData.ingredients.map((ing) => ({
+          name: typeof ing === "string" ? ing : ing.name || "",
+        }));
+
+        // Format steps to include imagePreview
+        const formattedSteps = recipeData.steps.map((step) => ({
+          description: step.description,
+          image: step.image || "",
+          imagePreview: step.image || "",
+        }));
+
+        // Parse prep time
+        let hours = 0;
+        let minutes = 0;
+        if (recipeData.prepTime) {
+          const timeParts = recipeData.prepTime.split(" ");
+          hours = timeParts.find((p) => p.includes("hr"))
+            ? parseInt(timeParts[0])
+            : 0;
+          minutes = timeParts.find((p) => p.includes("min"))
+            ? parseInt(timeParts[timeParts.length - 2])
+            : 0;
+        }
+
+        setRecipe({
+          ...recipeData,
+          ingredients: formattedIngredients,
+          steps: formattedSteps,
+        });
+
+        setMainImagePreview(recipeData.image);
+        setPrepTimeHours(hours);
+        setPrepTimeMinutes(minutes);
       } catch (err) {
         console.error("Error fetching recipe:", err);
         dispatch(setError("Failed to load recipe"));
@@ -69,33 +93,49 @@ const EditRecipe = () => {
     }
   }, [id, token, navigate, dispatch]);
 
-  const handleImageChange = (e) => {
+  const handleMainImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(file);
+      setMainImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
+        setMainImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleStepImageChange = (e, index) => {
+  const handleStepImageChange = (index, e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (file) {
+      const updatedSteps = [...recipe.steps];
+      updatedSteps[index].image = file;
 
-    const newStepImages = [...stepImages];
-    newStepImages[index] = file;
-    setStepImages(newStepImages);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updatedSteps[index].imagePreview = reader.result;
+        setRecipe({ ...recipe, steps: updatedSteps });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    const newStepImagePreviews = [...stepImagePreviews];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      newStepImagePreviews[index] = reader.result;
-      setStepImagePreviews(newStepImagePreviews);
-    };
-    reader.readAsDataURL(file);
+  const handleIngredientChange = (index, value) => {
+    const updatedIngredients = [...recipe.ingredients];
+    updatedIngredients[index].name = value;
+    setRecipe({ ...recipe, ingredients: updatedIngredients });
+  };
+
+  const addIngredient = () => {
+    setRecipe({
+      ...recipe,
+      ingredients: [...recipe.ingredients, { name: "" }],
+    });
+  };
+
+  const removeIngredient = (index) => {
+    const updatedIngredients = recipe.ingredients.filter((_, i) => i !== index);
+    setRecipe({ ...recipe, ingredients: updatedIngredients });
   };
 
   const handleStepChange = (index, field, value) => {
@@ -107,29 +147,16 @@ const EditRecipe = () => {
   const addStep = () => {
     setRecipe({
       ...recipe,
-      steps: [...recipe.steps, { description: "", image: null }],
+      steps: [
+        ...recipe.steps,
+        { description: "", image: null, imagePreview: "" },
+      ],
     });
-    setStepImages([...stepImages, null]);
-    setStepImagePreviews([...stepImagePreviews, ""]);
   };
 
   const removeStep = (index) => {
     const updatedSteps = recipe.steps.filter((_, i) => i !== index);
     setRecipe({ ...recipe, steps: updatedSteps });
-    setStepImagePreviews(stepImagePreviews.filter((_, i) => i !== index));
-    setStepImages(stepImages.filter((_, i) => i !== index));
-  };
-
-  const addIngredient = () => {
-    setRecipe({
-      ...recipe,
-      ingredients: [...recipe.ingredients, ""],
-    });
-  };
-
-  const removeIngredient = (index) => {
-    const updatedIngredients = recipe.ingredients.filter((_, i) => i !== index);
-    setRecipe({ ...recipe, ingredients: updatedIngredients });
   };
 
   const handlePrepTimeHoursChange = (e) => {
@@ -156,7 +183,7 @@ const EditRecipe = () => {
     if (minutes && Number(minutes) > 0) {
       timeString += `${minutes} min`;
     }
-    setRecipe((prevRecipe) => ({ ...prevRecipe, prepTime: timeString.trim() }));
+    setRecipe({ ...recipe, prepTime: timeString.trim() });
   };
 
   const handleFormSubmit = async (e) => {
@@ -165,19 +192,28 @@ const EditRecipe = () => {
     const formData = new FormData();
     formData.append("title", recipe.title);
     formData.append("description", recipe.description);
-    formData.append("ingredients", JSON.stringify(recipe.ingredients));
-    formData.append("steps", JSON.stringify(recipe.steps));
+    formData.append(
+      "ingredients",
+      JSON.stringify(recipe.ingredients.map((ing) => ing.name))
+    );
     formData.append("category", recipe.category);
     formData.append("prepTime", recipe.prepTime);
     formData.append("servings", recipe.servings);
+    formData.append("isPremium", recipe.isPremium);
 
-    if (image) {
-      formData.append("mainImage", image);
+    if (mainImage) {
+      formData.append("mainImage", mainImage);
     }
 
-    stepImages.forEach((stepImage, index) => {
-      if (stepImage) {
-        formData.append("stepImages", stepImage);
+    const stepsData = recipe.steps.map((step) => ({
+      description: step.description,
+      image: step.image instanceof File ? "" : step.image,
+    }));
+    formData.append("steps", JSON.stringify(stepsData));
+
+    recipe.steps.forEach((step, index) => {
+      if (step.image instanceof File) {
+        formData.append("stepImages", step.image);
       }
     });
 
@@ -268,7 +304,6 @@ const EditRecipe = () => {
             </div>
 
             {/* Main Recipe Image */}
-
             <div className="flex flex-col">
               <label
                 htmlFor="mainImage"
@@ -278,8 +313,8 @@ const EditRecipe = () => {
               </label>
               <div className="flex items-center justify-center w-full">
                 <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-all overflow-hidden">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6 w-full h-full">
-                    {!imagePreview ? (
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6 h-full w-full">
+                    {!mainImagePreview ? (
                       <>
                         <svg
                           className="w-10 h-10 mb-3 text-gray-400"
@@ -304,9 +339,9 @@ const EditRecipe = () => {
                         </p>
                       </>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
+                      <div className="h-full w-full">
                         <img
-                          src={imagePreview}
+                          src={mainImagePreview}
                           alt="Recipe preview"
                           className="h-full w-full object-contain"
                         />
@@ -317,7 +352,7 @@ const EditRecipe = () => {
                     type="file"
                     id="mainImage"
                     accept="image/*"
-                    onChange={handleImageChange}
+                    onChange={handleMainImageChange}
                     className="hidden"
                   />
                 </label>
@@ -344,6 +379,25 @@ const EditRecipe = () => {
                   className="p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
                   placeholder="e.g., Dessert, Main Course"
                 />
+              </div>
+
+              {/* Premium Checkbox */}
+              <div className="flex items-center mb-4">
+                <input
+                  type="checkbox"
+                  id="isPremium"
+                  checked={recipe.isPremium}
+                  onChange={(e) =>
+                    setRecipe({ ...recipe, isPremium: e.target.checked })
+                  }
+                  className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <label
+                  htmlFor="isPremium"
+                  className="ml-2 text-lg text-emerald-300"
+                >
+                  Premium Recipe (Only visible to premium users)
+                </label>
               </div>
 
               {/* Preparation Time */}
@@ -420,14 +474,9 @@ const EditRecipe = () => {
                   <div key={index} className="flex items-center">
                     <input
                       type="text"
-                      value={ingredient}
+                      value={ingredient.name}
                       onChange={(e) =>
-                        setRecipe({
-                          ...recipe,
-                          ingredients: recipe.ingredients.map((item, i) =>
-                            i === index ? e.target.value : item
-                          ),
-                        })
+                        handleIngredientChange(index, e.target.value)
                       }
                       placeholder="Enter ingredient with quantity (e.g., 2 cups flour)"
                       required
@@ -536,8 +585,8 @@ const EditRecipe = () => {
                       </label>
                       <div className="flex items-center justify-center w-full">
                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-all overflow-hidden">
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6 w-full h-full">
-                            {!stepImagePreviews[index] ? (
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6 h-full w-full">
+                            {!step.imagePreview ? (
                               <>
                                 <svg
                                   className="w-8 h-8 mb-3 text-gray-400"
@@ -558,9 +607,9 @@ const EditRecipe = () => {
                                 </p>
                               </>
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center">
+                              <div className="h-full w-full">
                                 <img
-                                  src={stepImagePreviews[index]}
+                                  src={step.imagePreview}
                                   alt={`Step ${index + 1} preview`}
                                   className="h-full w-full object-contain"
                                 />
@@ -570,7 +619,7 @@ const EditRecipe = () => {
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => handleStepImageChange(e, index)}
+                            onChange={(e) => handleStepImageChange(index, e)}
                             className="hidden"
                           />
                         </label>

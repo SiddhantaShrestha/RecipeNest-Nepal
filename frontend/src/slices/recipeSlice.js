@@ -1,12 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const initialState = {
-  recipes: [], // All recipes
-  currentRecipe: null, // The currently viewed recipe
-  isBookmarked: false, // Bookmark status of the current recipe
-  userRecipes: [], // Recipes created by the logged-in user
-  isLoading: false, // Loading state for async operations
-  error: null, // Error message for API failures
+  recipes: [],
+  currentRecipe: null,
+  isBookmarked: false,
+  userRecipes: [],
+  isLoading: false,
+  error: null,
 };
 
 const recipesSlice = createSlice({
@@ -15,55 +16,55 @@ const recipesSlice = createSlice({
   reducers: {
     setRecipes(state, action) {
       state.recipes = action.payload;
+      state.isLoading = false;
+      state.error = null;
     },
     addRecipe(state, action) {
-      state.recipes.push(action.payload);
+      state.recipes.unshift(action.payload);
+      state.userRecipes.unshift(action.payload);
+      state.isLoading = false;
+      state.error = null;
     },
     setCurrentRecipe(state, action) {
       state.currentRecipe = action.payload;
+      state.isLoading = false;
+      state.error = null;
     },
     setBookmarkStatus(state, action) {
       state.isBookmarked = action.payload;
     },
     updateRecipe(state, action) {
       const updatedRecipe = action.payload;
-      if (!updatedRecipe || !updatedRecipe._id) {
-        console.error("Invalid recipe data received:", updatedRecipe);
-        return;
-      }
 
-      // Update in the list of all recipes
-      const index = state.recipes.findIndex(
-        (recipe) => recipe._id === updatedRecipe._id
+      // Update in recipes array
+      state.recipes = state.recipes.map((recipe) =>
+        recipe._id === updatedRecipe._id ? updatedRecipe : recipe
       );
-      if (index !== -1) {
-        state.recipes[index] = updatedRecipe;
-      }
 
-      // Update the current recipe if it's the same as the updated one
-      if (
-        state.currentRecipe &&
-        state.currentRecipe._id === updatedRecipe._id
-      ) {
+      // Update in userRecipes if exists
+      state.userRecipes = state.userRecipes.map((recipe) =>
+        recipe._id === updatedRecipe._id ? updatedRecipe : recipe
+      );
+
+      // Update currentRecipe if it's the one being updated
+      if (state.currentRecipe?._id === updatedRecipe._id) {
         state.currentRecipe = updatedRecipe;
       }
 
-      // Update in the user's recipes if applicable
-      const userRecipeIndex = state.userRecipes.findIndex(
-        (recipe) => recipe._id === updatedRecipe._id
-      );
-      if (userRecipeIndex !== -1) {
-        state.userRecipes[userRecipeIndex] = updatedRecipe;
-      }
+      state.isLoading = false;
+      state.error = null;
     },
     setUserRecipes(state, action) {
       state.userRecipes = action.payload;
+      state.isLoading = false;
+      state.error = null;
     },
     setLoading(state, action) {
       state.isLoading = action.payload;
     },
     setError(state, action) {
       state.error = action.payload;
+      state.isLoading = false;
     },
     deleteRecipe(state, action) {
       const recipeId = action.payload;
@@ -71,13 +72,16 @@ const recipesSlice = createSlice({
       state.userRecipes = state.userRecipes.filter(
         (recipe) => recipe._id !== recipeId
       );
-      if (state.currentRecipe && state.currentRecipe._id === recipeId) {
+      if (state.currentRecipe?._id === recipeId) {
         state.currentRecipe = null;
       }
+      state.isLoading = false;
+      state.error = null;
     },
   },
 });
 
+// Export regular actions
 export const {
   setRecipes,
   addRecipe,
@@ -89,5 +93,74 @@ export const {
   setError,
   deleteRecipe,
 } = recipesSlice.actions;
+
+// Export async action creators (manual thunks)
+export const fetchRecipes = () => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await axios.get("http://localhost:8000/recipes");
+    dispatch(setRecipes(response.data.recipes || []));
+  } catch (error) {
+    dispatch(
+      setError(error.response?.data?.message || "Failed to fetch recipes")
+    );
+  }
+};
+
+export const fetchRecipeById = (id) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await axios.get(`http://localhost:8000/recipes/${id}`);
+    dispatch(setCurrentRecipe(response.data.recipe));
+  } catch (error) {
+    dispatch(
+      setError(error.response?.data?.message || "Failed to fetch recipe")
+    );
+  }
+};
+
+export const createRecipe = (recipeData) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await axios.post(
+      "http://localhost:8000/recipes",
+      recipeData
+    );
+    dispatch(addRecipe(response.data.recipe));
+    return response.data.recipe; // Return for component to use
+  } catch (error) {
+    dispatch(
+      setError(error.response?.data?.message || "Failed to create recipe")
+    );
+    throw error; // Re-throw for component to handle
+  }
+};
+
+export const updateExistingRecipe = (id, recipeData) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await axios.put(
+      `http://localhost:8000/recipes/${id}`,
+      recipeData
+    );
+    dispatch(updateRecipe(response.data.recipe));
+  } catch (error) {
+    dispatch(
+      setError(error.response?.data?.message || "Failed to update recipe")
+    );
+  }
+};
+
+export const removeRecipe = (id) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    await axios.delete(`http://localhost:8000/recipes/${id}`);
+    dispatch(deleteRecipe(id));
+  } catch (error) {
+    dispatch(
+      setError(error.response?.data?.message || "Failed to delete recipe")
+    );
+  }
+};
 
 export default recipesSlice.reducer;

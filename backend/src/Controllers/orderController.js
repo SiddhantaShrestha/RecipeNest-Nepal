@@ -160,18 +160,18 @@ const findOrderById = async (req, res) => {
 const markOrderAsPaid = async (req, res) => {
   try {
     const orderId = req.params.id;
-    console.log(`Processing payment for order ${orderId}`, req.body);
+    // console.log(`Processing payment for order ${orderId}`, req.body);
 
     const order = await Order.findById(orderId);
 
     if (!order) {
-      console.log(`Order not found: ${orderId}`);
+      // console.log(`Order not found: ${orderId}`);
       return res.status(404).json({ message: "Order not found" });
     }
 
     // Check if order is already paid to prevent double payments
     if (order.isPaid) {
-      console.log(`Order ${orderId} is already paid`);
+      // console.log(`Order ${orderId} is already paid`);
       return res.status(200).json({
         message: "Order is already paid",
         order,
@@ -204,7 +204,7 @@ const markOrderAsPaid = async (req, res) => {
 
     // Save the updated order
     const updatedOrder = await order.save();
-    console.log(`Order ${orderId} marked as paid successfully`);
+    // console.log(`Order ${orderId} marked as paid successfully`);
 
     res.status(200).json(updatedOrder);
   } catch (error) {
