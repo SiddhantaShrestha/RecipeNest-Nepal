@@ -102,17 +102,6 @@ export const getRecipeById = async (req, res) => {
       return res.status(404).json({ message: "Recipe not found" });
     }
 
-    // TEMPORARY: Bypass premium check
-    // Original premium check code (commented out for reference):
-    /*
-    const isPremiumUser = req.user?.isPremium || false;
-    if (recipe.isPremium && !isPremiumUser) {
-      return res.status(403).json({
-        message: "This is a premium recipe. Upgrade your account to access it.",
-      });
-    }
-    */
-
     res.status(200).json({
       message: "Recipe fetched successfully",
       recipe,

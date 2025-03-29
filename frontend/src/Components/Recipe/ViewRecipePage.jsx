@@ -13,6 +13,7 @@ import {
   FaStar,
   FaArrowLeft,
   FaUtensils,
+  FaLock,
 } from "react-icons/fa";
 
 const ViewRecipePage = () => {
@@ -23,8 +24,11 @@ const ViewRecipePage = () => {
   const [error, setError] = useState("");
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({ text: "" });
+  const [isPremiumRecipe, setIsPremiumRecipe] = useState(false);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   const { token, user, isAuthenticated } = useSelector((state) => state.auth);
+  const { isPremium: isUserPremium } = useSelector((state) => state.auth.user);
 
   const recipe = useSelector((state) => state.recipes.currentRecipe);
   const isBookmarked = useSelector((state) => state.recipes.isBookmarked);
@@ -32,45 +36,65 @@ const ViewRecipePage = () => {
   // Fetch recipe and bookmark status
   useEffect(() => {
     setLoading(true);
+    setAccessDenied(false);
 
-    // Fetch recipe details
-    axios
-      .get(`http://localhost:8000/recipes/${id}`)
-      .then((response) => {
-        dispatch(setCurrentRecipe(response.data.recipe));
+    const fetchRecipe = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/recipes/${id}`,
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }
+        );
+
+        const recipeData = response.data.recipe;
+        setIsPremiumRecipe(recipeData.isPremium);
+
+        // Check if recipe is premium and user is not premium
+        if (recipeData.isPremium && !isUserPremium) {
+          setAccessDenied(true);
+          setLoading(false);
+          return;
+        }
+
+        dispatch(setCurrentRecipe(recipeData));
+        setComments(recipeData.comments || []);
         setLoading(false);
-        setComments(response.data.recipe.comments || []);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Recipe fetch error:", error);
-        setError("Failed to load recipe");
+        if (error.response?.status === 403) {
+          setAccessDenied(true);
+        } else {
+          setError("Failed to load recipe");
+        }
         setLoading(false);
-      });
+      }
+    };
 
-    // Fetch bookmarked recipes to check status
-    if (token) {
-      axios
-        .get("http://localhost:8000/api/users/bookmarks", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
+    const fetchBookmarks = async () => {
+      if (token && !accessDenied) {
+        try {
+          const response = await axios.get(
+            "http://localhost:8000/api/users/bookmarks",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
           const bookmarkedRecipes = response.data.bookmarkedRecipes;
           dispatch(
             setBookmarkStatus(
               bookmarkedRecipes.some((recipe) => recipe._id === id)
             )
           );
-        })
-        .catch((error) => {
+        } catch (error) {
           console.error("Bookmark fetch error:", error);
-          if (error.response?.status === 401) {
-            navigate("/login");
-          }
-        });
-    }
-  }, [id, token, dispatch, navigate]);
+        }
+      }
+    };
+
+    fetchRecipe();
+    fetchBookmarks();
+  }, [id, token, dispatch, isUserPremium, accessDenied]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -164,6 +188,50 @@ const ViewRecipePage = () => {
     );
   }
 
+  if (accessDenied) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center p-8 bg-gray-800 rounded-lg shadow-xl max-w-md">
+          <div className="flex justify-center mb-6">
+            <FaLock className="text-5xl text-indigo-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-4">Premium Recipe</h2>
+          <p className="text-gray-300 mb-6">
+            This recipe is only available to premium members. Upgrade your
+            account to access exclusive content.
+          </p>
+          {isAuthenticated ? (
+            <button
+              onClick={() => navigate("/subscription")}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300 font-medium"
+            >
+              Upgrade to Premium
+            </button>
+          ) : (
+            <div className="space-y-3">
+              <button
+                onClick={() =>
+                  navigate("/login", { state: { from: `/recipes/${id}` } })
+                }
+                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300 font-medium w-full"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() =>
+                  navigate("/register", { state: { from: `/recipes/${id}` } })
+                }
+                className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition duration-300 font-medium w-full"
+              >
+                Create Account
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -196,7 +264,6 @@ const ViewRecipePage = () => {
     <div className="bg-gray-900 min-h-screen text-gray-200">
       <Navbar />
 
-      {/* Back Button */}
       <div className="container mx-auto px-4 pt-6">
         <button
           onClick={() => navigate(-1)}
@@ -209,7 +276,16 @@ const ViewRecipePage = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Recipe Title and Actions */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">{recipe.title}</h1>
+          <div className="flex justify-center items-center">
+            <h1 className="text-4xl font-bold text-white mb-4">
+              {recipe.title}
+            </h1>
+            {isPremiumRecipe && (
+              <span className="ml-3 px-3 py-1 text-xs font-semibold bg-yellow-600 text-white rounded-full">
+                PREMIUM
+              </span>
+            )}
+          </div>
 
           {/* Rating */}
           <div className="flex justify-center mb-4">
