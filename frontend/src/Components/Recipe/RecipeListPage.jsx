@@ -320,8 +320,6 @@ const RecipeListPage = () => {
 
   return (
     <div className="bg-gray-900 min-h-screen">
-      <Navbar />
-
       {/* Hero Section with Glassmorphism */}
       <div
         className="relative bg-cover bg-center bg-no-repeat"

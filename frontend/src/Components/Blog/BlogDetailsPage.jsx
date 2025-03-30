@@ -107,7 +107,6 @@ const BlogDetailsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200">
-      <Navbar />
       <div className="blog-details-page p-4 md:p-8 lg:p-12 max-w-4xl mx-auto">
         {/* Blog Header */}
         <div className="blog-header mb-8 bg-gray-800 rounded-xl p-6 shadow-xl">

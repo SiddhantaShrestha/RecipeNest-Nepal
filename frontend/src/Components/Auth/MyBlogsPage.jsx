@@ -75,7 +75,6 @@ const MyBlogsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200">
-      <Navbar />
       <SubNavbar />
       <div className="max-w-6xl mx-auto p-4 md:p-6">
         <div className="flex justify-between items-center mb-8">

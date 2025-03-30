@@ -114,6 +114,29 @@ export const AdminDashboard = () => {
   });
 
   useEffect(() => {
+    const navContainer = document.getElementById("navigation-container");
+    const dashboardContent = document.getElementById("dashboard-content");
+
+    if (navContainer && dashboardContent) {
+      const handleHover = () => {
+        dashboardContent.style.marginLeft = "16rem"; // 64px (w-64) in rem
+      };
+
+      const handleLeave = () => {
+        dashboardContent.style.marginLeft = "5rem"; // 20px (w-20) in rem
+      };
+
+      navContainer.addEventListener("mouseenter", handleHover);
+      navContainer.addEventListener("mouseleave", handleLeave);
+
+      return () => {
+        navContainer.removeEventListener("mouseenter", handleHover);
+        navContainer.removeEventListener("mouseleave", handleLeave);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
     if (salesDetail) {
       const formattedSalesDate = salesDetail.map((item) => ({
         x: item._id,
@@ -145,7 +168,10 @@ export const AdminDashboard = () => {
       </div>
 
       {/* Main content with left margin to account for the sidebar */}
-      <main className="flex-1 p-6 md:p-8 lg:p-10 ml-[4%] md:ml-[4%] hover:ml-[15%] transition-all duration-300">
+      <main
+        className="flex-1 p-6 md:p-8 lg:p-10 ml-20 transition-all duration-300"
+        id="dashboard-content"
+      >
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
           <p className="text-gray-400">Welcome to your admin overview</p>

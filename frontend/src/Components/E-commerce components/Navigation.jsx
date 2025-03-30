@@ -8,6 +8,12 @@ import {
   AiOutlineInfoCircle,
 } from "react-icons/ai";
 import { FaHeart, FaUserCircle, FaUtensils, FaBlog } from "react-icons/fa";
+import {
+  MdDashboard,
+  MdCategory,
+  MdShoppingBag,
+  MdPeopleAlt,
+} from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
@@ -186,7 +192,7 @@ const Navigation = () => {
                 </svg>
               </button>
 
-              {/* Dropdown Menu */}
+              {/* Dropdown Menu - Now with fewer options */}
               {dropdownOpen && (
                 <div className="absolute left-0 w-64 mt-2 bg-gray-800 rounded-lg shadow-lg py-2 border border-gray-700 z-50">
                   <button
@@ -195,50 +201,6 @@ const Navigation = () => {
                   >
                     My Profile
                   </button>
-
-                  {/* Admin Options */}
-                  {profile.isAdmin && (
-                    <>
-                      <div className="px-4 py-1 bg-gray-700 text-sm font-semibold text-gray-300">
-                        Admin Options
-                      </div>
-                      <Link
-                        to="/admin/dashboard"
-                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        Dashboard
-                      </Link>
-                      <Link
-                        to="/admin/productlist"
-                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        Products
-                      </Link>
-                      <Link
-                        to="/admin/categorylist"
-                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        Category
-                      </Link>
-                      <Link
-                        to="/admin/orderlist"
-                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        Orders
-                      </Link>
-                      <Link
-                        to="/admin/userlist"
-                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        Users
-                      </Link>
-                    </>
-                  )}
 
                   <div className="border-t border-gray-700 my-1"></div>
 
@@ -258,7 +220,7 @@ const Navigation = () => {
       {/* Main Navigation Links */}
       <div className="flex-grow overflow-y-auto overflow-x-hidden py-8">
         <nav className="px-4 space-y-6">
-          <Link
+          {/* <Link
             to="/"
             className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
           >
@@ -269,18 +231,7 @@ const Navigation = () => {
             <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
               Home
             </span>
-          </Link>
-
-          {/* Recipes Link - NEW */}
-          <Link
-            to="/recipes"
-            className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
-          >
-            <FaUtensils size={22} className="min-w-6 min-h-6 text-gray-300" />
-            <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
-              Recipes
-            </span>
-          </Link>
+          </Link> */}
 
           {/* Shop Link - Only visible for non-admin users */}
           {authToken && !isAdmin && (
@@ -298,17 +249,6 @@ const Navigation = () => {
             </Link>
           )}
 
-          {/* Blog Link - NEW */}
-          <Link
-            to="/blog"
-            className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
-          >
-            <FaBlog size={22} className="min-w-6 min-h-6 text-gray-300" />
-            <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
-              Blogs
-            </span>
-          </Link>
-
           {/* About Us Link - Only visible for non-admin users */}
           {authToken && !isAdmin && (
             <Link
@@ -323,6 +263,106 @@ const Navigation = () => {
                 About Us
               </span>
             </Link>
+          )}
+
+          {/* Admin Links - Now placed directly in the main navigation */}
+          {authToken && isAdmin && (
+            <>
+              {/* Admin Dashboard */}
+              <Link
+                to="/admin/dashboard"
+                className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
+              >
+                <MdDashboard
+                  size={24}
+                  className="min-w-6 min-h-6 text-gray-300"
+                />
+                <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  Dashboard
+                </span>
+              </Link>
+
+              {/* Admin Products */}
+              <Link
+                to="/admin/productlist"
+                className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
+              >
+                <MdShoppingBag
+                  size={24}
+                  className="min-w-6 min-h-6 text-gray-300"
+                />
+                <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  Products
+                </span>
+              </Link>
+
+              {/* Admin Categories */}
+              <Link
+                to="/admin/categorylist"
+                className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
+              >
+                <MdCategory
+                  size={24}
+                  className="min-w-6 min-h-6 text-gray-300"
+                />
+                <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  Categories
+                </span>
+              </Link>
+
+              {/* Admin Orders */}
+              <Link
+                to="/admin/orderlist"
+                className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
+              >
+                <AiOutlineShoppingCart
+                  size={24}
+                  className="min-w-6 min-h-6 text-gray-300"
+                />
+                <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  Orders
+                </span>
+              </Link>
+
+              {/* Admin Users */}
+              <Link
+                to="/admin/userlist"
+                className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
+              >
+                <MdPeopleAlt
+                  size={24}
+                  className="min-w-6 min-h-6 text-gray-300"
+                />
+                <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  Users
+                </span>
+              </Link>
+
+              {/* Blog Link */}
+              <Link
+                to="/blog"
+                className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
+              >
+                <FaBlog size={22} className="min-w-6 min-h-6 text-gray-300" />
+                <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  Blogs
+                </span>
+              </Link>
+
+              {/* Recipes Link */}
+              <Link
+                to="/recipes"
+                className="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all transform hover:translate-x-1"
+              >
+                <FaUtensils
+                  size={22}
+                  className="min-w-6 min-h-6 text-gray-300"
+                />
+                <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  Recipes
+                </span>
+              </Link>
+            </>
           )}
 
           {/* Cart Link - Only show when logged in and NOT admin */}

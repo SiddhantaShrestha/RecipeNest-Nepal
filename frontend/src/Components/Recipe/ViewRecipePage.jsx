@@ -262,8 +262,6 @@ const ViewRecipePage = () => {
 
   return (
     <div className="bg-gray-900 min-h-screen text-gray-200">
-      <Navbar />
-
       <div className="container mx-auto px-4 pt-6">
         <button
           onClick={() => navigate(-1)}

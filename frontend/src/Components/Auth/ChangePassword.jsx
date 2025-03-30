@@ -124,7 +124,6 @@ const ChangePassword = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar />
       <SubNavbar />
 
       <div className="container mx-auto p-8 max-w-lg">

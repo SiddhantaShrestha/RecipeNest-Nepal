@@ -83,7 +83,6 @@ const MyProfile = () => {
   if (isError) {
     return (
       <div className="min-h-screen bg-gray-900">
-        <Navbar />
         <SubNavbar />
         <div className="container mx-auto p-6 bg-gray-800 shadow-lg rounded-lg mt-6 border border-red-500">
           <div className="flex items-center justify-center space-x-3">

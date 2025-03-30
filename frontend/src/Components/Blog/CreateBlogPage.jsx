@@ -108,8 +108,6 @@ const CreateBlogPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar />
-
       {/* Improved success notification */}
       <div
         id="success-message"

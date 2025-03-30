@@ -117,7 +117,6 @@ const UpdateBlogPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900">
-        <Navbar />
         <div className="h-screen flex items-center justify-center">
           <div className="flex flex-col items-center">
             <svg
@@ -149,8 +148,6 @@ const UpdateBlogPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar />
-
       {/* Success notification */}
       <div
         id="success-message"

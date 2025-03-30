@@ -72,7 +72,6 @@ const MyRecipesPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
-      <Navbar />
       <SubNavbar />
       <div className="max-w-6xl mx-auto p-6">
         <h2 className="text-3xl mb-8 text-center font-bold text-emerald-400 border-b border-gray-700 pb-4">

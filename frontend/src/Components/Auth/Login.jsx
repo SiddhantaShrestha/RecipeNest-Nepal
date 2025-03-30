@@ -53,7 +53,6 @@ const Login = () => {
       );
 
       if (response.data.success && response.data.token) {
-        // Store the token
         const token = response.data.token;
         const expirationDate = Date.now() + 24 * 60 * 60 * 1000;
 
@@ -68,18 +67,24 @@ const Login = () => {
 
         // Now fetch the user profile
         const userProfile = await fetchUserProfile(token);
+        console.log("User profile:", userProfile); // Debug log
 
         if (userProfile) {
           // Update the user data in the store
           dispatch(updateUser(userProfile));
+
+          // Check if user is admin using isAdmin flag
+          if (userProfile.isAdmin) {
+            console.log("User is admin, redirecting to admin dashboard");
+            navigate("/admin/dashboard");
+          } else {
+            console.log("Regular user, redirecting to home page");
+            navigate("/");
+          }
         } else {
           console.warn("Failed to fetch user profile");
-        }
-
-        // Navigate to home page
-        setTimeout(() => {
           navigate("/");
-        }, 200);
+        }
       } else {
         alert(response.data.message || "Login failed - no token received");
       }

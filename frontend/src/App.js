@@ -1,18 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Navigation from "./Components/E-commerce components/Navigation";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { restoreAuth, updateUser } from "./slices/authSlice";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { restoreAuth } from "./slices/authSlice";
 
-// Main App component
 function App() {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const isAdmin = user?.isAdmin || false;
 
-  // List of routes where Navigation should be hidden
   const hideNavigationRoutes = [
     "/login",
     "/signup",
@@ -20,8 +20,12 @@ function App() {
     "/forgot-password",
   ];
 
-  // Check if Navigation should be hidden on current route
   const shouldHideNavigation = hideNavigationRoutes.includes(location.pathname);
+
+  useEffect(() => {
+    // Check for existing auth token on initial load
+    dispatch(restoreAuth());
+  }, [dispatch]);
 
   return (
     <>
@@ -38,8 +42,12 @@ function App() {
         limit={3}
       />
 
-      {/* Only render Navigation if not in the hidden routes list */}
-      {!shouldHideNavigation && <Navigation />}
+      {/* Show Navigation only for authenticated admin users */}
+      {!shouldHideNavigation && isAuthenticated && isAdmin && <Navigation />}
+
+      {/* Show Navbar for non-authenticated or non-admin users */}
+      {!shouldHideNavigation &&
+        (!isAuthenticated || (isAuthenticated && !isAdmin)) && <Navbar />}
 
       <main className={!shouldHideNavigation ? "py-3" : ""}>
         <Outlet />

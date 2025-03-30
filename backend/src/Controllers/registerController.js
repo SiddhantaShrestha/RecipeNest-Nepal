@@ -41,6 +41,9 @@ export let createRegister = async (req, res) => {
     // Generate token using only the user ID
     const token = createToken(newUser._id);
 
+    // For debugging: log the token structure
+    console.log("Token payload structure:", jwt.decode(token));
+
     // Send verification email
     try {
       await sendMail({
@@ -96,12 +99,33 @@ export const verifyEmail = async (req, res) => {
     let decoded = await jwt.verify(token, process.env.SECRET_KEY);
     console.log("Decoded token:", decoded);
 
-    // Note: The token contains userId instead of _id
-    let userId = decoded.userId;
+    // Extract the user ID from various possible token structures
+    let userId;
+    if (typeof decoded === "object") {
+      // If decoded is an object, check various possible property names
+      userId = decoded.userId || decoded.id || decoded._id || decoded.sub;
+
+      // If we still don't have an ID but there's only one property in the object, try using that
+      if (
+        !userId &&
+        Object.keys(decoded).length === 1 &&
+        typeof Object.values(decoded)[0] === "string" &&
+        !["iat", "exp", "nbf", "iss", "aud", "jti"].includes(
+          Object.keys(decoded)[0]
+        )
+      ) {
+        userId = Object.values(decoded)[0];
+      }
+    } else if (typeof decoded === "string") {
+      // If decoded is directly a string, use it as the ID
+      userId = decoded;
+    }
+
     if (!userId) {
+      console.log("Full decoded token content:", JSON.stringify(decoded));
       return res.status(401).json({
         success: false,
-        message: "Invalid token structure",
+        message: "Invalid token structure - could not extract user ID",
       });
     }
 

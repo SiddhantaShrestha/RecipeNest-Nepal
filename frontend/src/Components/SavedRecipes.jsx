@@ -89,7 +89,6 @@ const SavedRecipes = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-900 text-gray-200">
-        <Navbar />
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-lg mx-auto bg-gray-800 p-8 rounded-lg shadow-lg border border-gray-700 text-center">
             <div className="text-red-400 text-5xl mb-4">⚠️</div>
@@ -111,7 +110,6 @@ const SavedRecipes = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200">
-      <Navbar />
       <SubNavbar />
       <div className="bg-gray-800 py-10 border-b border-gray-700 shadow-lg">
         <div className="container mx-auto px-4">
