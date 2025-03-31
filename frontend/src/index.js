@@ -62,6 +62,8 @@ import OrderList from "./Components/Pages/Admin/OrderList.jsx";
 import { AdminDashboard } from "./Components/Pages/Admin/AdminDashboard.jsx";
 import AboutUs from "./Components/Pages/AboutUs.jsx";
 import PremiumSubscription from "./Components/Auth/PremiumSubscription.jsx";
+import ProductApproval from "./Components/Pages/Admin/AdminApproval.jsx";
+import ProductSubmission from "./Components/Pages/Admin/ProductSubmission.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -103,7 +105,7 @@ const router = createBrowserRouter(
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
-      <Route path="/admin-approve" element={<AdminRecipeApproval />} />
+      <Route path="/admin-approve" element={<ProductApproval />} />
 
       <Route path="/esewa" element={<EsewaPayment />} />
 
@@ -113,6 +115,14 @@ const router = createBrowserRouter(
         element={
           <ProtectedRoute>
             <MyBlogsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/product-submission"
+        element={
+          <ProtectedRoute>
+            <ProductSubmission />
           </ProtectedRoute>
         }
       />

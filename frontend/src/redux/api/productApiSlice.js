@@ -20,8 +20,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
     }),
 
     allProducts: builder.query({
-      query: () => `${PRODUCT_URL}/allProducts`,
-      // Add this line if it's not already there
+      query: () => `${PRODUCT_URL}/allproducts`,
       providesTags: ["Products"],
     }),
 
@@ -34,11 +33,43 @@ export const productApiSlice = apiSlice.injectEndpoints({
 
     createProduct: builder.mutation({
       query: (productData) => ({
-        url: `${PRODUCT_URL}`,
+        url: `${PRODUCT_URL}/admin/create`,
         method: "POST",
         body: productData,
       }),
-      invalidatesTags: ["Product"],
+      invalidatesTags: ["Products"],
+    }),
+
+    // New endpoint for user product submission
+    submitProduct: builder.mutation({
+      query: (productData) => ({
+        url: `${PRODUCT_URL}/submit`,
+        method: "POST",
+        body: productData,
+      }),
+      invalidatesTags: ["UserSubmissions"],
+    }),
+
+    // For fetching user's submitted products
+    fetchUserSubmittedProducts: builder.query({
+      query: () => `${PRODUCT_URL}/my-submissions`,
+      providesTags: ["UserSubmissions"],
+    }),
+
+    // For admin to fetch pending product submissions
+    fetchPendingProducts: builder.query({
+      query: () => `${PRODUCT_URL}/admin/pending`,
+      providesTags: ["PendingProducts"],
+    }),
+
+    // For admin to review (approve/reject) product submissions
+    reviewProductSubmission: builder.mutation({
+      query: ({ productId, approvalStatus, adminFeedback }) => ({
+        url: `${PRODUCT_URL}/admin/review/${productId}`,
+        method: "PUT",
+        body: { approvalStatus, adminFeedback },
+      }),
+      invalidatesTags: ["PendingProducts", "Products", "UserSubmissions"],
     }),
 
     updateProduct: builder.mutation({
@@ -47,9 +78,9 @@ export const productApiSlice = apiSlice.injectEndpoints({
         method: "PUT",
         body: formData,
       }),
-      // Invalidate both the Products list and the specific Product
       invalidatesTags: (result, error, { productId }) => [
         "Products",
+        "UserSubmissions",
         { type: "Product", id: productId },
       ],
     }),
@@ -67,7 +98,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
         url: `${PRODUCT_URL}/${productId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Products"],
+      invalidatesTags: ["Products", "UserSubmissions"],
     }),
 
     createReview: builder.mutation({
@@ -76,6 +107,9 @@ export const productApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: "Product", id: productId },
+      ],
     }),
 
     getTopProducts: builder.query({
@@ -111,4 +145,9 @@ export const {
   useGetNewProductsQuery,
   useUploadProductImageMutation,
   useGetFilteredProductsQuery,
+  // Export new hooks
+  useSubmitProductMutation,
+  useFetchUserSubmittedProductsQuery,
+  useFetchPendingProductsQuery,
+  useReviewProductSubmissionMutation,
 } = productApiSlice;
