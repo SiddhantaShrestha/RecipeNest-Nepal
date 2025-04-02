@@ -10,6 +10,7 @@ const SubNavbar = () => {
     { path: "/saved-recipes", label: "Saved Recipes" },
     { path: "/my-recipes", label: "My Recipes" },
     { path: "/my-blogs", label: "My Blogs" },
+    { path: "/my-products", label: "My Products" },
     { path: "/premium-subscription", label: "Subscriptions" },
     { path: "/my-orders", label: "My Orders" },
     { path: "/change-password", label: "Change Password" },

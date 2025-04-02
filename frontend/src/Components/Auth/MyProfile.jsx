@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SubNavbar from "../SubNavbar";
-import Navbar from "../Navbar";
 import {
   useGetMyProfileQuery,
   useUpdateUserMutation,
@@ -66,7 +65,6 @@ const MyProfile = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900">
-        <Navbar />
         <SubNavbar />
         <div className="flex items-center justify-center h-64">
           <div className="animate-pulse flex space-x-4">
@@ -114,7 +112,6 @@ const MyProfile = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar />
       <SubNavbar />
 
       {/* Profile Container */}

@@ -64,6 +64,7 @@ import AboutUs from "./Components/Pages/AboutUs.jsx";
 import PremiumSubscription from "./Components/Auth/PremiumSubscription.jsx";
 import ProductApproval from "./Components/Pages/Admin/AdminApproval.jsx";
 import ProductSubmission from "./Components/Pages/Admin/ProductSubmission.jsx";
+import MyProducts from "./Components/Auth/MyProducts.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -166,6 +167,14 @@ const router = createBrowserRouter(
         element={
           <ProtectedRoute>
             <MyRecipesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/my-products"
+        element={
+          <ProtectedRoute>
+            <MyProducts />
           </ProtectedRoute>
         }
       />

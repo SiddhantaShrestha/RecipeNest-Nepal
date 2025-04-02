@@ -5,7 +5,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../Components/Loader";
 import SubNavbar from "../SubNavbar";
-import Navbar from "../Navbar";
 
 const PremiumSubscription = () => {
   const [selectedPlan, setSelectedPlan] = useState("monthly");
@@ -282,7 +281,6 @@ const PremiumSubscription = () => {
   if (premiumStatus?.isPremium) {
     return (
       <div className="bg-[#0f0f10] min-h-screen">
-        <Navbar />
         <SubNavbar />
         <div className="max-w-lg mx-auto my-10 px-4">
           <div className="bg-gradient-to-b from-[#1a1a1c] to-[#141416] rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
@@ -508,7 +506,6 @@ const PremiumSubscription = () => {
   // Main subscription page
   return (
     <div className="bg-[#0f0f10] min-h-screen">
-      <Navbar />
       <SubNavbar />
       <div className="max-w-5xl mx-auto py-12 px-4">
         <div className="mb-8 text-center">
