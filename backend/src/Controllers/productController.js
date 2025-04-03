@@ -82,7 +82,7 @@ const addProduct = asyncHandler(async (req, res) => {
 // Admin approves or rejects a submitted product
 const reviewProductSubmission = asyncHandler(async (req, res) => {
   try {
-    const { approvalStatus, adminFeedback } = req.body;
+    const { approvalStatus, adminFeedback, rating } = req.body;
 
     if (!["approved", "rejected"].includes(approvalStatus)) {
       return res.status(400).json({ error: "Invalid approval status" });
@@ -98,6 +98,28 @@ const reviewProductSubmission = asyncHandler(async (req, res) => {
     product.approvalStatus = approvalStatus;
     product.isApproved = approvalStatus === "approved";
     product.adminFeedback = adminFeedback || "";
+
+    // If there's admin feedback, add it as a review
+    if (adminFeedback && adminFeedback.trim().length > 0) {
+      // Create admin review
+      const adminReview = {
+        name: "Admin",
+        rating: Number(rating) || 5, // Use provided rating or default to 5
+        comment: adminFeedback,
+        user: req.user._id,
+      };
+
+      // Add the admin review to the reviews array
+      product.reviews.push(adminReview);
+
+      // Update review count
+      product.numReviews = product.reviews.length;
+
+      // Recalculate average rating
+      product.rating =
+        product.reviews.reduce((acc, item) => acc + Number(item.rating), 0) /
+        product.reviews.length;
+    }
 
     await product.save();
 

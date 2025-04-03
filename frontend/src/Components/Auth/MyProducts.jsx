@@ -12,12 +12,15 @@ import {
   FaExclamationCircle,
   FaCheckCircle,
   FaTimesCircle,
+  FaCommentAlt,
+  FaStar,
 } from "react-icons/fa";
 import Pagination from "../Pagination";
 
 const MyProducts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(10);
+  const [expandedReview, setExpandedReview] = useState(null);
 
   const { data, isLoading, refetch } = useFetchUserSubmittedProductsQuery();
   const [deleteProduct] = useDeleteProductMutation();
@@ -57,6 +60,26 @@ const MyProducts = () => {
           </span>
         );
     }
+  };
+
+  // Find admin review in product's reviews array
+  const getAdminReview = (product) => {
+    if (!product.reviews || product.reviews.length === 0) return null;
+    return product.reviews.find((review) => review.name === "Admin");
+  };
+
+  // Render star rating
+  const renderStarRating = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <FaStar
+          key={i}
+          className={i <= rating ? "text-yellow-400" : "text-gray-500"}
+        />
+      );
+    }
+    return <div className="flex">{stars}</div>;
   };
 
   // Pagination
@@ -129,76 +152,133 @@ const MyProducts = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800">
-                  {currentProducts?.map((product) => (
-                    <tr key={product._id} className="hover:bg-gray-800/50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0">
-                            <img
-                              className="h-10 w-10 rounded-md object-cover"
-                              src={`http://localhost:8000${product.image}`}
-                              alt={product.name}
-                            />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-white">
-                              {product.name}
+                  {currentProducts?.map((product) => {
+                    const adminReview = getAdminReview(product);
+                    return (
+                      <>
+                        <tr key={product._id} className="hover:bg-gray-800/50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="h-10 w-10 flex-shrink-0">
+                                <img
+                                  className="h-10 w-10 rounded-md object-cover"
+                                  src={`http://localhost:8000${product.image}`}
+                                  alt={product.name}
+                                />
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-white">
+                                  {product.name}
+                                </div>
+                                <div className="text-sm text-gray-400">
+                                  {product.brand}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {getStatusBadge(product.approvalStatus)}
+                            {product.adminFeedback &&
+                              product.approvalStatus === "rejected" && (
+                                <div className="mt-1 text-xs text-red-400">
+                                  Feedback: {product.adminFeedback}
+                                </div>
+                              )}
+                            {adminReview && (
+                              <button
+                                onClick={() =>
+                                  setExpandedReview(
+                                    expandedReview === product._id
+                                      ? null
+                                      : product._id
+                                  )
+                                }
+                                className="mt-2 inline-flex items-center text-xs text-blue-400 hover:text-blue-300"
+                              >
+                                <FaCommentAlt className="mr-1" />
+                                {expandedReview === product._id
+                                  ? "Hide"
+                                  : "Show"}{" "}
+                                Admin Review
+                              </button>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-300">
+                              Rs{product.price.toFixed(2)}
                             </div>
                             <div className="text-sm text-gray-400">
-                              {product.brand}
+                              Qty: {product.quantity}
                             </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(product.approvalStatus)}
-                        {product.adminFeedback &&
-                          product.approvalStatus === "rejected" && (
-                            <div className="mt-1 text-xs text-red-400">
-                              Feedback: {product.adminFeedback}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                            {new Date(product.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end space-x-2">
+                              <Link
+                                to={`/product/${product._id}`}
+                                className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded hover:bg-blue-600/30 transition-colors"
+                                title="View"
+                              >
+                                View
+                              </Link>
+
+                              <button
+                                onClick={() => handleDelete(product._id)}
+                                className="px-2 py-1 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
+                                title="Delete"
+                              >
+                                <FaTrash />
+                              </button>
+
+                              {/* Only show Edit button for pending or rejected products */}
+                              {product.approvalStatus !== "approved" && (
+                                <Link
+                                  to={`/edit-product/${product._id}`}
+                                  className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded hover:bg-yellow-600/30 transition-colors"
+                                  title="Edit"
+                                >
+                                  <FaEdit />
+                                </Link>
+                              )}
+
+                              {/* Only show Delete button for pending or rejected products */}
+                              {product.approvalStatus !== "approved" && (
+                                <button
+                                  onClick={() => handleDelete(product._id)}
+                                  className="px-2 py-1 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
+                                  title="Delete"
+                                >
+                                  <FaTrash />
+                                </button>
+                              )}
                             </div>
-                          )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-300">
-                          Rs{product.price.toFixed(2)}
-                        </div>
-                        <div className="text-sm text-gray-400">
-                          Qty: {product.quantity}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                        {new Date(product.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end space-x-2">
-                          <Link
-                            to={`/product/${product._id}`}
-                            className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded hover:bg-blue-600/30 transition-colors"
-                            title="View"
-                          >
-                            View
-                          </Link>
-
-                          <Link
-                            to={`/edit-product/${product._id}`}
-                            className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded hover:bg-yellow-600/30 transition-colors"
-                            title="Edit"
-                          >
-                            <FaEdit />
-                          </Link>
-
-                          <button
-                            onClick={() => handleDelete(product._id)}
-                            className="px-2 py-1 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
-                            title="Delete"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                          </td>
+                        </tr>
+                        {/* Expanded admin review row */}
+                        {expandedReview === product._id && adminReview && (
+                          <tr className="bg-gray-800/30">
+                            <td colSpan="5" className="px-6 py-4">
+                              <div className="bg-gray-800 rounded-lg p-4">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="text-white font-medium">
+                                    Admin Review
+                                  </h4>
+                                  <div>
+                                    {renderStarRating(adminReview.rating)}
+                                  </div>
+                                </div>
+                                <p className="text-gray-300">
+                                  {adminReview.comment}
+                                </p>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -236,7 +316,9 @@ const MyProducts = () => {
               <div className="flex-shrink-0">{getStatusBadge("approved")}</div>
               <p className="text-gray-300">
                 Your product has been approved and is now visible to customers
-                in the store.
+                in the store. Approved products cannot be edited or deleted.
+                Click "Show Admin Review" to see the admin's rating and
+                comments.
               </p>
             </div>
             <div className="flex items-start gap-3">

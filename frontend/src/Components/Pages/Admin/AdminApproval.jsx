@@ -15,22 +15,25 @@ const ProductApproval = () => {
   const [reviewProduct] = useReviewProductSubmissionMutation();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [feedback, setFeedback] = useState("");
+  const [rating, setRating] = useState(5);
 
   const handleApprove = async (productId) => {
     try {
       await reviewProduct({
-        productId,
+        productId, // The parameter name should match what your backend expects
         approvalStatus: "approved",
         adminFeedback: feedback,
+        rating: rating,
       }).unwrap();
 
       toast.success("Product approved successfully");
       setSelectedProduct(null);
       setFeedback("");
+      setRating(5);
       refetch();
     } catch (error) {
       console.error(error);
-      toast.error("Failed to approve product");
+      toast.error(error.data?.error || "Failed to approve product");
     }
   };
 
@@ -41,18 +44,20 @@ const ProductApproval = () => {
 
     try {
       await reviewProduct({
-        productId,
+        productId, // The parameter name should match what your backend expects
         approvalStatus: "rejected",
         adminFeedback: feedback,
+        rating: rating,
       }).unwrap();
 
       toast.success("Product rejected with feedback");
       setSelectedProduct(null);
       setFeedback("");
+      setRating(5);
       refetch();
     } catch (error) {
       console.error(error);
-      toast.error("Failed to reject product");
+      toast.error(error.data?.error || "Failed to reject product");
     }
   };
 
@@ -143,6 +148,26 @@ const ProductApproval = () => {
                               className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                               rows={3}
                             />
+
+                            <div className="mb-3">
+                              <label className="block text-gray-300 mb-1">
+                                Rating (for approved products):
+                              </label>
+                              <select
+                                value={rating}
+                                onChange={(e) =>
+                                  setRating(Number(e.target.value))
+                                }
+                                className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                              >
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
+                              </select>
+                            </div>
+
                             <div className="flex flex-wrap gap-3">
                               <button
                                 onClick={() => handleApprove(product._id)}
@@ -160,6 +185,7 @@ const ProductApproval = () => {
                                 onClick={() => {
                                   setSelectedProduct(null);
                                   setFeedback("");
+                                  setRating(5);
                                 }}
                                 className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                               >

@@ -64,12 +64,19 @@ export const productApiSlice = apiSlice.injectEndpoints({
 
     // For admin to review (approve/reject) product submissions
     reviewProductSubmission: builder.mutation({
-      query: ({ productId, approvalStatus, adminFeedback }) => ({
+      query: ({ productId, approvalStatus, adminFeedback, rating }) => ({
         url: `${PRODUCT_URL}/admin/review/${productId}`,
         method: "PUT",
-        body: { approvalStatus, adminFeedback },
+        body: {
+          approvalStatus,
+          adminFeedback,
+          rating: rating || 5, // Default rating if not provided
+        },
       }),
       invalidatesTags: ["PendingProducts", "Products", "UserSubmissions"],
+      transformErrorResponse: (response) => {
+        return response.data?.error || "Failed to review product";
+      },
     }),
 
     updateProduct: builder.mutation({
