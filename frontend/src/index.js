@@ -65,6 +65,7 @@ import PremiumSubscription from "./Components/Auth/PremiumSubscription.jsx";
 import ProductApproval from "./Components/Pages/Admin/AdminApproval.jsx";
 import ProductSubmission from "./Components/Pages/Admin/ProductSubmission.jsx";
 import MyProducts from "./Components/Auth/MyProducts.jsx";
+import UserSalesDashboard from "./Components/Auth/UserSalesDashboard.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -175,6 +176,14 @@ const router = createBrowserRouter(
         element={
           <ProtectedRoute>
             <MyProducts />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/user-sales"
+        element={
+          <ProtectedRoute>
+            <UserSalesDashboard />
           </ProtectedRoute>
         }
       />

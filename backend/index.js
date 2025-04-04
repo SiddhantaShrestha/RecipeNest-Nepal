@@ -14,7 +14,7 @@ import productRoutes from "./src/Routes/productRoutes.js";
 import uploadRoutes from "./src/Routes/uploadRoutes.js";
 import esewaRoutes from "./src/Routes/eSewaRoutes.js";
 import premiumRoutes from "./src/Routes/premiumRoutes.js";
-
+import userSalesRoutes from "./src/Routes/userSalesRoutee.js";
 import path from "path";
 
 let expressApp = express();
@@ -51,6 +51,8 @@ expressApp.use("/api/category", categoryRouter);
 expressApp.use("/api/products", productRoutes);
 expressApp.use("/api/upload", uploadRoutes);
 expressApp.use("/api/orders", orderRoutes);
+
+expressApp.use("/api/user-sales", userSalesRoutes);
 
 expressApp.use("/api/esewa", esewaRoutes);
 

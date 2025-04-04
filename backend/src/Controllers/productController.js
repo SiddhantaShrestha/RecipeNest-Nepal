@@ -83,6 +83,7 @@ const addProduct = asyncHandler(async (req, res) => {
 const reviewProductSubmission = asyncHandler(async (req, res) => {
   try {
     const { approvalStatus, adminFeedback, rating } = req.body;
+    const productId = req.params.id;
 
     if (!["approved", "rejected"].includes(approvalStatus)) {
       return res.status(400).json({ error: "Invalid approval status" });

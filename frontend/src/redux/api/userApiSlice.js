@@ -52,6 +52,19 @@ export const userApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "User", id: "LIST" }],
     }),
+    getUserProductSales: builder.query({
+      query: () => ({
+        url: "/api/user-sales/product-sales",
+      }),
+      keepUnusedDataFor: 5,
+    }),
+
+    getUserSalesMetrics: builder.query({
+      query: () => ({
+        url: "/api/user-sales/sales-metrics",
+      }),
+      keepUnusedDataFor: 5,
+    }),
   }),
 });
 
@@ -61,4 +74,6 @@ export const {
   useGetMyProfileQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,
+  useGetUserProductSalesQuery,
+  useGetUserSalesMetricsQuery,
 } = userApiSlice;
