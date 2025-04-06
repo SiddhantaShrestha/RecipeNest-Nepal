@@ -10,6 +10,7 @@ import {
   FaUtensils,
   FaBlog,
   FaSignOutAlt,
+  FaChartLine,
 } from "react-icons/fa";
 import {
   AiOutlineHome,
@@ -284,6 +285,16 @@ const Navbar = () => {
                       <FaUserCircle className="mr-3" size={16} />
                       My Profile
                     </button>
+
+                    {/* New User Dashboard Option */}
+                    <Link
+                      to="/user-sales"
+                      className="block w-full px-4 py-3 text-left text-gray-300 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-150 flex items-center border-b border-gray-700"
+                      onClick={() => setDropdownVisible(false)}
+                    >
+                      <FaChartLine className="mr-3" size={16} />
+                      User Dashboard
+                    </Link>
 
                     {profile.isAdmin && (
                       <>
@@ -566,6 +577,16 @@ const Navbar = () => {
                 <FaUserCircle className="mr-3" size={18} />
                 My Profile
               </button>
+
+              {/* New User Dashboard Option in Mobile Menu */}
+              <Link
+                to="/user-sales"
+                className="flex items-center w-full px-4 py-3 text-left text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-all duration-200"
+                onClick={() => setMenuOpen(false)}
+              >
+                <FaChartLine className="mr-3" size={18} />
+                User Dashboard
+              </Link>
 
               {!isAdmin && (
                 <div className="flex flex-col space-y-2 mt-2">

@@ -26,6 +26,7 @@ const ViewRecipePage = () => {
   const [newComment, setNewComment] = useState({ text: "" });
   const [isPremiumRecipe, setIsPremiumRecipe] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [relatedRecipes, setRelatedRecipes] = useState([]);
 
   const { token, user, isAuthenticated } = useSelector((state) => state.auth);
   const { isPremium: isUserPremium } = useSelector((state) => state.auth.user);
@@ -59,6 +60,10 @@ const ViewRecipePage = () => {
 
         dispatch(setCurrentRecipe(recipeData));
         setComments(recipeData.comments || []);
+
+        // Fetch related recipes after getting the current recipe
+        fetchRelatedRecipes(recipeData.category);
+
         setLoading(false);
       } catch (error) {
         console.error("Recipe fetch error:", error);
@@ -95,6 +100,52 @@ const ViewRecipePage = () => {
     fetchRecipe();
     fetchBookmarks();
   }, [id, token, dispatch, isUserPremium, accessDenied]);
+
+  // Fetch related recipes based on the category
+  const fetchRelatedRecipes = async (category) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/recipes?category=${category}&limit=3`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
+
+      // Filter out the current recipe
+      const filteredRecipes = response.data.recipes.filter(
+        (recipe) => recipe._id !== id
+      );
+
+      // If we don't have enough recipes after filtering, fetch more
+      if (filteredRecipes.length < 3) {
+        const additionalResponse = await axios.get(
+          `http://localhost:8000/recipes?limit=5`,
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }
+        );
+
+        // Combine and filter unique recipes
+        const additionalRecipes = additionalResponse.data.recipes.filter(
+          (recipe) =>
+            recipe._id !== id &&
+            !filteredRecipes.some((r) => r._id === recipe._id)
+        );
+
+        // Take what we need to get to 3 total
+        const neededCount = 3 - filteredRecipes.length;
+        const recipesToAdd = additionalRecipes.slice(0, neededCount);
+
+        setRelatedRecipes([...filteredRecipes, ...recipesToAdd]);
+      } else {
+        // If we have enough (3 or more), just take the first 3
+        setRelatedRecipes(filteredRecipes.slice(0, 3));
+      }
+    } catch (error) {
+      console.error("Related recipes fetch error:", error);
+      // If fetch fails, we'll just have an empty related recipes section
+    }
+  };
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -169,6 +220,11 @@ const ViewRecipePage = () => {
   const handleImageError = (e) => {
     e.target.src =
       "https://via.placeholder.com/800x400?text=No+Image+Available";
+  };
+
+  // Navigate to the selected related recipe
+  const navigateToRecipe = (recipeId) => {
+    navigate(`/recipes/${recipeId}`);
   };
 
   if (loading) {
@@ -499,45 +555,64 @@ const ViewRecipePage = () => {
           </div>
         </div>
 
-        {/* Related Recipes */}
+        {/* Related Recipes - Dynamic Section */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6 text-white">
             You Might Also Like
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                className="bg-gray-800 rounded-xl overflow-hidden shadow-lg transform transition duration-300 hover:scale-[1.02] hover:shadow-indigo-500/25 border border-gray-700"
-              >
-                <img
-                  src={`https://via.placeholder.com/300x200?text=Related+Recipe+${item}`}
-                  alt={`Related Recipe ${item}`}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="font-bold text-lg text-white mb-2">
-                    Related Recipe Title {item}
-                  </h3>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center text-gray-400 text-sm">
-                      <FaClock className="mr-1" /> 25 mins
+          {relatedRecipes.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedRecipes.map((relatedRecipe) => (
+                <div
+                  key={relatedRecipe._id}
+                  className="bg-gray-800 rounded-xl overflow-hidden shadow-lg transform transition duration-300 hover:scale-[1.02] hover:shadow-indigo-500/25 border border-gray-700 cursor-pointer"
+                  onClick={() => navigateToRecipe(relatedRecipe._id)}
+                >
+                  <img
+                    src={
+                      relatedRecipe.image ||
+                      "https://via.placeholder.com/300x200?text=Recipe+Image"
+                    }
+                    alt={relatedRecipe.title}
+                    className="w-full h-48 object-cover"
+                    onError={handleImageError}
+                  />
+                  <div className="p-4">
+                    <h3 className="font-bold text-lg text-white mb-2">
+                      {relatedRecipe.title}
+                    </h3>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center text-gray-400 text-sm">
+                        <FaClock className="mr-1" />{" "}
+                        {relatedRecipe.prepTime || "25 mins"}
+                      </div>
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <FaStar
+                            key={star}
+                            className={`${
+                              star <= 4 ? "text-yellow-400" : "text-gray-600"
+                            } h-3 w-3`}
+                          />
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <FaStar
-                          key={star}
-                          className={`${
-                            star <= 4 ? "text-yellow-400" : "text-gray-600"
-                          } h-3 w-3`}
-                        />
-                      ))}
-                    </div>
+                    {relatedRecipe.isPremium && (
+                      <span className="mt-2 inline-block px-2 py-1 text-xs font-semibold bg-yellow-600 text-white rounded-full">
+                        PREMIUM
+                      </span>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-gray-800 p-6 rounded-xl text-center">
+              <p className="text-gray-400">
+                No related recipes found at the moment.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

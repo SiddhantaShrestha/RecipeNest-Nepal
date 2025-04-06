@@ -19,6 +19,7 @@ const ProductSubmission = () => {
     category: "",
     price: "",
     quantity: "",
+    countInStock: 0,
     description: "",
   });
 
@@ -196,7 +197,7 @@ const ProductSubmission = () => {
                 htmlFor="price"
                 className="block text-gray-300 font-medium"
               >
-                Price ($) <span className="text-red-500">*</span>
+                Price (Rs) <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -230,6 +231,24 @@ const ProductSubmission = () => {
               />
             </div>
 
+            <div>
+              <label
+                htmlFor="countInStock"
+                className="block text-gray-300 font-medium"
+              >
+                Count In Stock <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                id="countInStock"
+                name="countInStock"
+                value={formData.countInStock}
+                onChange={handleInputChange}
+                min="0"
+                className="mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                placeholder="0"
+              />
+            </div>
             <div>
               <label
                 htmlFor="category"

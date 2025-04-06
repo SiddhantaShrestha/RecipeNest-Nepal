@@ -138,6 +138,14 @@ const ProductApproval = () => {
                         <p className="text-gray-400 mb-4">
                           {product.description}
                         </p>
+                        <p className="text-gray-400 mb-2">
+                          <span className="font-medium text-gray-300">
+                            Stock:
+                          </span>
+                        </p>
+                        <p className="text-gray-400 mb-4">
+                          {product.countInStock}
+                        </p>
 
                         {selectedProduct === product._id ? (
                           <div className="space-y-4">
