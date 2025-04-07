@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import asyncHandler from "../Middleware/asyncHandler.js";
 import Product from "../Schema/productSchema.js";
+import { sendMail } from "../utils/sendMail.js";
+// Assuming you have this email service
 
 // User submits a product for approval
 const submitProduct = asyncHandler(async (req, res) => {
@@ -123,6 +125,69 @@ const reviewProductSubmission = asyncHandler(async (req, res) => {
     }
 
     await product.save();
+
+    // Find the user who submitted the product to get their email
+    const submitter = await mongoose
+      .model("Register")
+      .findById(product.submittedBy);
+
+    if (submitter && submitter.email) {
+      // Prepare email content based on approval status
+      const emailSubject =
+        approvalStatus === "approved"
+          ? "Your Product Submission Has Been Approved!"
+          : "Update on Your Product Submission";
+
+      let emailContent;
+      if (approvalStatus === "approved") {
+        emailContent = `
+          <h1>Congratulations! Your product has been approved.</h1>
+          <p>Your product "${
+            product.name
+          }" has been reviewed and approved by our team.</p>
+          <p>It is now live on our platform and available for purchase.</p>
+          ${
+            adminFeedback
+              ? `<h2>Admin Feedback:</h2><p>${adminFeedback}</p>`
+              : ""
+          }
+          <p>Thank you for contributing to our marketplace!</p>
+          <a href="http://localhost:3000/product/${
+            product._id
+          }">View your product</a>
+        `;
+      } else {
+        emailContent = `
+          <h1>Update on Your Product Submission</h1>
+          <p>We've reviewed your product "${
+            product.name
+          }" and unfortunately, we cannot approve it at this time.</p>
+          ${
+            adminFeedback
+              ? `<h2>Admin Feedback:</h2><p>${adminFeedback}</p>`
+              : "<p>Please contact support for more information.</p>"
+          }
+          <p>You are welcome to make the necessary adjustments and submit again.</p>
+          <a href="http://localhost:3000/dashboard/my-submissions">Manage your submissions</a>
+        `;
+      }
+
+      // Send the email notification
+      try {
+        await sendMail({
+          from: "'RecipeNest Nepal' <sidmarkys2004@gmail.com>",
+          to: [submitter.email],
+          subject: emailSubject,
+          html: emailContent,
+        });
+        console.log(
+          `Email notification sent to ${submitter.email} for product ${product._id}`
+        );
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError);
+        // Continue with the process even if email fails
+      }
+    }
 
     res.json({
       success: true,
