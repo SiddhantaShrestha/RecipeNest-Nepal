@@ -8,7 +8,6 @@ import {
   setError,
   deleteBlog,
 } from "../../slices/blogsSlice";
-import Navbar from "../Navbar";
 import SubNavbar from "../SubNavbar";
 
 const MyBlogsPage = () => {
@@ -29,7 +28,7 @@ const MyBlogsPage = () => {
           }
         );
         dispatch(setUserBlogs(response.data.blogs));
-        dispatch(setError(null)); // Clear any existing error after successful fetch
+        dispatch(setError(null));
       } catch (err) {
         console.error("Error fetching blogs:", err);
         dispatch(
@@ -43,7 +42,7 @@ const MyBlogsPage = () => {
     if (token) {
       fetchUserBlogs();
     } else {
-      navigate("/login"); // Redirect to login if not authenticated
+      navigate("/login");
     }
   }, [dispatch, token, navigate]);
 
@@ -54,7 +53,7 @@ const MyBlogsPage = () => {
         await axios.delete(`http://localhost:8000/blogs/${blogId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        dispatch(deleteBlog(blogId)); // Update Redux state after deletion
+        dispatch(deleteBlog(blogId));
         alert("Blog deleted successfully");
       } catch (err) {
         console.error("Failed to delete blog:", err);
@@ -65,7 +64,7 @@ const MyBlogsPage = () => {
 
   // Navigate to blog edit page
   const handleEdit = (blogId) => {
-    navigate(`/blogs/edit/${blogId}`); // Navigate to the edit page
+    navigate(`/blogs/edit/${blogId}`);
   };
 
   // Navigate to blog details page
@@ -76,14 +75,15 @@ const MyBlogsPage = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200">
       <SubNavbar />
-      <div className="max-w-6xl mx-auto p-4 md:p-6">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-white">
-            My Blogs
-          </h2>
+      <div className="max-w-6xl mx-auto p-6">
+        <h2 className="text-3xl mb-8 text-center font-bold text-emerald-400 border-b border-gray-700 pb-4">
+          My Blogs
+        </h2>
+
+        <div className="flex justify-end mb-6">
           <button
-            onClick={() => navigate("/addblog")}
-            className="flex items-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition duration-200"
+            onClick={() => navigate("/create-blog")}
+            className="flex items-center bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg transition duration-200"
           >
             <svg
               className="w-5 h-5 mr-2"
@@ -105,18 +105,14 @@ const MyBlogsPage = () => {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-pulse flex space-x-2">
-              <div className="h-3 w-3 bg-blue-500 rounded-full"></div>
-              <div className="h-3 w-3 bg-blue-500 rounded-full animation-delay-200"></div>
-              <div className="h-3 w-3 bg-blue-500 rounded-full animation-delay-400"></div>
-            </div>
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
           </div>
         )}
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-900/30 border border-red-500 text-red-300 p-4 rounded-lg text-center my-8">
+          <div className="bg-red-900/40 border border-red-700 text-red-200 p-4 rounded-lg text-center my-8">
             <svg
               className="w-8 h-8 mx-auto mb-2"
               fill="none"
@@ -143,7 +139,7 @@ const MyBlogsPage = () => {
 
         {/* Empty State */}
         {!isLoading && !error && userBlogs.length === 0 && (
-          <div className="text-center py-16 bg-gray-800 rounded-xl border border-gray-700">
+          <div className="text-center py-16 bg-gray-800/50 rounded-xl border border-gray-700">
             <svg
               className="mx-auto h-16 w-16 text-gray-500 mb-4"
               fill="none"
@@ -166,8 +162,8 @@ const MyBlogsPage = () => {
               writing your first blog today.
             </p>
             <button
-              onClick={() => navigate("/addblog")}
-              className="py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 inline-flex items-center"
+              onClick={() => navigate("/create-blog")}
+              className="py-3 px-6 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition duration-200 inline-flex items-center"
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -194,7 +190,7 @@ const MyBlogsPage = () => {
             {userBlogs.map((blog) => (
               <div
                 key={blog._id}
-                className="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 hover:border-gray-600 transition-all duration-200 flex flex-col md:flex-row"
+                className="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 hover:border-emerald-500/50 transition-all duration-200 flex flex-col md:flex-row"
               >
                 <div
                   className="w-full md:w-1/3 h-48 md:h-auto bg-gray-700 cursor-pointer overflow-hidden"
@@ -219,7 +215,7 @@ const MyBlogsPage = () => {
                     onClick={() => handleViewBlog(blog._id)}
                     className="cursor-pointer"
                   >
-                    <h3 className="text-xl font-bold text-white mb-2 hover:text-blue-400 transition">
+                    <h3 className="text-xl font-bold text-white mb-2 hover:text-emerald-400 transition">
                       {blog.title}
                     </h3>
                     <p className="text-gray-400 mt-2 line-clamp-3">
@@ -230,7 +226,7 @@ const MyBlogsPage = () => {
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="text-xs px-2 py-1 bg-blue-900/50 text-blue-300 rounded-full">
+                    <span className="text-xs px-2 py-1 bg-emerald-900/50 text-emerald-300 rounded-full">
                       {blog.category || "Uncategorized"}
                     </span>
                     <span className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded-full flex items-center">
@@ -298,7 +294,7 @@ const MyBlogsPage = () => {
                     </button>
                     <button
                       onClick={() => handleEdit(blog._id)}
-                      className="py-1.5 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center"
+                      className="py-1.5 px-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm flex items-center"
                     >
                       <svg
                         className="w-4 h-4 mr-1"

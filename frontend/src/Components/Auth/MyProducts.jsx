@@ -16,6 +16,7 @@ import {
   FaStar,
 } from "react-icons/fa";
 import Pagination from "../Pagination";
+import SubNavbar from "../SubNavbar";
 
 const MyProducts = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,160 +92,145 @@ const MyProducts = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <div className="container mx-auto px-4 max-w-6xl py-8">
-      <div className="bg-gray-900 rounded-xl shadow-lg overflow-hidden">
-        <div className="border-b border-gray-800 bg-gray-800 px-6 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold text-white">
-              My Product Submissions
-            </h1>
-            <p className="text-gray-400 mt-1">
-              View and manage your product submissions
-            </p>
-          </div>
-          <Link
-            to="/product-submission"
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-          >
-            Submit New Product
-          </Link>
-        </div>
+    <div>
+      <SubNavbar />
 
-        {data?.length === 0 ? (
-          <div className="p-8 text-center">
-            <div className="mb-4 text-gray-500 text-5xl">
-              <FaExclamationCircle className="mx-auto" />
+      <div className="container mx-auto px-4 max-w-6xl py-8">
+        <div className="bg-gray-900 rounded-xl shadow-lg overflow-hidden">
+          <div className="border-b border-gray-800 bg-gray-800 px-6 py-4 flex justify-between items-center">
+            <div>
+              <h1 className="text-xl font-bold text-white">
+                My Product Submissions
+              </h1>
+              <p className="text-gray-400 mt-1">
+                View and manage your product submissions
+              </p>
             </div>
-            <h3 className="text-lg font-medium text-gray-300 mb-2">
-              No products submitted yet
-            </h3>
-            <p className="text-gray-400 mb-6">
-              You haven't submitted any products for approval yet.
-            </p>
             <Link
-              to="/submit-product"
+              to="/product-submission"
               className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
-              Submit Your First Product
+              Submit New Product
             </Link>
           </div>
-        ) : (
-          <>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-800">
-                <thead className="bg-gray-800">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Product
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Price
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Date Submitted
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-800">
-                  {currentProducts?.map((product) => {
-                    const adminReview = getAdminReview(product);
-                    return (
-                      <>
-                        <tr key={product._id} className="hover:bg-gray-800/50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="h-10 w-10 flex-shrink-0">
-                                <img
-                                  className="h-10 w-10 rounded-md object-cover"
-                                  src={`http://localhost:8000${product.image}`}
-                                  alt={product.name}
-                                />
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-white">
-                                  {product.name}
-                                </div>
-                                <div className="text-sm text-gray-400">
-                                  {product.brand}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {getStatusBadge(product.approvalStatus)}
-                            {product.adminFeedback &&
-                              product.approvalStatus === "rejected" && (
-                                <div className="mt-1 text-xs text-red-400">
-                                  Feedback: {product.adminFeedback}
-                                </div>
-                              )}
-                            {adminReview && (
-                              <button
-                                onClick={() =>
-                                  setExpandedReview(
-                                    expandedReview === product._id
-                                      ? null
-                                      : product._id
-                                  )
-                                }
-                                className="mt-2 inline-flex items-center text-xs text-blue-400 hover:text-blue-300"
-                              >
-                                <FaCommentAlt className="mr-1" />
-                                {expandedReview === product._id
-                                  ? "Hide"
-                                  : "Show"}{" "}
-                                Admin Review
-                              </button>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-300">
-                              Rs{product.price.toFixed(2)}
-                            </div>
-                            <div className="text-sm text-gray-400">
-                              Qty: {product.quantity}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                            {new Date(product.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex justify-end space-x-2">
-                              <Link
-                                to={`/product/${product._id}`}
-                                className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded hover:bg-blue-600/30 transition-colors"
-                                title="View"
-                              >
-                                View
-                              </Link>
 
-                              <button
-                                onClick={() => handleDelete(product._id)}
-                                className="px-2 py-1 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
-                                title="Delete"
-                              >
-                                <FaTrash />
-                              </button>
-
-                              {/* Only show Edit button for pending or rejected products */}
-                              {product.approvalStatus !== "approved" && (
-                                <Link
-                                  to={`/edit-product/${product._id}`}
-                                  className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded hover:bg-yellow-600/30 transition-colors"
-                                  title="Edit"
+          {data?.length === 0 ? (
+            <div className="p-8 text-center">
+              <div className="mb-4 text-gray-500 text-5xl">
+                <FaExclamationCircle className="mx-auto" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-300 mb-2">
+                No products submitted yet
+              </h3>
+              <p className="text-gray-400 mb-6">
+                You haven't submitted any products for approval yet.
+              </p>
+              <Link
+                to="/submit-product"
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Submit Your First Product
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-800">
+                  <thead className="bg-gray-800">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Product
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Price
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Date Submitted
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-800">
+                    {currentProducts?.map((product) => {
+                      const adminReview = getAdminReview(product);
+                      return (
+                        <>
+                          <tr
+                            key={product._id}
+                            className="hover:bg-gray-800/50"
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="h-10 w-10 flex-shrink-0">
+                                  <img
+                                    className="h-10 w-10 rounded-md object-cover"
+                                    src={`http://localhost:8000${product.image}`}
+                                    alt={product.name}
+                                  />
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-white">
+                                    {product.name}
+                                  </div>
+                                  <div className="text-sm text-gray-400">
+                                    {product.brand}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {getStatusBadge(product.approvalStatus)}
+                              {product.adminFeedback &&
+                                product.approvalStatus === "rejected" && (
+                                  <div className="mt-1 text-xs text-red-400">
+                                    Feedback: {product.adminFeedback}
+                                  </div>
+                                )}
+                              {adminReview && (
+                                <button
+                                  onClick={() =>
+                                    setExpandedReview(
+                                      expandedReview === product._id
+                                        ? null
+                                        : product._id
+                                    )
+                                  }
+                                  className="mt-2 inline-flex items-center text-xs text-blue-400 hover:text-blue-300"
                                 >
-                                  <FaEdit />
-                                </Link>
+                                  <FaCommentAlt className="mr-1" />
+                                  {expandedReview === product._id
+                                    ? "Hide"
+                                    : "Show"}{" "}
+                                  Admin Review
+                                </button>
                               )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-300">
+                                Rs{product.price.toFixed(2)}
+                              </div>
+                              <div className="text-sm text-gray-400">
+                                Qty: {product.quantity}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                              {new Date(product.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <div className="flex justify-end space-x-2">
+                                <Link
+                                  to={`/product/${product._id}`}
+                                  className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded hover:bg-blue-600/30 transition-colors"
+                                  title="View"
+                                >
+                                  View
+                                </Link>
 
-                              {/* Only show Delete button for pending or rejected products */}
-                              {product.approvalStatus !== "approved" && (
                                 <button
                                   onClick={() => handleDelete(product._id)}
                                   className="px-2 py-1 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
@@ -252,85 +238,111 @@ const MyProducts = () => {
                                 >
                                   <FaTrash />
                                 </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                        {/* Expanded admin review row */}
-                        {expandedReview === product._id && adminReview && (
-                          <tr className="bg-gray-800/30">
-                            <td colSpan="5" className="px-6 py-4">
-                              <div className="bg-gray-800 rounded-lg p-4">
-                                <div className="flex items-center justify-between mb-2">
-                                  <h4 className="text-white font-medium">
-                                    Admin Review
-                                  </h4>
-                                  <div>
-                                    {renderStarRating(adminReview.rating)}
-                                  </div>
-                                </div>
-                                <p className="text-gray-300">
-                                  {adminReview.comment}
-                                </p>
+
+                                {/* Only show Edit button for pending or rejected products */}
+                                {product.approvalStatus !== "approved" && (
+                                  <Link
+                                    to={`/edit-product/${product._id}`}
+                                    className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded hover:bg-yellow-600/30 transition-colors"
+                                    title="Edit"
+                                  >
+                                    <FaEdit />
+                                  </Link>
+                                )}
+
+                                {/* Only show Delete button for pending or rejected products */}
+                                {product.approvalStatus !== "approved" && (
+                                  <button
+                                    onClick={() => handleDelete(product._id)}
+                                    className="px-2 py-1 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
+                                    title="Delete"
+                                  >
+                                    <FaTrash />
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>
-                        )}
-                      </>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-800">
-                <Pagination
-                  currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
-                  totalPages={totalPages}
-                />
+                          {/* Expanded admin review row */}
+                          {expandedReview === product._id && adminReview && (
+                            <tr className="bg-gray-800/30">
+                              <td colSpan="5" className="px-6 py-4">
+                                <div className="bg-gray-800 rounded-lg p-4">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h4 className="text-white font-medium">
+                                      Admin Review
+                                    </h4>
+                                    <div>
+                                      {renderStarRating(adminReview.rating)}
+                                    </div>
+                                  </div>
+                                  <p className="text-gray-300">
+                                    {adminReview.comment}
+                                  </p>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-            )}
-          </>
+
+              {totalPages > 1 && (
+                <div className="px-6 py-4 border-t border-gray-800">
+                  <Pagination
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                    totalPages={totalPages}
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Submission Status Legend */}
+        {data?.length > 0 && (
+          <div className="mt-8 bg-gray-900 rounded-xl shadow-lg overflow-hidden">
+            <div className="border-b border-gray-800 bg-gray-800 px-6 py-4">
+              <h2 className="text-lg font-bold text-white">
+                Understanding Product Status
+              </h2>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">{getStatusBadge("pending")}</div>
+                <p className="text-gray-300">
+                  Your product is awaiting admin review. This usually takes 1-2
+                  business days.
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  {getStatusBadge("approved")}
+                </div>
+                <p className="text-gray-300">
+                  Your product has been approved and is now visible to customers
+                  in the store. Approved products cannot be edited or deleted.
+                  Click "Show Admin Review" to see the admin's rating and
+                  comments.
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  {getStatusBadge("rejected")}
+                </div>
+                <p className="text-gray-300">
+                  Your product was not approved. Please check the admin
+                  feedback, make necessary changes, and resubmit.
+                </p>
+              </div>
+            </div>
+          </div>
         )}
       </div>
-
-      {/* Submission Status Legend */}
-      {data?.length > 0 && (
-        <div className="mt-8 bg-gray-900 rounded-xl shadow-lg overflow-hidden">
-          <div className="border-b border-gray-800 bg-gray-800 px-6 py-4">
-            <h2 className="text-lg font-bold text-white">
-              Understanding Product Status
-            </h2>
-          </div>
-          <div className="p-6 space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">{getStatusBadge("pending")}</div>
-              <p className="text-gray-300">
-                Your product is awaiting admin review. This usually takes 1-2
-                business days.
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">{getStatusBadge("approved")}</div>
-              <p className="text-gray-300">
-                Your product has been approved and is now visible to customers
-                in the store. Approved products cannot be edited or deleted.
-                Click "Show Admin Review" to see the admin's rating and
-                comments.
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">{getStatusBadge("rejected")}</div>
-              <p className="text-gray-300">
-                Your product was not approved. Please check the admin feedback,
-                make necessary changes, and resubmit.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

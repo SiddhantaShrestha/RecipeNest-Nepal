@@ -67,11 +67,7 @@ const MyProfile = () => {
       <div className="min-h-screen bg-gray-900">
         <SubNavbar />
         <div className="flex items-center justify-center h-64">
-          <div className="animate-pulse flex space-x-4">
-            <div className="w-12 h-12 bg-purple-500 rounded-full animate-bounce"></div>
-            <div className="w-12 h-12 bg-indigo-500 rounded-full animate-bounce delay-100"></div>
-            <div className="w-12 h-12 bg-pink-500 rounded-full animate-bounce delay-200"></div>
-          </div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
         </div>
       </div>
     );
@@ -82,25 +78,31 @@ const MyProfile = () => {
     return (
       <div className="min-h-screen bg-gray-900">
         <SubNavbar />
-        <div className="container mx-auto p-6 bg-gray-800 shadow-lg rounded-lg mt-6 border border-red-500">
-          <div className="flex items-center justify-center space-x-3">
+        <div className="container mx-auto p-6">
+          <div className="bg-red-900/40 border border-red-700 text-red-200 p-4 rounded-lg text-center my-8">
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-10 w-10 text-red-500"
+              className="w-8 h-8 mx-auto mb-2"
               fill="none"
-              viewBox="0 0 24 24"
               stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
+                strokeWidth="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
             </svg>
-            <p className="text-lg text-red-300">
+            <p className="text-lg">
               {error?.data?.message || "Failed to load profile data"}
             </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-3 px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded-md"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </div>
@@ -111,35 +113,55 @@ const MyProfile = () => {
   const profile = profileData || {};
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 text-gray-200">
       <SubNavbar />
 
       {/* Profile Container */}
-      <div className="container mx-auto p-8 max-w-3xl">
-        <div className="bg-gray-800 shadow-xl rounded-xl overflow-hidden border border-gray-700">
+      <div className="max-w-6xl mx-auto p-6">
+        <h2 className="text-3xl mb-8 text-center font-bold text-emerald-400 border-b border-gray-700 pb-4">
+          My Profile
+        </h2>
+
+        <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 hover:border-emerald-500/50 transition-all duration-200">
           {/* Profile Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
+          <div className="bg-gray-750 p-6">
             <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between">
-              <div className="flex flex-col items-center sm:items-start">
-                <div className="h-24 w-24 rounded-full bg-gray-700 border-4 border-gray-800 mb-2 flex items-center justify-center overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="h-24 w-24 rounded-full bg-emerald-900/40 border-2 border-emerald-700 flex items-center justify-center overflow-hidden">
                   {/* User avatar placeholder */}
-                  <span className="text-4xl">
+                  <span className="text-3xl text-emerald-300 font-bold">
                     {profile.name?.charAt(0) ||
                       profile.username?.charAt(0) ||
                       "U"}
                   </span>
                 </div>
-                <h1 className="text-3xl font-bold text-white mb-1">
-                  {profile.name}
-                </h1>
-                <p className="text-purple-200 font-medium">
-                  @{profile.username}
-                </p>
+                <div className="text-center sm:text-left">
+                  <h1 className="text-3xl font-bold text-white mb-1">
+                    {profile.name}
+                  </h1>
+                  <p className="text-emerald-400 font-medium flex items-center justify-center sm:justify-start">
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      ></path>
+                    </svg>
+                    @{profile.username}
+                  </p>
+                </div>
               </div>
 
               {!editMode && (
                 <div className="mt-4 sm:mt-0">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-200">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-900/50 text-emerald-300">
                     {profile.isAdmin ? "Admin" : "User"}
                   </span>
                 </div>
@@ -152,12 +174,12 @@ const MyProfile = () => {
             {!editMode ? (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-750 p-4 rounded-lg hover:bg-gray-700 transition">
+                  <div className="bg-gray-750 p-4 rounded-lg hover:bg-gray-700 transition border border-gray-700">
                     <p className="text-gray-400 text-sm mb-1">Email</p>
                     <p className="text-white font-medium flex items-center">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 mr-2 text-purple-400"
+                        className="h-5 w-5 mr-2 text-emerald-400"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -172,12 +194,12 @@ const MyProfile = () => {
                       {profile.email}
                     </p>
                   </div>
-                  <div className="bg-gray-750 p-4 rounded-lg hover:bg-gray-700 transition">
+                  <div className="bg-gray-750 p-4 rounded-lg hover:bg-gray-700 transition border border-gray-700">
                     <p className="text-gray-400 text-sm mb-1">Contact</p>
                     <p className="text-white font-medium flex items-center">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 mr-2 text-purple-400"
+                        className="h-5 w-5 mr-2 text-emerald-400"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -197,7 +219,7 @@ const MyProfile = () => {
                 <div className="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0 mt-4">
                   <button
                     onClick={() => setEditMode(true)}
-                    className="flex items-center justify-center bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition shadow-lg"
+                    className="flex items-center justify-center bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition shadow-lg"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -217,7 +239,7 @@ const MyProfile = () => {
                   </button>
                   <Link
                     to="/my-orders"
-                    className="flex items-center justify-center bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700 transition shadow-lg"
+                    className="flex items-center justify-center bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition shadow-lg"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -234,6 +256,26 @@ const MyProfile = () => {
                       />
                     </svg>
                     My Orders
+                  </Link>
+                  <Link
+                    to="/my-blogs"
+                    className="flex items-center justify-center bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition shadow-lg"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                      />
+                    </svg>
+                    My Blogs
                   </Link>
                 </div>
               </div>
@@ -267,7 +309,7 @@ const MyProfile = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -286,7 +328,7 @@ const MyProfile = () => {
                         value={formData.username}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -320,7 +362,7 @@ const MyProfile = () => {
                         value={formData.contact}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -360,7 +402,7 @@ const MyProfile = () => {
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 pt-3">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition shadow-lg flex items-center justify-center disabled:opacity-50"
+                    className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition shadow-lg flex items-center justify-center disabled:opacity-50"
                     disabled={isUpdating}
                   >
                     {isUpdating ? (

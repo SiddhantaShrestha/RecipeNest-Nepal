@@ -5,7 +5,6 @@ import Message from "../Message";
 import Header from "../E-commerce components/Header";
 import Product from "../Products/Product";
 import { FaStar, FaFire, FaTag, FaShoppingBag } from "react-icons/fa";
-import Navbar from "../Navbar";
 
 const Home = () => {
   const { keyword } = useParams();

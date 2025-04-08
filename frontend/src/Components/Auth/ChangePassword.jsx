@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import Navbar from "../Navbar";
 import SubNavbar from "../SubNavbar";
 
 const ChangePassword = () => {
@@ -94,9 +93,9 @@ const ChangePassword = () => {
       case 3:
         return "bg-yellow-400";
       case 4:
-        return "bg-green-500";
+        return "bg-emerald-500";
       case 5:
-        return "bg-green-400";
+        return "bg-emerald-400";
       default:
         return "bg-gray-600";
     }
@@ -126,23 +125,20 @@ const ChangePassword = () => {
     <div className="min-h-screen bg-gray-900">
       <SubNavbar />
 
-      <div className="container mx-auto p-8 max-w-lg">
-        <div className="bg-gray-800 shadow-xl rounded-xl overflow-hidden border border-gray-700">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
-            <h1 className="text-2xl font-bold text-white text-center">
-              Change Password
-            </h1>
-          </div>
+      <div className="max-w-2xl mx-auto p-6">
+        <h2 className="text-3xl mb-8 text-center font-bold text-emerald-400 border-b border-gray-700 pb-4">
+          Change Password
+        </h2>
 
+        <div className="bg-gray-800 shadow-xl rounded-xl overflow-hidden border border-gray-700">
           {/* Content */}
           <div className="p-6">
             {/* Alerts */}
             {message && (
-              <div className="mb-6 bg-green-900 text-green-200 p-4 rounded-lg flex items-center">
+              <div className="mb-6 bg-emerald-900/40 border border-emerald-700 text-emerald-200 p-4 rounded-lg flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2 text-green-400"
+                  className="h-5 w-5 mr-2 text-emerald-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -159,7 +155,7 @@ const ChangePassword = () => {
             )}
 
             {error && (
-              <div className="mb-6 bg-red-900 text-red-200 p-4 rounded-lg flex items-center">
+              <div className="mb-6 bg-red-900/40 border border-red-700 text-red-200 p-4 rounded-lg flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 mr-2 text-red-400"
@@ -206,7 +202,7 @@ const ChangePassword = () => {
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
                     required
-                    className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Enter your current password"
                   />
                 </div>
@@ -238,7 +234,7 @@ const ChangePassword = () => {
                     value={newPassword}
                     onChange={handleNewPasswordChange}
                     required
-                    className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Create a new password"
                   />
                 </div>
@@ -294,7 +290,7 @@ const ChangePassword = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="block w-full pl-10 pr-4 py-2 border bg-gray-700 border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Confirm your new password"
                   />
                 </div>
@@ -308,7 +304,7 @@ const ChangePassword = () => {
               <div className="flex space-x-4 pt-2">
                 <button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition shadow-lg flex items-center justify-center disabled:opacity-50"
+                  className="flex-1 bg-emerald-600 text-white px-4 py-3 rounded-lg hover:bg-emerald-700 transition shadow-lg flex items-center justify-center disabled:opacity-50"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (

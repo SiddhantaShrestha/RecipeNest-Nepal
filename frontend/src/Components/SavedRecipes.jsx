@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { setRecipes } from "../slices/recipeSlice";
-import Navbar from "./Navbar";
 import {
   FaClock,
   FaUtensils,
@@ -21,10 +20,6 @@ const SavedRecipes = () => {
   const [filteredRecipes, setFilteredRecipes] = useState([]);
 
   useEffect(() => {
-    // Check if token is populated and user is authenticated
-    console.log("Token in Redux store:", token);
-    console.log("User authenticated:", isAuthenticated);
-
     if (isAuthenticated && token) {
       const fetchBookmarkedRecipes = async () => {
         try {
@@ -39,7 +34,7 @@ const SavedRecipes = () => {
           );
 
           if (response.data.success) {
-            dispatch(setRecipes(response.data.bookmarkedRecipes)); // Save recipes to Redux state
+            dispatch(setRecipes(response.data.bookmarkedRecipes));
           } else {
             throw new Error(
               response.data.message || "Failed to fetch saved recipes."
@@ -47,13 +42,11 @@ const SavedRecipes = () => {
           }
         } catch (error) {
           console.error("Error fetching bookmarked recipes:", error);
-          dispatch(setRecipes([])); // Ensure recipes state is cleared if error occurs
+          dispatch(setRecipes([]));
         }
       };
 
       fetchBookmarkedRecipes();
-    } else {
-      console.log("User is not authenticated or token is missing.");
     }
   }, [dispatch, token, isAuthenticated]);
 
@@ -68,195 +61,295 @@ const SavedRecipes = () => {
     }
   }, [searchTerm, recipes]);
 
-  // Render loading state with animation
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-gray-200">
-        <Navbar />
-        <div className="container mx-auto px-4 py-16 flex justify-center items-center">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-400 mb-4"></div>
-            <p className="text-gray-300 text-lg">
-              Loading your saved recipes...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Render error state
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-gray-200">
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-lg mx-auto bg-gray-800 p-8 rounded-lg shadow-lg border border-gray-700 text-center">
-            <div className="text-red-400 text-5xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-bold mb-2 text-white">
-              Something went wrong
-            </h2>
-            <p className="text-gray-400 mb-4">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-200"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Handle the removal of a saved recipe
+  const handleRemoveBookmark = async (recipeId) => {
+    if (window.confirm("Remove this recipe from your saved collection?")) {
+      try {
+        await axios.delete(
+          `http://localhost:8000/api/users/bookmarks/${recipeId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        dispatch(
+          setRecipes(recipes.filter((recipe) => recipe._id !== recipeId))
+        );
+        alert("Recipe removed from saved collection");
+      } catch (err) {
+        console.error("Failed to remove saved recipe:", err);
+        alert(err.response?.data?.message || "Failed to remove recipe");
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200">
       <SubNavbar />
-      <div className="bg-gray-800 py-10 border-b border-gray-700 shadow-lg">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white text-center">
-              Your Saved Recipes
-            </h1>
-            <p className="text-gray-400 mb-6 text-center">
-              All your favorite recipes in one place, ready to cook whenever you
-              are.
-            </p>
+      <div className="max-w-6xl mx-auto p-6">
+        <h2 className="text-3xl mb-8 text-center font-bold text-emerald-400 border-b border-gray-700 pb-4">
+          Saved Recipes
+        </h2>
 
-            {/* Search Bar */}
-            <div className="relative max-w-md mx-auto">
-              <input
-                type="text"
-                placeholder="Search your saved recipes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full py-3 px-5 pl-12 rounded-lg bg-gray-700 text-gray-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-12">
-        {/* Back Button */}
-        <div className="mb-6">
+        <div className="flex justify-between items-center mb-6">
           <Link
             to="/recipes"
-            className="inline-flex items-center text-gray-400 hover:text-indigo-400 transition duration-300"
+            className="flex items-center text-gray-400 hover:text-emerald-400 transition duration-200"
           >
             <FaArrowLeft className="mr-2" /> Browse All Recipes
           </Link>
+
+          {/* Search Bar */}
+          <div className="relative max-w-md">
+            <input
+              type="text"
+              placeholder="Search saved recipes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full py-2 px-4 pl-10 rounded-lg bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+          </div>
         </div>
 
-        {recipes.length === 0 ? (
-          <div className="max-w-md mx-auto bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 md:max-w-2xl p-8 text-center">
-            <div className="text-7xl mb-4">📚</div>
-            <h3 className="text-xl font-semibold mb-2 text-white">
-              Your recipe collection is empty
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Start exploring delicious recipes and save your favorites for easy
-              access later.
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-900/40 border border-red-700 text-red-200 p-4 rounded-lg text-center my-8">
+            <svg
+              className="w-8 h-8 mx-auto mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <p className="text-lg">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-3 px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded-md"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && !error && recipes.length === 0 && (
+          <div className="text-center py-16 bg-gray-800/50 rounded-xl border border-gray-700">
+            <svg
+              className="mx-auto h-16 w-16 text-gray-500 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+              ></path>
+            </svg>
+            <p className="text-xl text-gray-300 mb-4">
+              You haven't saved any recipes yet.
+            </p>
+            <p className="text-gray-400 max-w-md mx-auto mb-6">
+              Find delicious recipes and save them for easy access when you're
+              ready to cook.
             </p>
             <Link
               to="/recipes"
-              className="inline-block px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-200"
+              className="py-3 px-6 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition duration-200 inline-flex items-center"
             >
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
               Browse Recipes
             </Link>
           </div>
-        ) : filteredRecipes.length === 0 ? (
-          <div className="text-center py-12 bg-gray-800 rounded-xl border border-gray-700 shadow-lg">
-            <div className="text-5xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold mb-2 text-white">
-              No matching recipes found
-            </h3>
-            <p className="text-gray-400 mb-4">
-              Try a different search term or browse all your saved recipes.
-            </p>
-            <button
-              onClick={() => setSearchTerm("")}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-200"
-            >
-              Clear Search
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredRecipes.map((recipe) => (
-              <Link
-                to={`/recipes/${recipe._id}`}
-                key={recipe._id}
-                className="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-indigo-900/20 transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full border border-gray-700"
+        )}
+
+        {/* No Search Results */}
+        {!loading &&
+          !error &&
+          recipes.length > 0 &&
+          filteredRecipes.length === 0 && (
+            <div className="text-center py-12 bg-gray-800/50 rounded-xl border border-gray-700">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-500 mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <div className="relative">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
+              <p className="text-xl text-gray-300 mb-2">
+                No matching recipes found
+              </p>
+              <p className="text-gray-400 mb-4">Try a different search term</p>
+              <button
+                onClick={() => setSearchTerm("")}
+                className="px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition duration-200"
+              >
+                Clear Search
+              </button>
+            </div>
+          )}
+
+        {/* Recipe List */}
+        {!loading && !error && filteredRecipes.length > 0 && (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+            {filteredRecipes.map((recipe) => (
+              <div
+                key={recipe._id}
+                className="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 hover:border-emerald-500/50 transition-all duration-200 flex flex-col md:flex-row"
+              >
+                <div
+                  className="w-full md:w-1/3 h-48 md:h-auto bg-gray-700 cursor-pointer overflow-hidden"
+                  onClick={() =>
+                    (window.location.href = `/recipes/${recipe._id}`)
+                  }
+                >
                   <img
                     src={
                       recipe.image ||
-                      "https://via.placeholder.com/400x250?text=Recipe+Image"
+                      "https://via.placeholder.com/400x300?text=No+Image+Available"
                     }
                     alt={recipe.title}
-                    className="w-full h-56 object-cover"
-                    onError={(e) => {
-                      e.target.src =
-                        "https://via.placeholder.com/400x250?text=Recipe+Image";
-                    }}
+                    className="w-full h-full object-cover transform hover:scale-105 transition duration-500"
+                    onError={(e) =>
+                      (e.target.src =
+                        "https://via.placeholder.com/400x300?text=No+Image+Available")
+                    }
                   />
-                  <div className="absolute top-4 right-4">
-                    <span className="bg-indigo-600 text-white text-xs px-3 py-1 rounded-full flex items-center">
-                      <FaBookmark className="mr-1" /> Saved
-                    </span>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col">
+                  <div
+                    onClick={() =>
+                      (window.location.href = `/recipes/${recipe._id}`)
+                    }
+                    className="cursor-pointer"
+                  >
+                    <h3 className="text-xl font-bold text-white mb-2 hover:text-emerald-400 transition">
+                      {recipe.title}
+                    </h3>
+                    <p className="text-gray-400 mt-2 line-clamp-3">
+                      {recipe.description && recipe.description.length > 150
+                        ? `${recipe.description.substring(0, 150)}...`
+                        : recipe.description || "No description available"}
+                    </p>
                   </div>
-                  {recipe.category && (
-                    <div className="absolute bottom-4 left-4">
-                      <span className="bg-black bg-opacity-70 text-white text-xs px-3 py-1 rounded-full">
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {recipe.category && (
+                      <span className="text-xs px-2 py-1 bg-emerald-900/50 text-emerald-300 rounded-full">
                         {recipe.category}
                       </span>
-                    </div>
-                  )}
-                </div>
+                    )}
+                    <span className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded-full flex items-center">
+                      <FaClock className="w-3 h-3 mr-1" />
+                      {recipe.prepTime || "30 mins"}
+                    </span>
+                    <span className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded-full flex items-center">
+                      <FaUtensils className="w-3 h-3 mr-1" />
+                      Serves {recipe.servings || "4"}
+                    </span>
+                  </div>
 
-                <div className="p-5 flex-grow flex flex-col">
-                  <h3 className="font-bold text-xl mb-2 text-white">
-                    {recipe.title}
-                  </h3>
-                  <p className="text-gray-400 text-sm line-clamp-2 mb-4">
-                    {recipe.description ||
-                      "A delicious recipe saved to your collection."}
-                  </p>
-
-                  <div className="mt-auto flex justify-between items-center text-sm text-gray-400">
-                    <div className="flex items-center">
-                      <FaClock className="mr-1 text-indigo-400" />
-                      <span>{recipe.prepTime || "30 mins"}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <FaUtensils className="mr-1 text-indigo-400" />
-                      <span>Serves {recipe.servings || "4"}</span>
-                    </div>
+                  <div className="mt-auto pt-4 flex justify-end space-x-2">
+                    <button
+                      onClick={() =>
+                        (window.location.href = `/recipes/${recipe._id}`)
+                      }
+                      className="py-1.5 px-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm flex items-center"
+                    >
+                      <svg
+                        className="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        ></path>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        ></path>
+                      </svg>
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleRemoveBookmark(recipe._id)}
+                      className="py-1.5 px-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm flex items-center"
+                    >
+                      <svg
+                        className="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        ></path>
+                      </svg>
+                      Remove
+                    </button>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
+
+        {recipes.length > 3 && filteredRecipes.length > 0 && (
+          <div className="mt-6 text-center text-gray-400">
+            <p>
+              Showing {filteredRecipes.length} of {recipes.length} saved recipes
+            </p>
+          </div>
+        )}
       </div>
-
-      {recipes.length > 3 && (
-        <div className="container mx-auto px-4 pb-12 text-center">
-          <p className="text-gray-400 mb-4">
-            Showing {filteredRecipes.length} of {recipes.length} saved recipes
-          </p>
-        </div>
-      )}
-
-      <footer className="bg-gray-800 border-t border-gray-700 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-400">
-            Your personal recipe collection. Happy cooking!
-          </p>
-        </div>
-      </footer>
     </div>
   );
 };
