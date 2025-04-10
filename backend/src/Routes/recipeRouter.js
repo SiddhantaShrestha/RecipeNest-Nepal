@@ -7,6 +7,7 @@ import {
   updateRecipe,
   deleteRecipe,
   addComment,
+  addRecipeRating, // Add the new controller function
 } from "../Controllers/recipeController.js";
 import upload from "../Middleware/multer.js";
 import isAuthenticated from "../Middleware/isAuthenticated.js";
@@ -48,5 +49,8 @@ recipeRouter.route("/:id").delete(isAuthenticated, deleteRecipe);
 
 // Protected route for adding comments
 recipeRouter.route("/:id/comments").post(isAuthenticated, addComment);
+
+// NEW: Protected route for adding ratings
+recipeRouter.route("/:id/ratings").post(isAuthenticated, addRecipeRating);
 
 export default recipeRouter;

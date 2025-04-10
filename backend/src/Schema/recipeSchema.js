@@ -1,9 +1,25 @@
 import mongoose from "mongoose";
 
+// Create a rating schema similar to the product review schema
+export const recipeRatingSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    rating: { type: Number, required: true },
+    comment: { type: String, required: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Register",
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+// Keep your existing comment schema
 export const commentSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Register", // Reference to your user model
+    ref: "Register",
     required: true,
   },
   text: {
@@ -36,15 +52,20 @@ const recipeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Register",
       required: true,
-    }, // Reference to user
+    },
     isPremium: {
       type: Boolean,
       default: false,
     },
+    // Add the ratings-related fields like in the product schema
+    ratings: [recipeRatingSchema],
+    rating: { type: Number, required: true, default: 0 },
+    numRatings: { type: Number, required: true, default: 0 },
+    // Keep the existing comments structure
     comments: [commentSchema],
   },
-
   { timestamps: true }
 );
 
+export const Recipe = mongoose.model("Recipe", recipeSchema);
 export default recipeSchema;

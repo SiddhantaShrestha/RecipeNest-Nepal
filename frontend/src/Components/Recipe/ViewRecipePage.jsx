@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import Navbar from "../Navbar";
 import { setCurrentRecipe, setBookmarkStatus } from "../../slices/recipeSlice";
 import {
   FaClock,
@@ -14,6 +13,7 @@ import {
   FaArrowLeft,
   FaUtensils,
   FaLock,
+  FaRegStar,
 } from "react-icons/fa";
 
 const ViewRecipePage = () => {
@@ -27,6 +27,11 @@ const ViewRecipePage = () => {
   const [isPremiumRecipe, setIsPremiumRecipe] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
   const [relatedRecipes, setRelatedRecipes] = useState([]);
+  const [userRating, setUserRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [ratingComment, setRatingComment] = useState("");
+  const [hasRated, setHasRated] = useState(false);
+  const [ratings, setRatings] = useState([]);
 
   const { token, user, isAuthenticated } = useSelector((state) => state.auth);
   const { isPremium: isUserPremium } = useSelector((state) => state.auth.user);
@@ -60,6 +65,15 @@ const ViewRecipePage = () => {
 
         dispatch(setCurrentRecipe(recipeData));
         setComments(recipeData.comments || []);
+        setRatings(recipeData.ratings || []);
+
+        // Check if user has already rated this recipe
+        if (token && recipeData.ratings) {
+          const userHasRated = recipeData.ratings.some(
+            (rating) => rating.user._id === user?._id
+          );
+          setHasRated(userHasRated);
+        }
 
         // Fetch related recipes after getting the current recipe
         fetchRelatedRecipes(recipeData.category);
@@ -99,7 +113,7 @@ const ViewRecipePage = () => {
 
     fetchRecipe();
     fetchBookmarks();
-  }, [id, token, dispatch, isUserPremium, accessDenied]);
+  }, [id, token, dispatch, isUserPremium, accessDenied, user?._id]);
 
   // Fetch related recipes based on the category
   const fetchRelatedRecipes = async (category) => {
@@ -143,14 +157,54 @@ const ViewRecipePage = () => {
       }
     } catch (error) {
       console.error("Related recipes fetch error:", error);
-      // If fetch fails, we'll just have an empty related recipes section
+    }
+  };
+
+  const handleRatingSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!userRating) {
+      alert("Please select a rating before submitting.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8000/recipes/${id}/ratings`,
+        {
+          rating: userRating,
+          comment: ratingComment || "Great recipe!",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update the recipe state with the new rating
+      const updatedRecipeResponse = await axios.get(
+        `http://localhost:8000/recipes/${id}`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
+
+      dispatch(setCurrentRecipe(updatedRecipeResponse.data.recipe));
+      setRatings(updatedRecipeResponse.data.recipe.ratings);
+      setHasRated(true);
+      setUserRating(0);
+      setRatingComment("");
+      alert("Thank you for your rating!");
+    } catch (error) {
+      console.error("Rating submission error:", error);
+      alert(error.response?.data?.message || "Failed to submit rating");
     }
   };
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if the text property exists and is not empty after trimming
     if (!newComment.text || !newComment.text.trim()) {
       alert("Please write a comment before submitting.");
       return;
@@ -159,7 +213,7 @@ const ViewRecipePage = () => {
     try {
       const response = await axios.post(
         `http://localhost:8000/recipes/${id}/comments`,
-        { text: newComment.text }, // Send the text property, not the whole object
+        { text: newComment.text },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -167,27 +221,24 @@ const ViewRecipePage = () => {
         }
       );
 
-      // Add the new comment with the current user's information
       const newCommentWithUser = {
         ...response.data.comment,
-        user: response.data.comment.user || user, // Fallback to current user if not populated
+        user: response.data.comment.user || user,
       };
 
       setComments([...comments, newCommentWithUser]);
-
       dispatch(
         setCurrentRecipe({
           ...recipe,
           comments: [...(recipe.comments || []), newCommentWithUser],
         })
       );
-      setNewComment({ text: "" }); // Reset to empty object with text property
+      setNewComment({ text: "" });
     } catch (err) {
       alert(err.response?.data?.message || "Failed to post comment");
     }
   };
 
-  // Handle bookmark toggle
   const handleBookmarkToggle = async () => {
     if (!token) {
       navigate("/login");
@@ -222,7 +273,6 @@ const ViewRecipePage = () => {
       "https://via.placeholder.com/800x400?text=No+Image+Available";
   };
 
-  // Navigate to the selected related recipe
   const navigateToRecipe = (recipeId) => {
     navigate(`/recipes/${recipeId}`);
   };
@@ -341,18 +391,43 @@ const ViewRecipePage = () => {
             )}
           </div>
 
-          {/* Rating */}
+          {/* Rating Summary */}
           <div className="flex justify-center mb-4">
-            <div className="flex space-x-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <FaStar
-                  key={star}
-                  className={`${
-                    star <= 4 ? "text-yellow-400" : "text-gray-600"
-                  }`}
-                />
-              ))}
-              <span className="ml-2 text-gray-400">4.0 (24 reviews)</span>
+            <div className="flex flex-col items-center">
+              <div className="flex items-center mb-2">
+                <div className="text-3xl font-bold text-white mr-2">
+                  {recipe.rating ? recipe.rating.toFixed(1) : "0.0"}
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <FaStar
+                        key={star}
+                        className={`text-xl ${
+                          star <= Math.round(recipe.rating || 0)
+                            ? "text-yellow-400"
+                            : "text-gray-600"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-400">
+                    {recipe.numRatings || 0} ratings
+                  </span>
+                </div>
+              </div>
+              {isAuthenticated && !hasRated && (
+                <button
+                  onClick={() => {
+                    document.getElementById("ratings-section").scrollIntoView({
+                      behavior: "smooth",
+                    });
+                  }}
+                  className="text-sm text-indigo-400 hover:text-indigo-300"
+                >
+                  Rate this recipe
+                </button>
+              )}
             </div>
           </div>
 
@@ -497,6 +572,112 @@ const ViewRecipePage = () => {
               </div>
             </div>
 
+            {/* Ratings Section */}
+            <div
+              id="ratings-section"
+              className="mt-8 bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700"
+            >
+              <h2 className="text-2xl font-bold mb-6 text-indigo-300">
+                Ratings & Reviews
+              </h2>
+
+              {/* Rating Form (only for authenticated users who haven't rated yet) */}
+              {isAuthenticated && !hasRated && (
+                <div className="mb-8 bg-gray-700 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold mb-3 text-white">
+                    Rate this recipe
+                  </h3>
+                  <form onSubmit={handleRatingSubmit}>
+                    <div className="flex mb-4">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          className="text-3xl focus:outline-none mr-1"
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          onClick={() => setUserRating(star)}
+                        >
+                          {star <= (hoverRating || userRating) ? (
+                            <FaStar className="text-yellow-400" />
+                          ) : (
+                            <FaRegStar className="text-gray-500" />
+                          )}
+                        </button>
+                      ))}
+                      <span className="ml-2 text-gray-300 mt-2">
+                        {userRating > 0
+                          ? `You selected ${userRating} star${
+                              userRating > 1 ? "s" : ""
+                            }`
+                          : "Select rating"}
+                      </span>
+                    </div>
+                    <textarea
+                      placeholder="Share your experience with this recipe (optional)"
+                      className="w-full p-3 bg-gray-600 border border-gray-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
+                      rows="3"
+                      value={ratingComment}
+                      onChange={(e) => setRatingComment(e.target.value)}
+                    ></textarea>
+                    <button
+                      type="submit"
+                      className="w-full py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
+                      disabled={!userRating}
+                    >
+                      Submit Rating
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* Ratings List */}
+              <div className="space-y-6">
+                {ratings.length > 0 ? (
+                  ratings.map((rating, index) => (
+                    <div key={index} className="p-4 bg-gray-700 rounded-lg">
+                      <div className="flex items-center mb-2">
+                        <div className="h-10 w-10 rounded-full bg-indigo-800 text-white flex items-center justify-center font-bold mr-3">
+                          {rating.name?.charAt(0) || "U"}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-white">
+                            {rating.name || "Anonymous"}
+                          </p>
+                          <div className="flex items-center">
+                            <div className="flex mr-2">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <FaStar
+                                  key={star}
+                                  className={`${
+                                    star <= rating.rating
+                                      ? "text-yellow-400"
+                                      : "text-gray-600"
+                                  } text-sm`}
+                                />
+                              ))}
+                            </div>
+                            <p className="text-xs text-gray-400">
+                              {new Date(rating.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      {rating.comment && (
+                        <p className="text-gray-300 mt-2">{rating.comment}</p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center p-4 bg-gray-700 rounded-lg">
+                    <p className="text-gray-400">
+                      No ratings yet. Be the first to rate this recipe!
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* User Comments Section */}
             <div className="mt-8 bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
               <h2 className="text-2xl font-bold mb-6 text-indigo-300">
@@ -591,7 +772,9 @@ const ViewRecipePage = () => {
                           <FaStar
                             key={star}
                             className={`${
-                              star <= 4 ? "text-yellow-400" : "text-gray-600"
+                              star <= Math.round(relatedRecipe.rating || 0)
+                                ? "text-yellow-400"
+                                : "text-gray-600"
                             } h-3 w-3`}
                           />
                         ))}

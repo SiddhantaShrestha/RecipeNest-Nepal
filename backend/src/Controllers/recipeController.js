@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Recipe } from "../Schema/model.js";
 
 // Create a new recipe
@@ -295,5 +296,82 @@ export const addComment = async (req, res) => {
   } catch (error) {
     console.error("Error adding comment:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const addRecipeRating = async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    const { id } = req.params;
+
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid rating between 1 and 5",
+      });
+    }
+
+    const recipe = await Recipe.findById(id);
+
+    if (!recipe) {
+      return res.status(404).json({
+        success: false,
+        message: "Recipe not found",
+      });
+    }
+
+    // Check if user has already rated this recipe
+    const alreadyRated = recipe.ratings.find(
+      (r) => r.user.toString() === req.user._id.toString()
+    );
+
+    if (alreadyRated) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already rated this recipe",
+      });
+    }
+
+    // Fetch user data
+    const userData = await mongoose.model("Register").findById(req.user._id);
+
+    if (!userData) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Create new rating
+    const newRating = {
+      name: userData.username,
+      rating: Number(rating),
+      comment: comment || "Great recipe!",
+      user: req.user._id,
+    };
+
+    // Add rating to recipe
+    recipe.ratings.push(newRating);
+    recipe.numRatings = recipe.ratings.length;
+
+    // Calculate average rating
+    recipe.rating =
+      recipe.ratings.reduce((sum, item) => sum + Number(item.rating), 0) /
+      recipe.ratings.length;
+
+    await recipe.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Rating added successfully",
+      rating: newRating,
+    });
+  } catch (error) {
+    console.error("Error adding rating:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
