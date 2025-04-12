@@ -14,7 +14,10 @@ import {
   FaUtensils,
   FaLock,
   FaRegStar,
+  FaShoppingCart,
+  FaExternalLinkAlt,
 } from "react-icons/fa";
+import { useGetFilteredProductsQuery } from "../../redux/api/productApiSlice";
 
 const ViewRecipePage = () => {
   const { id } = useParams();
@@ -32,12 +35,55 @@ const ViewRecipePage = () => {
   const [ratingComment, setRatingComment] = useState("");
   const [hasRated, setHasRated] = useState(false);
   const [ratings, setRatings] = useState([]);
+  const [ingredientProducts, setIngredientProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
 
   const { token, user, isAuthenticated } = useSelector((state) => state.auth);
-  const { isPremium: isUserPremium } = useSelector((state) => state.auth.user);
+  const { isPremium: isUserPremium } = useSelector(
+    (state) => state.auth.user || {}
+  );
 
   const recipe = useSelector((state) => state.recipes.currentRecipe);
   const isBookmarked = useSelector((state) => state.recipes.isBookmarked);
+
+  // Fetch ingredient-related products based on recipe ingredients
+  const fetchIngredientProducts = async (ingredients) => {
+    if (!ingredients || ingredients.length === 0) return;
+
+    try {
+      // Extract ingredient names for search
+      const ingredientKeywords = ingredients.map((ingredient) => {
+        // Extract just the main ingredient name (remove quantities, etc.)
+        const mainIngredient = ingredient.split(" ").pop().replace(/,/g, "");
+        return mainIngredient;
+      });
+
+      // Filter out common words that might not be actual ingredients
+      const filteredKeywords = ingredientKeywords.filter(
+        (keyword) =>
+          keyword.length > 2 &&
+          !["and", "the", "for", "cup", "teaspoon", "tablespoon"].includes(
+            keyword.toLowerCase()
+          )
+      );
+
+      // Use the product API to search for related products
+      const response = await axios.post(
+        "http://localhost:8000/api/products/filtered-products",
+        {
+          checked: [], // No category filters
+          radio: [], // No price range filters
+          keywords: filteredKeywords.slice(0, 5), // Limit to top 5 ingredients
+        }
+      );
+
+      if (response.data && response.data.products) {
+        setIngredientProducts(response.data.products.slice(0, 6)); // Limit to 6 products
+      }
+    } catch (error) {
+      console.error("Error fetching ingredient products:", error);
+    }
+  };
 
   // Fetch recipe and bookmark status
   useEffect(() => {
@@ -66,6 +112,11 @@ const ViewRecipePage = () => {
         dispatch(setCurrentRecipe(recipeData));
         setComments(recipeData.comments || []);
         setRatings(recipeData.ratings || []);
+
+        // Fetch ingredient products once we have the recipe data
+        if (recipeData.ingredients && recipeData.ingredients.length > 0) {
+          fetchIngredientProducts(recipeData.ingredients);
+        }
 
         // Check if user has already rated this recipe
         if (token && recipeData.ratings) {
@@ -158,6 +209,30 @@ const ViewRecipePage = () => {
     } catch (error) {
       console.error("Related recipes fetch error:", error);
     }
+  };
+
+  const handleAddToCart = (product) => {
+    // Check if product is already in cart
+    const existingItem = cartItems.find(
+      (item) => item.product._id === product._id
+    );
+
+    if (existingItem) {
+      // Increase quantity if already in cart
+      setCartItems(
+        cartItems.map((item) =>
+          item.product._id === product._id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      );
+    } else {
+      // Add new item to cart
+      setCartItems([...cartItems, { product, quantity: 1 }]);
+    }
+
+    // Show notification
+    alert(`Added ${product.name} to your cart!`);
   };
 
   const handleRatingSubmit = async (e) => {
@@ -275,6 +350,10 @@ const ViewRecipePage = () => {
 
   const navigateToRecipe = (recipeId) => {
     navigate(`/recipes/${recipeId}`);
+  };
+
+  const navigateToProduct = (productId) => {
+    navigate(`/products/${productId}`);
   };
 
   if (loading) {
@@ -479,13 +558,14 @@ const ViewRecipePage = () => {
 
         {/* Recipe Details */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Ingredients */}
+          {/* Left Column - Ingredients & Shop */}
           <div className="lg:col-span-1">
-            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
+            {/* Ingredients List */}
+            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700 mb-8">
               <h2 className="text-2xl font-bold mb-6 text-indigo-300 flex items-center">
                 <FaUtensils className="mr-2" /> Ingredients
               </h2>
-              <ul className="space-y-4">
+              <ul className="space-y-4 mb-6">
                 {recipe.ingredients?.map((ingredient, index) => (
                   <li key={index} className="flex items-start">
                     <div className="h-6 w-6 rounded-full bg-indigo-900 flex items-center justify-center text-indigo-200 text-sm mr-3 mt-0.5 flex-shrink-0">
@@ -495,30 +575,124 @@ const ViewRecipePage = () => {
                   </li>
                 ))}
               </ul>
+            </div>
 
-              <div className="mt-8 pt-6 border-t border-gray-700">
-                <h3 className="text-xl font-semibold mb-4 text-white">
-                  Nutrition Facts
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-700 rounded-lg p-3 text-center">
-                    <p className="text-sm text-gray-400">Calories</p>
-                    <p className="text-lg font-bold text-white">320</p>
-                  </div>
-                  <div className="bg-gray-700 rounded-lg p-3 text-center">
-                    <p className="text-sm text-gray-400">Protein</p>
-                    <p className="text-lg font-bold text-white">12g</p>
-                  </div>
-                  <div className="bg-gray-700 rounded-lg p-3 text-center">
-                    <p className="text-sm text-gray-400">Carbs</p>
-                    <p className="text-lg font-bold text-white">45g</p>
-                  </div>
-                  <div className="bg-gray-700 rounded-lg p-3 text-center">
-                    <p className="text-sm text-gray-400">Fat</p>
-                    <p className="text-lg font-bold text-white">15g</p>
+            {/* Shop Ingredients Section */}
+            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-indigo-300 flex items-center">
+                <FaShoppingCart className="mr-2" /> Shop Ingredients
+              </h2>
+
+              {ingredientProducts.length > 0 ? (
+                <div className="space-y-5">
+                  {ingredientProducts.map((product) => (
+                    <div
+                      key={product._id}
+                      className="flex items-center p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+                    >
+                      <img
+                        src={product.image || "https://via.placeholder.com/100"}
+                        alt={product.name}
+                        className="w-16 h-16 object-cover rounded-md mr-3"
+                        onError={handleImageError}
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-white">
+                          {product.name}
+                        </h3>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-indigo-300 font-bold">
+                            ${product.price?.toFixed(2)}
+                          </span>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => navigateToProduct(product._id)}
+                              className="text-xs px-2 py-1 bg-gray-600 text-gray-300 rounded hover:bg-gray-500 transition-colors"
+                            >
+                              <FaExternalLinkAlt />
+                            </button>
+                            <button
+                              onClick={() => handleAddToCart(product)}
+                              className="text-xs px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="mt-4">
+                    <button
+                      onClick={() => navigate("/shop")}
+                      className="w-full py-3 bg-green-600 hover:bg-green-700 transition-colors text-white rounded-lg font-semibold"
+                    >
+                      Shop All Ingredients
+                    </button>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="text-center py-6 bg-gray-700 rounded-lg">
+                  <FaShoppingCart className="mx-auto text-4xl text-gray-500 mb-3" />
+                  <p className="text-gray-400 mb-4">
+                    No matching ingredients found
+                  </p>
+                  <button
+                    onClick={() => navigate("/shop")}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    Browse Shop
+                  </button>
+                </div>
+              )}
+
+              {/* Cart Summary */}
+              {cartItems.length > 0 && (
+                <div className="mt-6 p-4 bg-gray-700 rounded-lg">
+                  <h3 className="font-semibold text-white mb-3">
+                    Cart (
+                    {cartItems.reduce(
+                      (total, item) => total + item.quantity,
+                      0
+                    )}{" "}
+                    items)
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto mb-3">
+                    {cartItems.map((item) => (
+                      <div
+                        key={item.product._id}
+                        className="flex justify-between"
+                      >
+                        <span className="text-gray-300">
+                          {item.product.name} x {item.quantity}
+                        </span>
+                        <span className="text-indigo-300">
+                          ${(item.product.price * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-2 border-t border-gray-600 flex justify-between items-center">
+                    <span className="font-semibold text-white">Total:</span>
+                    <span className="text-lg font-bold text-indigo-300">
+                      $
+                      {cartItems
+                        .reduce(
+                          (total, item) =>
+                            total + item.product.price * item.quantity,
+                          0
+                        )
+                        .toFixed(2)}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => navigate("/cart")}
+                    className="w-full mt-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    View Cart
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
