@@ -8,6 +8,7 @@ import Navbar from "../Navbar";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBlogs } from "../../slices/blogsSlice";
 import { logout } from "../../slices/authSlice";
+import Swal from "sweetalert2";
 
 const validate = (values) => {
   const errors = {};
@@ -33,7 +34,6 @@ const validate = (values) => {
 
 const CreateBlogPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
-  const [submitError, setSubmitError] = useState(null);
   const auth = useSelector((state) => state.auth);
   const token = auth.token || localStorage.getItem("authToken");
   const dispatch = useDispatch();
@@ -46,10 +46,15 @@ const CreateBlogPage = () => {
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    setSubmitError(null);
-
     if (!token) {
-      setSubmitError("You must be logged in to create a blog!");
+      Swal.fire({
+        title: "Authentication Error",
+        text: "You must be logged in to create a blog!",
+        icon: "error",
+        confirmButtonColor: "#f59e0b", // amber-500
+        background: "#1f2937", // gray-800
+        color: "#f3f4f6", // gray-100
+      });
       dispatch(logout());
       return;
     }
@@ -61,6 +66,18 @@ const CreateBlogPage = () => {
     formData.append("image", values.image);
 
     try {
+      // Show loading toast while request is in progress
+      Swal.fire({
+        title: "Publishing...",
+        html: "Please wait while we publish your blog",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        background: "#1f2937", // gray-800
+        color: "#f3f4f6", // gray-100
+      });
+
       const response = await axios.post(
         "http://localhost:8000/blogs",
         formData,
@@ -77,15 +94,27 @@ const CreateBlogPage = () => {
       resetForm();
       setImagePreview(null);
 
-      // Show success message
-      const successMessage = document.getElementById("success-message");
-      successMessage.classList.remove("hidden");
-      setTimeout(() => {
-        successMessage.classList.add("hidden");
-      }, 5000);
+      Swal.fire({
+        title: "Success!",
+        text: "Your blog has been published successfully",
+        icon: "success",
+        confirmButtonColor: "#f59e0b", // amber-500
+        timer: 3000,
+        timerProgressBar: true,
+        background: "#1f2937", // gray-800
+        color: "#f3f4f6", // gray-100
+      });
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
-      setSubmitError(err.response?.data?.message || "Failed to create blog.");
+
+      Swal.fire({
+        title: "Error",
+        text: err.response?.data?.message || "Failed to create blog.",
+        icon: "error",
+        confirmButtonColor: "#f59e0b", // amber-500
+        background: "#1f2937", // gray-800
+        color: "#f3f4f6", // gray-100
+      });
     } finally {
       setSubmitting(false);
     }
@@ -106,32 +135,45 @@ const CreateBlogPage = () => {
     }
   };
 
+  const confirmCancel = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will lose all entered data!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#f59e0b", // amber-500
+      cancelButtonColor: "#4b5563", // gray-600
+      confirmButtonText: "Yes, discard it!",
+      background: "#1f2937", // gray-800
+      color: "#f3f4f6", // gray-100
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.history.back();
+      }
+    });
+  };
+
+  const confirmImageRemoval = (setFieldValue) => {
+    Swal.fire({
+      title: "Remove image?",
+      text: "Are you sure you want to remove this image?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444", // red-500
+      cancelButtonColor: "#4b5563", // gray-600
+      confirmButtonText: "Yes, remove it!",
+      background: "#1f2937", // gray-800
+      color: "#f3f4f6", // gray-100
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setFieldValue("image", "");
+        setImagePreview(null);
+      }
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Improved success notification */}
-      <div
-        id="success-message"
-        className="hidden fixed top-5 right-5 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-xl z-50 transform transition-all duration-500 ease-in-out"
-      >
-        <div className="flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 mr-3 text-emerald-300"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-          <p className="font-medium text-lg">Blog created successfully!</p>
-        </div>
-      </div>
-
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-10">
           <h1 className="text-5xl font-extrabold text-white mb-2 tracking-tight">
@@ -159,32 +201,6 @@ const CreateBlogPage = () => {
 
               {/* Form content */}
               <div className="p-8">
-                {submitError && (
-                  <div
-                    className="mb-8 bg-red-900/50 border-l-4 border-red-500 text-red-100 p-4 rounded-r-md"
-                    role="alert"
-                  >
-                    <div className="flex items-start">
-                      <svg
-                        className="h-6 w-6 text-red-400 mr-4 mt-0.5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <div>
-                        <p className="font-semibold text-lg">Error</p>
-                        <p className="mt-1">{submitError}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 <div className="space-y-8">
                   {/* Title field */}
                   <div>
@@ -227,7 +243,6 @@ const CreateBlogPage = () => {
                     >
                       Category <span className="text-red-500">*</span>
                     </label>
-                    // For the dropdown option items (the blue "Beginner" item)
                     <div className="relative">
                       <FormikCategorySelect
                         name="category"
@@ -235,7 +250,6 @@ const CreateBlogPage = () => {
                         selectedCategory={values.category}
                         setFieldValue={setFieldValue}
                         className="appearance-none w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-500/20 focus:outline-none transition-all duration-200 pr-10"
-                        // Add these props to pass to your component
                         dropdownItemClassName="py-2 px-4 hover:bg-gray-600 cursor-pointer text-gray-100"
                         activeDropdownItemClassName="bg-amber-500 text-gray-900 py-2 px-4 cursor-pointer"
                       />
@@ -332,10 +346,9 @@ const CreateBlogPage = () => {
                               />
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setFieldValue("image", "");
-                                  setImagePreview(null);
-                                }}
+                                onClick={() =>
+                                  confirmImageRemoval(setFieldValue)
+                                }
                                 className="absolute top-3 right-3 bg-red-600 text-white rounded-full p-2 shadow-md hover:bg-red-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                               >
                                 <svg
@@ -372,7 +385,7 @@ const CreateBlogPage = () => {
               <div className="bg-gray-700 px-8 py-5 flex justify-end space-x-4">
                 <button
                   type="button"
-                  onClick={() => window.history.back()}
+                  onClick={confirmCancel}
                   className="py-2.5 px-5 bg-gray-600 text-white rounded-lg hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-700 transition-colors duration-200 font-medium"
                 >
                   Cancel

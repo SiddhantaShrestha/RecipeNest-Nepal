@@ -5,6 +5,7 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormikInput from "../FormikComponents/FormikInput";
 import axios from "axios";
+import Swal from "sweetalert2";
 import "../../CSS/auth.css";
 
 const Signup = () => {
@@ -52,14 +53,30 @@ const Signup = () => {
       const { user, token, expirationDate } = response.data;
       dispatch(login({ token, user, expirationDate }));
 
-      alert("Account created successfully! Please verify your email.");
+      // Success popup
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Account created successfully! Please verify your email.",
+        confirmButtonColor: "#8B5CF6", // Purple to match your theme
+        confirmButtonText: "Great!",
+      });
+
       resetForm();
     } catch (error) {
       console.error(
         "Signup Error",
         error.response?.data?.message || error.message
       );
-      alert(error.response?.data?.message || "Something went wrong");
+
+      // Error popup
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.response?.data?.message || "Something went wrong",
+        confirmButtonColor: "#8B5CF6",
+        confirmButtonText: "Try Again",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -94,7 +111,7 @@ const Signup = () => {
                       name="username"
                       placeholder="Username"
                       required
-                      autocomplete="username"
+                      autoComplete="username"
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
                     />
                   </div>
@@ -107,7 +124,7 @@ const Signup = () => {
                       type="email"
                       placeholder="Email address"
                       required
-                      autocomplete="email"
+                      autoComplete="email"
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
                     />
                   </div>
@@ -136,7 +153,7 @@ const Signup = () => {
                       type="password"
                       placeholder="Password"
                       required
-                      autocomplete="new-password"
+                      autoComplete="new-password"
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
                     />
                   </div>
@@ -146,7 +163,7 @@ const Signup = () => {
                       type="password"
                       placeholder="Confirm password"
                       required
-                      autocomplete="new-password"
+                      autoComplete="new-password"
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
                     />
                   </div>

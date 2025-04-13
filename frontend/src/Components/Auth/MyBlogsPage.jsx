@@ -69,7 +69,7 @@ const MyBlogsPage = () => {
 
   // Navigate to blog details page
   const handleViewBlog = (blogId) => {
-    navigate(`/blogs/${blogId}`);
+    navigate(`/blog/${blogId}`);
   };
 
   return (

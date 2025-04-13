@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { login, updateUser } from "../../redux/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../redux/constants";
+import Swal from "sweetalert2";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -56,6 +57,16 @@ const Login = () => {
         const token = response.data.token;
         const expirationDate = Date.now() + 24 * 60 * 60 * 1000;
 
+        // Success message
+        Swal.fire({
+          icon: "success",
+          title: "Login Successful",
+          text: "Welcome back!",
+          confirmButtonColor: "#8B5CF6",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         // Dispatch the login action with token and expiration
         dispatch(
           login({
@@ -86,11 +97,21 @@ const Login = () => {
           navigate("/");
         }
       } else {
-        alert(response.data.message || "Login failed - no token received");
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: response.data.message || "Login failed - no token received",
+          confirmButtonColor: "#8B5CF6",
+        });
       }
     } catch (error) {
       console.error("Login error:", error.response?.data || error);
-      alert(error.response?.data?.message || "An error occurred during login");
+      Swal.fire({
+        icon: "error",
+        title: "Login Error",
+        text: error.response?.data?.message || "An error occurred during login",
+        confirmButtonColor: "#8B5CF6",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -117,7 +138,7 @@ const Login = () => {
                     type="email"
                     required
                     placeholder="Email address"
-                    autocomplete="email"
+                    autoComplete="email"
                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
                   />
                 </div>
@@ -128,7 +149,7 @@ const Login = () => {
                     type="password"
                     required
                     placeholder="Password"
-                    autocomplete="current-password"
+                    autoComplete="current-password"
                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
                   />
                 </div>
