@@ -10,7 +10,7 @@ let isAuthenticated = async (req, res, next) => {
       console.log("Token string invalid:", { tokenString });
       return res.status(401).json({
         success: false,
-        message: "Authorization token missing or invalid format",
+        message: "Not authenticated: Please login to continue",
       });
     }
 
