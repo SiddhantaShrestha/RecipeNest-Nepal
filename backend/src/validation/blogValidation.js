@@ -11,13 +11,10 @@ export const blogCreationValidation = Joi.object({
     "string.empty": "Description is required.",
     "string.min": "Description must be at least 10 characters long.",
   }),
-  category: Joi.string()
-    .valid("Beginner", "Cuisine", "Health", "Dessert", "Tips", "Low Carb")
-    .required()
-    .messages({
-      "string.empty": "Category is required.",
-      "any.only": "Category must be one of the predefined values.",
-    }),
+  category: Joi.string().required().messages({
+    "string.empty": "Category is required.",
+    "any.only": "Category must be one of the predefined values.",
+  }),
 });
 
 // Blog update validation schema

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import {
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
@@ -24,23 +24,43 @@ const CategoryList = () => {
   const handleCreateCategory = async (e) => {
     e.preventDefault();
     if (!name) {
-      toast.error("Category name is required");
+      Swal.fire({
+        title: "Error!",
+        text: "Category name is required",
+        icon: "error",
+        confirmButtonColor: "#9333ea",
+      });
       return;
     }
 
     try {
       const result = await createCategory({ name }).unwrap();
       setName("");
-      toast.success(`${result.name} is created`);
+      Swal.fire({
+        title: "Success!",
+        text: `${result.name} is created`,
+        icon: "success",
+        confirmButtonColor: "#9333ea",
+      });
     } catch (error) {
-      toast.error("Creating category failed, try again");
+      Swal.fire({
+        title: "Error!",
+        text: "Creating category failed, try again",
+        icon: "error",
+        confirmButtonColor: "#9333ea",
+      });
     }
   };
 
   const handleUpdateCategory = async (e) => {
     e.preventDefault();
     if (!updatingName) {
-      toast.error("Category name is required");
+      Swal.fire({
+        title: "Error!",
+        text: "Category name is required",
+        icon: "error",
+        confirmButtonColor: "#9333ea",
+      });
       return;
     }
 
@@ -50,20 +70,53 @@ const CategoryList = () => {
         updatedCategory: { name: updatingName },
       }).unwrap();
 
-      toast.success(`${result.name} is updated`);
+      Swal.fire({
+        title: "Success!",
+        text: `${result.name} is updated`,
+        icon: "success",
+        confirmButtonColor: "#9333ea",
+      });
       setModalVisible(false);
     } catch (error) {
-      toast.error("Update failed, try again.");
+      Swal.fire({
+        title: "Error!",
+        text: "Update failed, try again.",
+        icon: "error",
+        confirmButtonColor: "#9333ea",
+      });
     }
   };
 
   const handleDeleteCategory = async () => {
-    try {
-      const result = await deleteCategory(selectedCategory._id).unwrap();
-      toast.success(`${result.name} is deleted.`);
-      setModalVisible(false);
-    } catch (error) {
-      toast.error("Category deletion failed, try again.");
+    // First confirm deletion with user
+    const confirmResult = await Swal.fire({
+      title: "Are you sure?",
+      text: `Do you want to delete ${selectedCategory.name}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#9333ea",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (confirmResult.isConfirmed) {
+      try {
+        const result = await deleteCategory(selectedCategory._id).unwrap();
+        Swal.fire({
+          title: "Deleted!",
+          text: `${result.name} has been deleted.`,
+          icon: "success",
+          confirmButtonColor: "#9333ea",
+        });
+        setModalVisible(false);
+      } catch (error) {
+        Swal.fire({
+          title: "Error!",
+          text: "Category deletion failed, try again.",
+          icon: "error",
+          confirmButtonColor: "#9333ea",
+        });
+      }
     }
   };
 

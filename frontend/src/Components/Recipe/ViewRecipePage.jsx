@@ -48,40 +48,29 @@ const ViewRecipePage = () => {
 
   // Fetch ingredient-related products based on recipe ingredients
   const fetchIngredientProducts = async (ingredients) => {
-    if (!ingredients || ingredients.length === 0) return;
+    if (!ingredients?.length) return;
 
+    // Improved extraction
+    const extractMain = (text) => {
+      const withoutQty = text.replace(/^[\d./]+\s*\w*\s*/, ""); // Remove "200g", "1/2 cup", etc.
+      const main = withoutQty.split(/[, ]+/)[0].replace(/,/g, "").toLowerCase();
+      return main;
+    };
+
+    const blockedWords = new Set(["taste", "and", "or", "peeled", "smashed"]);
+
+    const ingredientKeywords = ingredients
+      .map(extractMain)
+      .filter((word) => word.length > 2 && !blockedWords.has(word));
+
+    // API call
     try {
-      // Extract ingredient names for search
-      const ingredientKeywords = ingredients.map((ingredient) => {
-        // Extract just the main ingredient name (remove quantities, etc.)
-        const mainIngredient = ingredient.split(" ").pop().replace(/,/g, "");
-        return mainIngredient;
+      const response = await axios.post("/api/products/filtered-products", {
+        keywords: [...new Set(ingredientKeywords)].slice(0, 5), // Dedupe + limit
       });
-
-      // Filter out common words that might not be actual ingredients
-      const filteredKeywords = ingredientKeywords.filter(
-        (keyword) =>
-          keyword.length > 2 &&
-          !["and", "the", "for", "cup", "teaspoon", "tablespoon"].includes(
-            keyword.toLowerCase()
-          )
-      );
-
-      // Use the product API to search for related products
-      const response = await axios.post(
-        "http://localhost:8000/api/products/filtered-products",
-        {
-          checked: [], // No category filters
-          radio: [], // No price range filters
-          keywords: filteredKeywords.slice(0, 5), // Limit to top 5 ingredients
-        }
-      );
-
-      if (response.data && response.data.products) {
-        setIngredientProducts(response.data.products.slice(0, 6)); // Limit to 6 products
-      }
+      setIngredientProducts(response.data.products?.slice(0, 6) || []);
     } catch (error) {
-      console.error("Error fetching ingredient products:", error);
+      console.error("Fetch error:", error);
     }
   };
 

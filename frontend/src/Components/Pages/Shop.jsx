@@ -19,8 +19,9 @@ const Shop = () => {
   );
 
   const categoriesQuery = useFetchCategoriesQuery();
-  const [priceFilter, setPriceFilter] = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPriceRange, setSelectedPriceRange] = useState("");
 
   const filteredProductsQuery = useGetFilteredProductsQuery({
     checked,
@@ -34,23 +35,39 @@ const Shop = () => {
   }, [categoriesQuery.data, dispatch]);
 
   useEffect(() => {
-    if (!checked.length || !radio.length) {
-      if (!filteredProductsQuery.isLoading) {
-        // Filter products based on both checked categories and price filter
-        const filteredProducts = filteredProductsQuery.data.filter(
-          (product) => {
-            // Check if the product price includes the entered price filter value
-            return (
-              product.price.toString().includes(priceFilter) ||
-              product.price === parseInt(priceFilter, 10)
-            );
-          }
-        );
+    if (!filteredProductsQuery.isLoading) {
+      // Filter products based on checked categories, price range, and search term
+      const filteredProducts = filteredProductsQuery.data?.filter((product) => {
+        // Name search filter
+        const nameMatches = product.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
 
-        dispatch(setProducts(filteredProducts));
-      }
+        // Price range filter
+        let priceMatches = true;
+        if (selectedPriceRange) {
+          const [min, max] = selectedPriceRange.split("-").map(Number);
+          if (max) {
+            priceMatches = product.price >= min && product.price <= max;
+          } else {
+            // For "X+" ranges (e.g., "1000+")
+            priceMatches = product.price >= min;
+          }
+        }
+
+        return nameMatches && priceMatches;
+      });
+
+      dispatch(setProducts(filteredProducts));
     }
-  }, [checked, radio, filteredProductsQuery.data, dispatch, priceFilter]);
+  }, [
+    checked,
+    radio,
+    filteredProductsQuery.data,
+    dispatch,
+    searchTerm,
+    selectedPriceRange,
+  ]);
 
   const handleBrandClick = (brand) => {
     const productsByBrand = filteredProductsQuery.data?.filter(
@@ -77,13 +94,17 @@ const Shop = () => {
     ),
   ];
 
-  const handlePriceChange = (e) => {
-    // Update the price filter state when the user types in the input filed
-    setPriceFilter(e.target.value);
+  const handlePriceRangeChange = (range) => {
+    setSelectedPriceRange(range);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   const resetFilters = () => {
-    setPriceFilter("");
+    setSearchTerm("");
+    setSelectedPriceRange("");
     dispatch(setChecked([]));
     window.location.reload();
   };
@@ -91,6 +112,16 @@ const Shop = () => {
   const toggleMobileSidebar = () => {
     setMobileSidebarOpen(!mobileSidebarOpen);
   };
+
+  // Define price ranges for the filter
+  const priceRanges = [
+    { label: "Under Rs50", value: "0-50" },
+    { label: "Rs50 - Rs100", value: "50-100" },
+    { label: "Rs100 - Rs200", value: "100-200" },
+    { label: "Rs200 - Rs500", value: "200-500" },
+    { label: "Rs500 - Rs1000", value: "500-1000" },
+    { label: "Rs1000+", value: "1000-" },
+  ];
 
   return (
     <div>
@@ -107,17 +138,33 @@ const Shop = () => {
             </button>
           </div>
 
+          {/* Product Search Bar - Visible on both mobile and desktop */}
+          <div className="mb-6">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaSearch className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search products by name..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Sidebar Filters */}
             <div
               className={`
-            lg:w-1/4 bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-all duration-300
-            ${
-              mobileSidebarOpen
-                ? "fixed inset-0 z-50 lg:relative lg:inset-auto"
-                : "hidden lg:block"
-            }
-          `}
+                lg:w-1/4 bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-all duration-300
+                ${
+                  mobileSidebarOpen
+                    ? "fixed inset-0 z-50 lg:relative lg:inset-auto"
+                    : "hidden lg:block"
+                }
+              `}
             >
               {/* Mobile Close Button */}
               <div className="lg:hidden flex justify-between items-center p-4 bg-gray-900 border-b border-gray-700">
@@ -199,23 +246,32 @@ const Shop = () => {
                   </div>
                 </div>
 
-                {/* Price Filter */}
+                {/* Price Range Filter */}
                 <div className="mb-8">
                   <h2 className="text-lg font-semibold text-white bg-gray-900 rounded-lg p-3 mb-4 flex items-center">
                     <span className="w-2 h-6 bg-pink-600 rounded-full mr-2"></span>
-                    Price
+                    Price Range
                   </h2>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaSearch className="text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Enter price..."
-                      value={priceFilter}
-                      onChange={handlePriceChange}
-                      className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    />
+                  <div className="space-y-3 pl-2">
+                    {priceRanges.map((range) => (
+                      <div key={range.value} className="flex items-center">
+                        <input
+                          type="radio"
+                          id={`price-${range.value}`}
+                          name="priceRange"
+                          value={range.value}
+                          checked={selectedPriceRange === range.value}
+                          onChange={() => handlePriceRangeChange(range.value)}
+                          className="w-4 h-4 text-pink-600 bg-gray-700 border-gray-600 focus:ring-pink-500 focus:ring-2"
+                        />
+                        <label
+                          htmlFor={`price-${range.value}`}
+                          className="ml-3 text-sm font-medium text-gray-300 hover:text-white cursor-pointer"
+                        >
+                          {range.label}
+                        </label>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -239,16 +295,19 @@ const Shop = () => {
                   </h1>
 
                   <div className="text-sm text-gray-400">
+                    {searchTerm && (
+                      <span className="mr-2">Search: "{searchTerm}"</span>
+                    )}
                     {checked.length > 0 && (
                       <span className="mr-2">
-                        Filtered by {checked.length}{" "}
+                        | {checked.length}{" "}
                         {checked.length === 1 ? "category" : "categories"}
                       </span>
                     )}
                     {radio.length > 0 && (
-                      <span className="mr-2">and brand</span>
+                      <span className="mr-2">| brand filtered</span>
                     )}
-                    {priceFilter && <span>and price</span>}
+                    {selectedPriceRange && <span>| price filtered</span>}
                   </div>
                 </div>
 
@@ -256,7 +315,7 @@ const Shop = () => {
                   <div className="flex justify-center items-center py-20">
                     <Loader />
                   </div>
-                ) : products.length === 0 ? (
+                ) : products?.length === 0 ? (
                   <div className="text-center py-20">
                     <p className="text-gray-400 text-lg">
                       No products match your filters

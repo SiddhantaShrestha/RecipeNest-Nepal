@@ -1,4 +1,5 @@
 import React from "react";
+import cookingImage from "../../Images/cooking.jpg";
 
 const AboutUs = () => {
   return (
@@ -28,8 +29,12 @@ const AboutUs = () => {
               food enthusiasts worldwide.
             </p>
           </div>
-          <div className="bg-gray-800 rounded-lg p-4 h-64 flex items-center justify-center">
-            <p className="text-gray-400 italic">Image Placeholder</p>
+          <div className="bg-gray-800 rounded-lg overflow-hidden h-full">
+            <img
+              src={cookingImage}
+              alt="Cooking Scene"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
 

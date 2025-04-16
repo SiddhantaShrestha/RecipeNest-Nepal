@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addRecipe } from "../../slices/recipeSlice";
 import axios from "axios";
+import Swal from "sweetalert2";
 import Navbar from "../Navbar";
 import SubNavbar from "../SubNavbar";
 
@@ -24,9 +25,7 @@ const AddRecipePage = () => {
   const [prepTimeHours, setPrepTimeHours] = useState(0);
   const [prepTimeMinutes, setPrepTimeMinutes] = useState(0);
   const [servings, setServings] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
 
   // Handle changes to the hours input field
@@ -101,14 +100,61 @@ const AddRecipePage = () => {
     }
   };
 
+  const showLoginModal = () => {
+    Swal.fire({
+      title: "Authentication Required",
+      text: "You need to be logged in to create a recipe.",
+      icon: "warning",
+      background: "#1f2937",
+      color: "#f3f4f6",
+      showCancelButton: true,
+      confirmButtonText: "Log In",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#10b981",
+      cancelButtonColor: "#4b5563",
+      customClass: {
+        popup: "border border-gray-700 rounded-lg",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/login");
+      }
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      setShowLoginModal(true);
+      showLoginModal();
       return;
     }
+
+    // Form validation
+    if (!title.trim()) {
+      Swal.fire({
+        title: "Missing Title",
+        text: "Please enter a recipe title.",
+        icon: "error",
+        background: "#1f2937",
+        color: "#f3f4f6",
+        confirmButtonColor: "#10b981",
+      });
+      return;
+    }
+
+    if (!mainImage) {
+      Swal.fire({
+        title: "Missing Image",
+        text: "Please upload a main image for your recipe.",
+        icon: "error",
+        background: "#1f2937",
+        color: "#f3f4f6",
+        confirmButtonColor: "#10b981",
+      });
+      return;
+    }
+
     setLoading(true);
-    setError("");
 
     try {
       const formData = new FormData();
@@ -153,9 +199,30 @@ const AddRecipePage = () => {
       );
 
       dispatch(addRecipe(response.data));
-      navigate("/recipes");
+
+      // Show success message
+      Swal.fire({
+        title: "Success!",
+        text: "Your recipe has been created successfully.",
+        icon: "success",
+        background: "#1f2937",
+        color: "#f3f4f6",
+        confirmButtonColor: "#10b981",
+      }).then(() => {
+        navigate("/recipes");
+      });
     } catch (err) {
-      setError(err.response?.data?.message || "Error adding recipe");
+      const errorMessage = err.response?.data?.message || "Error adding recipe";
+
+      // Show error message
+      Swal.fire({
+        title: "Error",
+        text: errorMessage,
+        icon: "error",
+        background: "#1f2937",
+        color: "#f3f4f6",
+        confirmButtonColor: "#10b981",
+      });
     } finally {
       setLoading(false);
     }
@@ -172,14 +239,41 @@ const AddRecipePage = () => {
   };
 
   const removeStep = (index) => {
-    const updatedSteps = steps.filter((_, i) => i !== index);
-    setSteps(updatedSteps);
+    // Confirm deletion with SweetAlert2
+    Swal.fire({
+      title: "Remove Step?",
+      text: `Are you sure you want to remove Step ${index + 1}?`,
+      icon: "question",
+      background: "#1f2937",
+      color: "#f3f4f6",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#4b5563",
+      confirmButtonText: "Yes, remove it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updatedSteps = steps.filter((_, i) => i !== index);
+        setSteps(updatedSteps);
+
+        // Notify step removed
+        Swal.fire({
+          title: "Removed!",
+          text: `Step ${index + 1} has been removed.`,
+          icon: "success",
+          background: "#1f2937",
+          color: "#f3f4f6",
+          confirmButtonColor: "#10b981",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+    });
   };
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      setShowLoginModal(true);
+      showLoginModal();
     }
   }, []);
 
@@ -190,11 +284,6 @@ const AddRecipePage = () => {
         <h1 className="text-3xl font-bold text-center mb-6 text-emerald-400">
           Create New Recipe
         </h1>
-        {error && (
-          <div className="bg-red-900/40 border border-red-700 rounded-lg p-4 text-center text-red-200 mb-6">
-            <p>{error}</p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Title */}
@@ -410,7 +499,35 @@ const AddRecipePage = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => removeIngredient(index)}
+                    onClick={() => {
+                      // Use SweetAlert2 for ingredient removal confirmation
+                      if (ingredients.length > 1) {
+                        Swal.fire({
+                          title: "Remove Ingredient?",
+                          text: `Are you sure you want to remove "${ingredient.name}"?`,
+                          icon: "question",
+                          background: "#1f2937",
+                          color: "#f3f4f6",
+                          showCancelButton: true,
+                          confirmButtonColor: "#ef4444",
+                          cancelButtonColor: "#4b5563",
+                          confirmButtonText: "Yes, remove it!",
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            removeIngredient(index);
+                          }
+                        });
+                      } else {
+                        Swal.fire({
+                          title: "Cannot Remove",
+                          text: "You need at least one ingredient.",
+                          icon: "warning",
+                          background: "#1f2937",
+                          color: "#f3f4f6",
+                          confirmButtonColor: "#10b981",
+                        });
+                      }
+                    }}
                     className="ml-2 p-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
                   >
                     <svg
@@ -614,34 +731,6 @@ const AddRecipePage = () => {
           </button>
         </form>
       </div>
-
-      {/* Login Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
-          <div className="bg-gray-800 p-6 rounded-lg shadow-xl w-96 border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-emerald-400">
-              Authentication Required
-            </h2>
-            <p className="mb-6 text-gray-300">
-              You need to be logged in to create a recipe.
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowLoginModal(false)}
-                className="px-4 py-2 bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => navigate("/login")}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-lg"
-              >
-                Log In
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

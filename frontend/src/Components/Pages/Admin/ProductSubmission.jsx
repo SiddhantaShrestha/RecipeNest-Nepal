@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
   useSubmitProductMutation,
   useUploadProductImageMutation,
@@ -7,6 +8,7 @@ import {
 import { useFetchCategoriesQuery } from "../../../redux/api/categoryApiSlice";
 
 const ProductSubmission = () => {
+  const navigate = useNavigate();
   const [submitProduct, { isLoading }] = useSubmitProductMutation();
   const [uploadProductImage] = useUploadProductImageMutation();
   const { data: categories } = useFetchCategoriesQuery();
@@ -38,10 +40,20 @@ const ProductSubmission = () => {
 
     try {
       const res = await uploadProductImage(formData).unwrap();
-      toast.success(res.message);
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: res.message,
+        timer: 2000,
+        showConfirmButton: false,
+      });
       setImage(res.image);
     } catch (error) {
-      toast.error(error?.data?.message || error.error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error?.data?.message || error.error,
+      });
       // Reset on error
       setImageUrl(null);
     }
@@ -52,14 +64,20 @@ const ProductSubmission = () => {
 
     // Validation
     if (!image) {
-      return toast.error("Please upload a product image");
+      return Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please upload a product image",
+      });
     }
 
     for (const field in formData) {
       if (!formData[field]) {
-        return toast.error(
-          `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
-        );
+        return Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `${field.charAt(0).toUpperCase() + field.slice(1)} is required`,
+        });
       }
     }
 
@@ -73,7 +91,16 @@ const ProductSubmission = () => {
 
       await submitProduct(submitData).unwrap();
 
-      toast.success("Product submitted for approval");
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Product submitted for approval",
+        timer: 2000,
+        showConfirmButton: false,
+      }).then(() => {
+        // Redirect to my-products page after the success alert
+        navigate("/my-products");
+      });
 
       // Reset form
       setFormData({
@@ -82,13 +109,18 @@ const ProductSubmission = () => {
         category: "",
         price: "",
         quantity: "",
+        countInStock: 0,
         description: "",
       });
       setImage("");
       setImageUrl(null);
     } catch (error) {
       console.error(error);
-      toast.error(error?.data?.error || "Failed to submit product");
+      Swal.fire({
+        icon: "error",
+        title: "Failed to submit product",
+        text: error?.data?.error || "An unexpected error occurred",
+      });
     }
   };
 
