@@ -25,8 +25,7 @@ const ViewRecipePage = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState({ text: "" });
+
   const [isPremiumRecipe, setIsPremiumRecipe] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
   const [relatedRecipes, setRelatedRecipes] = useState([]);
@@ -99,7 +98,6 @@ const ViewRecipePage = () => {
         }
 
         dispatch(setCurrentRecipe(recipeData));
-        setComments(recipeData.comments || []);
         setRatings(recipeData.ratings || []);
 
         // Fetch ingredient products once we have the recipe data
@@ -263,43 +261,6 @@ const ViewRecipePage = () => {
     } catch (error) {
       console.error("Rating submission error:", error);
       alert(error.response?.data?.message || "Failed to submit rating");
-    }
-  };
-
-  const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!newComment.text || !newComment.text.trim()) {
-      alert("Please write a comment before submitting.");
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        `http://localhost:8000/recipes/${id}/comments`,
-        { text: newComment.text },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const newCommentWithUser = {
-        ...response.data.comment,
-        user: response.data.comment.user || user,
-      };
-
-      setComments([...comments, newCommentWithUser]);
-      dispatch(
-        setCurrentRecipe({
-          ...recipe,
-          comments: [...(recipe.comments || []), newCommentWithUser],
-        })
-      );
-      setNewComment({ text: "" });
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to post comment");
     }
   };
 
@@ -525,12 +486,6 @@ const ViewRecipePage = () => {
               }`}
             >
               <FaBookmark /> {isBookmarked ? "Bookmarked" : "Bookmark"}
-            </button>
-            <button className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg border border-gray-700 hover:border-indigo-500 transition duration-300 flex items-center gap-2">
-              <FaPrint /> Print
-            </button>
-            <button className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg border border-gray-700 hover:border-indigo-500 transition duration-300 flex items-center gap-2">
-              <FaShareAlt /> Share
             </button>
           </div>
         </div>
@@ -835,62 +790,6 @@ const ViewRecipePage = () => {
                   <div className="text-center p-4 bg-gray-700 rounded-lg">
                     <p className="text-gray-400">
                       No ratings yet. Be the first to rate this recipe!
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* User Comments Section */}
-            <div className="mt-8 bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-              <h2 className="text-2xl font-bold mb-6 text-indigo-300">
-                Comments
-              </h2>
-
-              {/* Add Comment Form */}
-              <div className="mb-6">
-                <textarea
-                  placeholder="Share your experience with this recipe..."
-                  className="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  rows="3"
-                  value={newComment.text}
-                  onChange={(e) => setNewComment({ text: e.target.value })}
-                ></textarea>
-                <div className="flex justify-end mt-2">
-                  <button
-                    onClick={handleCommentSubmit}
-                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
-                  >
-                    Post Comment
-                  </button>
-                </div>
-              </div>
-
-              {/* Display Recipe Comments */}
-              <div className="space-y-6">
-                {recipe.comments && recipe.comments.length > 0 ? (
-                  recipe.comments.map((comment, index) => (
-                    <div key={index} className="p-4 bg-gray-700 rounded-lg">
-                      <div className="flex items-center mb-2">
-                        <div className="h-10 w-10 rounded-full bg-indigo-800 text-white flex items-center justify-center font-bold mr-3">
-                          {comment.user?.username?.charAt(0) || "U"}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-white">
-                            {comment.user?.username || "Anonymous"}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {new Date(comment.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-gray-300">{comment.text}</p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center p-4 bg-gray-700 rounded-lg">
-                    <p className="text-gray-400">
-                      No comments yet. Be the first to share your experience!
                     </p>
                   </div>
                 )}

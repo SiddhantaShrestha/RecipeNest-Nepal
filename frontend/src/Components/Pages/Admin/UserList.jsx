@@ -1,5 +1,12 @@
-import React, { useState } from "react";
-import { FaTrash, FaEdit, FaCheck, FaTimes, FaEye } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import {
+  FaTrash,
+  FaEdit,
+  FaCheck,
+  FaTimes,
+  FaEye,
+  FaSearch,
+} from "react-icons/fa";
 import Loader from "../../Loader.jsx";
 import { toast } from "react-toastify";
 import EditModal from "./EditModal.jsx";
@@ -24,6 +31,11 @@ const UserList = () => {
     isAdmin: false,
   });
 
+  // Search functionality
+  const [searchTerm, setSearchTerm] = useState("");
+  const [adminFilter, setAdminFilter] = useState("all");
+  const [filteredUsers, setFilteredUsers] = useState([]);
+
   // RTK Query hooks
   const {
     data: users = [],
@@ -34,6 +46,30 @@ const UserList = () => {
 
   const [updateUser, { isLoading: editLoading }] = useUpdateUserMutation();
   const [deleteUser, { isLoading: deleteLoading }] = useDeleteUserMutation();
+
+  // Filter users based on search term and admin status
+  useEffect(() => {
+    if (users.length > 0) {
+      const filtered = users.filter((user) => {
+        const matchesSearch =
+          searchTerm === "" ||
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.username.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesAdminFilter =
+          adminFilter === "all" ||
+          (adminFilter === "admin" && user.isAdmin) ||
+          (adminFilter === "user" && !user.isAdmin);
+
+        return matchesSearch && matchesAdminFilter;
+      });
+
+      setFilteredUsers(filtered);
+    } else {
+      setFilteredUsers([]);
+    }
+  }, [users, searchTerm, adminFilter]);
 
   // View user details
   const handleViewUser = async (userId) => {
@@ -225,6 +261,51 @@ const UserList = () => {
           </button>
         </div>
 
+        {/* Search and filter section */}
+        <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaSearch className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-10 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Search by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <select
+                className="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={adminFilter}
+                onChange={(e) => setAdminFilter(e.target.value)}
+              >
+                <option value="all">All Users</option>
+                <option value="admin">Admin Only</option>
+                <option value="user">Regular Users Only</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-end space-x-2">
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setAdminFilter("all");
+                }}
+                className="px-4 py-2 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+              >
+                Clear Filters
+              </button>
+              <span className="text-gray-400 ml-2">
+                {filteredUsers.length} results
+              </span>
+            </div>
+          </div>
+        </div>
+
         {fetchLoading ? (
           <div className="flex justify-center py-20">
             <Loader />
@@ -261,8 +342,8 @@ const UserList = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-gray-800 divide-y divide-gray-700">
-                  {users.length > 0 ? (
-                    users.map((user) => (
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => (
                       <tr
                         key={user._id}
                         className="hover:bg-gray-700/50 transition-colors"
@@ -321,7 +402,9 @@ const UserList = () => {
                         colSpan="6"
                         className="px-6 py-10 text-center text-gray-400"
                       >
-                        No users found
+                        {searchTerm || adminFilter !== "all"
+                          ? "No users found matching your search criteria"
+                          : "No users found"}
                       </td>
                     </tr>
                   )}

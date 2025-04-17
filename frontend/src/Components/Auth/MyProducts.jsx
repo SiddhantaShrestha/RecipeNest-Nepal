@@ -43,20 +43,20 @@ const MyProducts = () => {
     switch (status) {
       case "approved":
         return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-900/50 text-emerald-300">
             <FaCheckCircle className="mr-1" /> Approved
           </span>
         );
       case "rejected":
         return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-900/50 text-red-300">
             <FaTimesCircle className="mr-1" /> Rejected
           </span>
         );
       case "pending":
       default:
         return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-900/50 text-yellow-300">
             <FaExclamationCircle className="mr-1" /> Pending
           </span>
         );
@@ -92,70 +92,94 @@ const MyProducts = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-900 text-gray-200">
       <SubNavbar />
 
-      <div className="container mx-auto px-4 max-w-6xl py-8">
-        <div className="bg-gray-900 rounded-xl shadow-lg overflow-hidden">
-          <div className="border-b border-gray-800 bg-gray-800 px-6 py-4 flex justify-between items-center">
-            <div>
-              <h1 className="text-xl font-bold text-white">
-                My Product Submissions
-              </h1>
-              <p className="text-gray-400 mt-1">
-                View and manage your product submissions
-              </p>
+      <div className="max-w-6xl mx-auto p-6">
+        <h2 className="text-3xl mb-8 text-center font-bold text-emerald-400 border-b border-gray-700 pb-4">
+          My Product Submissions
+        </h2>
+
+        <div className="flex justify-end mb-6">
+          <Link
+            to="/product-submission"
+            className="flex items-center bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg transition duration-200"
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              ></path>
+            </svg>
+            Submit New Product
+          </Link>
+        </div>
+
+        {data?.length === 0 ? (
+          <div className="text-center py-16 bg-gray-800/50 rounded-xl border border-gray-700">
+            <div className="mb-4 text-gray-500 text-5xl">
+              <FaExclamationCircle className="mx-auto" />
             </div>
+            <h3 className="text-xl font-medium text-gray-300 mb-2">
+              No products submitted yet
+            </h3>
+            <p className="text-gray-400 max-w-md mx-auto mb-6">
+              You haven't submitted any products for approval yet.
+            </p>
             <Link
               to="/product-submission"
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="py-3 px-6 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition duration-200 inline-flex items-center"
             >
-              Submit New Product
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                ></path>
+              </svg>
+              Submit Your First Product
             </Link>
           </div>
-
-          {data?.length === 0 ? (
-            <div className="p-8 text-center">
-              <div className="mb-4 text-gray-500 text-5xl">
-                <FaExclamationCircle className="mx-auto" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-300 mb-2">
-                No products submitted yet
-              </h3>
-              <p className="text-gray-400 mb-6">
-                You haven't submitted any products for approval yet.
-              </p>
-              <Link
-                to="/submit-product"
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                Submit Your First Product
-              </Link>
-            </div>
-          ) : (
-            <>
+        ) : (
+          <>
+            <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-800">
+                <table className="min-w-full divide-y divide-gray-700">
                   <thead className="bg-gray-800">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase tracking-wider">
                         Product
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase tracking-wider">
                         Price
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase tracking-wider">
                         Date Submitted
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-medium text-emerald-400 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-800">
+                  <tbody className="divide-y divide-gray-700">
                     {currentProducts?.map((product) => {
                       const adminReview = getAdminReview(product);
                       return (
@@ -166,18 +190,22 @@ const MyProducts = () => {
                           >
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <div className="h-10 w-10 flex-shrink-0">
+                                <div className="h-12 w-12 flex-shrink-0 border border-gray-600 rounded-md overflow-hidden">
                                   <img
-                                    className="h-10 w-10 rounded-md object-cover"
+                                    className="h-12 w-12 object-cover"
                                     src={`http://localhost:8000${product.image}`}
                                     alt={product.name}
+                                    onError={(e) =>
+                                      (e.target.src =
+                                        "https://via.placeholder.com/100?text=Product")
+                                    }
                                   />
                                 </div>
                                 <div className="ml-4">
                                   <div className="text-sm font-medium text-white">
                                     {product.name}
                                   </div>
-                                  <div className="text-sm text-gray-400">
+                                  <div className="text-xs text-gray-400">
                                     {product.brand}
                                   </div>
                                 </div>
@@ -200,7 +228,7 @@ const MyProducts = () => {
                                         : product._id
                                     )
                                   }
-                                  className="mt-2 inline-flex items-center text-xs text-blue-400 hover:text-blue-300"
+                                  className="mt-2 inline-flex items-center text-xs text-emerald-400 hover:text-emerald-300"
                                 >
                                   <FaCommentAlt className="mr-1" />
                                   {expandedReview === product._id
@@ -214,7 +242,7 @@ const MyProducts = () => {
                               <div className="text-sm text-gray-300">
                                 Rs{product.price.toFixed(2)}
                               </div>
-                              <div className="text-sm text-gray-400">
+                              <div className="text-xs text-gray-400">
                                 Qty: {product.quantity}
                               </div>
                             </td>
@@ -225,28 +253,50 @@ const MyProducts = () => {
                               <div className="flex justify-end space-x-2">
                                 <Link
                                   to={`/product/${product._id}`}
-                                  className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded hover:bg-blue-600/30 transition-colors"
-                                  title="View"
+                                  className="p-1.5 bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors flex items-center"
                                 >
-                                  View
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                    ></path>
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                    ></path>
+                                  </svg>
                                 </Link>
-
-                                <button
-                                  onClick={() => handleDelete(product._id)}
-                                  className="px-2 py-1 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
-                                  title="Delete"
-                                >
-                                  <FaTrash />
-                                </button>
 
                                 {/* Only show Edit button for pending or rejected products */}
                                 {product.approvalStatus !== "approved" && (
                                   <Link
                                     to={`/edit-product/${product._id}`}
-                                    className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded hover:bg-yellow-600/30 transition-colors"
-                                    title="Edit"
+                                    className="p-1.5 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors flex items-center"
                                   >
-                                    <FaEdit />
+                                    <svg
+                                      className="w-4 h-4"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                      ></path>
+                                    </svg>
                                   </Link>
                                 )}
 
@@ -254,10 +304,22 @@ const MyProducts = () => {
                                 {product.approvalStatus !== "approved" && (
                                   <button
                                     onClick={() => handleDelete(product._id)}
-                                    className="px-2 py-1 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
-                                    title="Delete"
+                                    className="p-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center"
                                   >
-                                    <FaTrash />
+                                    <svg
+                                      className="w-4 h-4"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                      ></path>
+                                    </svg>
                                   </button>
                                 )}
                               </div>
@@ -267,7 +329,7 @@ const MyProducts = () => {
                           {expandedReview === product._id && adminReview && (
                             <tr className="bg-gray-800/30">
                               <td colSpan="5" className="px-6 py-4">
-                                <div className="bg-gray-800 rounded-lg p-4">
+                                <div className="bg-gray-800 rounded-lg p-4 border border-emerald-900/50">
                                   <div className="flex items-center justify-between mb-2">
                                     <h4 className="text-white font-medium">
                                       Admin Review
@@ -291,7 +353,7 @@ const MyProducts = () => {
               </div>
 
               {totalPages > 1 && (
-                <div className="px-6 py-4 border-t border-gray-800">
+                <div className="px-6 py-4 border-t border-gray-700">
                   <Pagination
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}
@@ -299,48 +361,48 @@ const MyProducts = () => {
                   />
                 </div>
               )}
-            </>
-          )}
-        </div>
+            </div>
 
-        {/* Submission Status Legend */}
-        {data?.length > 0 && (
-          <div className="mt-8 bg-gray-900 rounded-xl shadow-lg overflow-hidden">
-            <div className="border-b border-gray-800 bg-gray-800 px-6 py-4">
-              <h2 className="text-lg font-bold text-white">
-                Understanding Product Status
-              </h2>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">{getStatusBadge("pending")}</div>
-                <p className="text-gray-300">
-                  Your product is awaiting admin review. This usually takes 1-2
-                  business days.
-                </p>
+            {/* Submission Status Legend */}
+            <div className="mt-8 bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700">
+              <div className="border-b border-gray-700 px-6 py-4">
+                <h2 className="text-lg font-bold text-emerald-400">
+                  Understanding Product Status
+                </h2>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  {getStatusBadge("approved")}
+              <div className="p-6 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    {getStatusBadge("pending")}
+                  </div>
+                  <p className="text-gray-300">
+                    Your product is awaiting admin review. This usually takes
+                    1-2 business days.
+                  </p>
                 </div>
-                <p className="text-gray-300">
-                  Your product has been approved and is now visible to customers
-                  in the store. Approved products cannot be edited or deleted.
-                  Click "Show Admin Review" to see the admin's rating and
-                  comments.
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  {getStatusBadge("rejected")}
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    {getStatusBadge("approved")}
+                  </div>
+                  <p className="text-gray-300">
+                    Your product has been approved and is now visible to
+                    customers in the store. Approved products cannot be edited
+                    or deleted. Click "Show Admin Review" to see the admin's
+                    rating and comments.
+                  </p>
                 </div>
-                <p className="text-gray-300">
-                  Your product was not approved. Please check the admin
-                  feedback, make necessary changes, and resubmit.
-                </p>
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    {getStatusBadge("rejected")}
+                  </div>
+                  <p className="text-gray-300">
+                    Your product was not approved. Please check the admin
+                    feedback, make necessary changes, and resubmit.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>

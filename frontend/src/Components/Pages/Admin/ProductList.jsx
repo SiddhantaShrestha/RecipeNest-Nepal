@@ -172,7 +172,7 @@ const ProductList = () => {
                     htmlFor="price"
                     className="block text-sm font-medium text-gray-300 mb-1"
                   >
-                    Price ($)
+                    Price (Rs)
                   </label>
                   <input
                     id="price"
