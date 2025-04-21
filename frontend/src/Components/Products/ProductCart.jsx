@@ -1,3 +1,5 @@
+"use client";
+
 import { Link } from "react-router-dom";
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import { useDispatch } from "react-redux";
@@ -11,33 +13,38 @@ const ProductCard = ({ p }) => {
   const addToCartHandler = (product, qty) => {
     dispatch(addToCart({ ...product, qty }));
     toast.success("Item added successfully", {
-      position: "top-right", // Changed from toast.POSITION.TOP_RIGHT
+      position: "top-right",
       autoClose: 2000,
     });
   };
 
   return (
-    <div className="max-w-sm relative bg-[#1A1A1A] rounded-lg shaodw dark:bg-gray-800 dark:border-gray-700">
+    <div className="relative bg-gray-900 rounded-xl overflow-hidden border border-gray-800 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-gray-700 flex flex-col h-full">
       <section className="relative">
         <Link to={`/product/${p._id}`}>
-          <span className="absolute bottom-3 right-3 bg-pink-100 text-pink-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-pink-900 dark:text-pink-300">
+          <div className="overflow-hidden">
+            <img
+              className="cursor-pointer w-full transition-transform duration-500 hover:scale-110"
+              src={`http://localhost:8000${p.image}`}
+              alt={p.name}
+              style={{ height: "200px", objectFit: "cover" }}
+            />
+          </div>
+          <span className="absolute bottom-3 right-3 bg-pink-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-md">
             {p?.brand}
           </span>
-          <img
-            className="cursor-pointer w-full"
-            src={`http://localhost:8000${p.image}`}
-            alt={p.name}
-            style={{ height: "170px", objectFit: "cover" }}
-          />
         </Link>
-        <HeartIcon product={p} />
+        <div className="absolute top-3 left-3">
+          <HeartIcon product={p} />
+        </div>
       </section>
 
-      <div className="p-5">
-        <div className="flex justify-between">
-          <h5 className="mb-2 text-xl text-whiet dark:text-white">{p?.name}</h5>
-
-          <p className="text-black font-semibold text-pink-500">
+      <div className="p-5 flex flex-col flex-grow">
+        <div className="flex justify-between items-start mb-2">
+          <h5 className="text-xl font-semibold text-white line-clamp-1">
+            {p?.name}
+          </h5>
+          <p className="text-pink-500 font-bold ml-2">
             {p?.price?.toLocaleString("ne-NP", {
               style: "currency",
               currency: "NPR",
@@ -45,14 +52,14 @@ const ProductCard = ({ p }) => {
           </p>
         </div>
 
-        <p className="mb-3 font-normal text-[#CFCFCF]">
-          {p?.description?.substring(0, 60)} ...
+        <p className="mb-4 text-gray-400 text-sm line-clamp-2 flex-grow">
+          {p?.description?.substring(0, 80)} ...
         </p>
 
-        <section className="flex justify-between items-center">
+        <section className="flex justify-between items-center mt-auto pt-3 border-t border-gray-800">
           <Link
             to={`/product/${p._id}`}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-pink-700 rounded-lg hover:bg-pink-800 focus:ring-4 focus:outline-none focus:ring-pink-300 dark:bg-pink-600 dark:hover:bg-pink-700 dark:focus:ring-pink-800"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-pink-600 rounded-lg hover:bg-pink-700 transition-colors duration-300 shadow-md hover:shadow-lg"
           >
             View Details
             <svg
@@ -73,10 +80,11 @@ const ProductCard = ({ p }) => {
           </Link>
 
           <button
-            className="p-2 rounded-full"
+            className="p-3 rounded-full bg-gray-800 hover:bg-gray-700 text-white transition-colors duration-300 shadow-md hover:shadow-lg"
             onClick={() => addToCartHandler(p, 1)}
+            aria-label="Add to cart"
           >
-            <AiOutlineShoppingCart size={25} />
+            <AiOutlineShoppingCart size={22} />
           </button>
         </section>
       </div>

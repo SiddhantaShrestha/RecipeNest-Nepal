@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -5,6 +7,17 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../Components/Loader";
 import SubNavbar from "../SubNavbar";
+import {
+  FaCrown,
+  FaCheck,
+  FaTimes,
+  FaLock,
+  FaUnlock,
+  FaRegCreditCard,
+  FaShieldAlt,
+  FaBolt,
+  FaGem,
+} from "react-icons/fa";
 
 const PremiumSubscription = () => {
   const [selectedPlan, setSelectedPlan] = useState("monthly");
@@ -216,7 +229,10 @@ const PremiumSubscription = () => {
   useEffect(() => {
     return () => {
       const startTime = localStorage.getItem("premiumStartTime");
-      if (startTime && Date.now() - parseInt(startTime) > 30 * 60 * 1000) {
+      if (
+        startTime &&
+        Date.now() - Number.parseInt(startTime) > 30 * 60 * 1000
+      ) {
         localStorage.removeItem("premiumTransactionId");
         localStorage.removeItem("premiumUserId");
         localStorage.removeItem("premiumAmount");
@@ -225,51 +241,59 @@ const PremiumSubscription = () => {
     };
   }, []);
 
+  // Benefits data
+  const benefits = [
+    {
+      icon: <FaUnlock className="h-5 w-5 text-emerald-400" />,
+      title: "Ad-Free Experience",
+      description: "Enjoy browsing without any advertisements or distractions.",
+    },
+    {
+      icon: <FaGem className="h-5 w-5 text-emerald-400" />,
+      title: "Exclusive Recipes",
+      description:
+        "Access premium recipes that are only available to subscribers.",
+    },
+
+    {
+      icon: <FaBolt className="h-5 w-5 text-emerald-400" />,
+      title: "Early Access",
+      description:
+        "Be the first to try new features before they're released to everyone.",
+    },
+  ];
+
   if (!authToken) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-[#0f0f10]">
-        <div className="w-full max-w-md bg-gradient-to-b from-[#1a1a1c] to-[#141416] rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
-          <div className="bg-blue-900/20 p-6 border-b border-gray-800">
-            <h2 className="text-3xl font-bold text-blue-400 text-center">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-gray-900 to-gray-950">
+        <div className="w-full max-w-md bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
+          <div className="bg-gradient-to-r from-emerald-900/30 to-teal-900/30 p-8 border-b border-gray-800 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-900/40 rounded-full mb-4">
+              <FaCrown className="h-8 w-8 text-emerald-400" />
+            </div>
+            <h2 className="text-3xl font-bold text-emerald-400">
               Premium Access
             </h2>
-            <p className="text-gray-400 text-center mt-2">
+            <p className="text-gray-400 text-sm mt-2">
               Login to unlock premium features
             </p>
           </div>
           <div className="p-8">
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-blue-900/20 rounded-full flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-blue-400"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
+            <div className="space-y-4 mb-8">
+              {benefits.map((benefit, index) => (
+                <div key={index} className="flex items-center">
+                  <div className="flex-shrink-0 w-8 h-8 bg-emerald-900/20 rounded-full flex items-center justify-center mr-3">
+                    {benefit.icon}
+                  </div>
+                  <div className="text-gray-300">{benefit.title}</div>
+                </div>
+              ))}
             </div>
             <button
               onClick={() => navigate("/login")}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 flex items-center justify-center font-semibold text-lg shadow-lg"
+              className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 rounded-lg hover:from-emerald-500 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center font-semibold text-lg shadow-lg"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H16a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <FaLock className="h-5 w-5 mr-2" />
               Login to Continue
             </button>
           </div>
@@ -280,49 +304,58 @@ const PremiumSubscription = () => {
 
   if (premiumStatus?.isPremium) {
     return (
-      <div className="bg-[#0f0f10] min-h-screen">
+      <div className="bg-gradient-to-b from-gray-900 to-gray-950 min-h-screen">
         <SubNavbar />
         <div className="max-w-lg mx-auto my-10 px-4">
-          <div className="bg-gradient-to-b from-[#1a1a1c] to-[#141416] rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-900/30 to-blue-900/30 p-6 border-b border-gray-800">
-              <h2 className="text-3xl font-bold text-green-400 text-center">
+          <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-900/30 to-teal-900/30 p-8 border-b border-gray-800 text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-900/40 rounded-full mb-4">
+                <FaCrown className="h-10 w-10 text-emerald-400" />
+              </div>
+              <h2 className="text-3xl font-bold text-emerald-400">
                 Premium Member
               </h2>
-              <p className="text-gray-300 text-center mt-2">
+              <p className="text-gray-300 text-sm mt-2">
                 Thank you for your support!
               </p>
             </div>
             <div className="p-8">
-              <div className="flex justify-center mb-6">
-                <div className="w-24 h-24 bg-green-900/20 rounded-full flex items-center justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 text-green-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
               <div className="text-center mb-8">
-                <p className="text-xl mb-2 text-gray-300">
-                  Your premium membership is active
-                </p>
-                <div className="bg-[#0f0f10] rounded-lg p-4 inline-block">
-                  <p className="text-gray-400">Expires on:</p>
-                  <p className="text-2xl font-bold text-green-400">
-                    {new Date(premiumStatus.expiryDate).toLocaleDateString()}
+                <div className="inline-block bg-gradient-to-r from-emerald-900/20 to-teal-900/20 rounded-xl p-6 mb-6">
+                  <p className="text-gray-400 mb-1">
+                    Your premium membership is active until
                   </p>
+                  <p className="text-2xl font-bold text-emerald-400">
+                    {new Date(premiumStatus.expiryDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                  {benefits.map((benefit, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center bg-gray-800/50 p-3 rounded-lg"
+                    >
+                      <div className="flex-shrink-0 w-8 h-8 bg-emerald-900/20 rounded-full flex items-center justify-center mr-2">
+                        {benefit.icon}
+                      </div>
+                      <div className="text-sm text-gray-300">
+                        {benefit.title}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
               <button
                 onClick={() => navigate("/my-profile")}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 flex items-center justify-center font-semibold text-lg shadow-lg"
+                className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 rounded-lg hover:from-emerald-500 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center font-semibold text-lg shadow-lg"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -347,22 +380,29 @@ const PremiumSubscription = () => {
 
   if (paymentStatus === "processing") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-[#0f0f10]">
-        <div className="w-full max-w-md bg-gradient-to-b from-[#1a1a1c] to-[#141416] rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
-          <div className="bg-blue-900/20 p-6 border-b border-gray-800">
-            <h2 className="text-3xl font-bold text-blue-400 text-center">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-gray-900 to-gray-950">
+        <div className="w-full max-w-md bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
+          <div className="bg-gradient-to-r from-emerald-900/30 to-teal-900/30 p-8 border-b border-gray-800 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-900/40 rounded-full mb-4 animate-pulse">
+              <FaRegCreditCard className="h-8 w-8 text-emerald-400" />
+            </div>
+            <h2 className="text-3xl font-bold text-emerald-400">
               Processing Payment
             </h2>
+            <p className="text-gray-400 text-sm mt-2">
+              Please wait while we verify your transaction
+            </p>
           </div>
           <div className="p-8">
             <div className="flex flex-col items-center justify-center py-6">
               <Loader />
               <p className="mt-6 text-gray-400 text-center">
-                Please wait while we verify your payment...
+                We're confirming your payment with our payment provider. This
+                may take a moment...
               </p>
-              <div className="w-full bg-[#0f0f10] mt-6 p-4 rounded-lg">
-                <div className="h-2 bg-blue-900/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500 animate-pulse rounded-full"></div>
+              <div className="w-full bg-gray-900 mt-6 p-4 rounded-lg">
+                <div className="h-2 bg-emerald-900/30 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 animate-pulse rounded-full w-3/4"></div>
                 </div>
               </div>
             </div>
@@ -374,50 +414,56 @@ const PremiumSubscription = () => {
 
   if (paymentStatus === "success") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-[#0f0f10]">
-        <div className="w-full max-w-md bg-gradient-to-b from-[#1a1a1c] to-[#141416] rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
-          <div className="bg-gradient-to-r from-green-900/30 to-blue-900/30 p-6 border-b border-gray-800">
-            <h2 className="text-3xl font-bold text-green-400 text-center">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-gray-900 to-gray-950">
+        <div className="w-full max-w-md bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
+          <div className="bg-gradient-to-r from-emerald-900/30 to-teal-900/30 p-8 border-b border-gray-800 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-900/40 rounded-full mb-4 animate-bounce">
+              <FaCheck className="h-10 w-10 text-emerald-400" />
+            </div>
+            <h2 className="text-3xl font-bold text-emerald-400">
               Payment Successful!
             </h2>
+            <p className="text-gray-300 text-sm mt-2">
+              Your premium subscription is now active
+            </p>
           </div>
           <div className="p-8">
-            <div className="flex justify-center mb-6">
-              <div className="w-24 h-24 bg-green-900/20 rounded-full flex items-center justify-center animate-pulse">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-12 w-12 text-green-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-            </div>
             <div className="text-center mb-8">
-              <p className="text-xl mb-4 text-gray-300">
-                Your premium subscription has been activated
-              </p>
-              {premiumStatus?.expiryDate && (
-                <div className="bg-[#0f0f10] rounded-lg p-4">
-                  <p className="text-gray-400">
-                    Your premium access will expire on:
+              <div className="inline-block bg-gradient-to-r from-emerald-900/20 to-teal-900/20 rounded-xl p-6 mb-6">
+                <p className="text-gray-400 mb-1">
+                  Your premium access will expire on
+                </p>
+                {premiumStatus?.expiryDate && (
+                  <p className="text-2xl font-bold text-emerald-400">
+                    {new Date(premiumStatus.expiryDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )}
                   </p>
-                  <p className="text-2xl font-bold text-green-400">
-                    {new Date(premiumStatus.expiryDate).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {benefits.slice(0, 4).map((benefit, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center bg-gray-800/50 p-3 rounded-lg"
+                  >
+                    <div className="flex-shrink-0 w-8 h-8 bg-emerald-900/20 rounded-full flex items-center justify-center mr-2">
+                      {benefit.icon}
+                    </div>
+                    <div className="text-sm text-gray-300">{benefit.title}</div>
+                  </div>
+                ))}
+              </div>
             </div>
             <button
               onClick={() => navigate("/profile")}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 flex items-center justify-center font-semibold text-lg shadow-lg"
+              className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 rounded-lg hover:from-emerald-500 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center font-semibold text-lg shadow-lg"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -441,39 +487,25 @@ const PremiumSubscription = () => {
 
   if (paymentStatus === "failed") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-[#0f0f10]">
-        <div className="w-full max-w-md bg-gradient-to-b from-[#1a1a1c] to-[#141416] rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
-          <div className="bg-red-900/20 p-6 border-b border-gray-800">
-            <h2 className="text-3xl font-bold text-red-400 text-center">
-              Payment Failed
-            </h2>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-gray-900 to-gray-950">
+        <div className="w-full max-w-md bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
+          <div className="bg-gradient-to-r from-red-900/30 to-red-800/30 p-8 border-b border-gray-800 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-red-900/30 rounded-full mb-4">
+              <FaTimes className="h-10 w-10 text-red-400" />
+            </div>
+            <h2 className="text-3xl font-bold text-red-400">Payment Failed</h2>
+            <p className="text-gray-300 text-sm mt-2">
+              We couldn't process your payment
+            </p>
           </div>
           <div className="p-8">
-            <div className="flex justify-center mb-6">
-              <div className="w-24 h-24 bg-red-900/20 rounded-full flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-12 w-12 text-red-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div className="text-center mb-8">
-              <p className="text-xl mb-2 text-gray-300">
-                We couldn't process your payment
+            <div className="bg-red-900/10 border border-red-900/30 rounded-xl p-4 mb-8">
+              <p className="text-gray-300 mb-2">
+                The transaction was declined or interrupted.
               </p>
-              <p className="text-gray-500">
-                The transaction was declined or interrupted. Please try again or
-                contact support.
+              <p className="text-gray-400 text-sm">
+                This could be due to insufficient funds, network issues, or a
+                timeout. Please try again or use a different payment method.
               </p>
             </div>
             <button
@@ -481,7 +513,7 @@ const PremiumSubscription = () => {
                 setPaymentStatus(null);
                 window.location.reload();
               }}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 flex items-center justify-center font-semibold text-lg shadow-lg"
+              className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 rounded-lg hover:from-emerald-500 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center font-semibold text-lg shadow-lg"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -505,23 +537,27 @@ const PremiumSubscription = () => {
 
   // Main subscription page
   return (
-    <div className="bg-[#0f0f10] min-h-screen">
+    <div className="bg-gradient-to-b from-gray-900 to-gray-950 min-h-screen text-gray-200">
       <SubNavbar />
-      <div className="max-w-5xl mx-auto py-12 px-4">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 inline-block text-transparent bg-clip-text">
-            Upgrade Your Experience
+      <div className="max-w-6xl mx-auto py-12 px-4">
+        <div className="mb-12 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-900/30 rounded-full mb-6">
+            <FaCrown className="h-10 w-10 text-emerald-400" />
+          </div>
+          <h1 className="text-4xl font-bold text-emerald-400 mb-3">
+            Upgrade to Premium
           </h1>
-          <p className="text-gray-400 mt-2">
-            Unlock premium features and take your experience to the next level
+          <p className="text-gray-400 max-w-2xl mx-auto">
+            Unlock exclusive features and take your experience to the next level
+            with our premium subscription
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {/* Plans */}
-          <div className="bg-gradient-to-b from-[#1a1a1c] to-[#141416] rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
-            <div className="p-6 border-b border-gray-800">
-              <h2 className="text-2xl font-bold text-blue-400">
+          <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl shadow-2xl border border-gray-800 overflow-hidden transform transition-all duration-300 hover:shadow-emerald-900/20 hover:-translate-y-1">
+            <div className="bg-gradient-to-r from-emerald-900/30 to-teal-900/30 p-6 border-b border-gray-800">
+              <h2 className="text-2xl font-bold text-emerald-400">
                 Choose Your Plan
               </h2>
               <p className="text-gray-400 mt-1">
@@ -529,73 +565,51 @@ const PremiumSubscription = () => {
               </p>
             </div>
 
-            <div className="p-6">
-              <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="p-8">
+              <div className="grid grid-cols-2 gap-6 mb-8">
                 <div
-                  className={`p-5 border rounded-xl cursor-pointer transition-all duration-300 relative ${
+                  className={`p-4 border rounded-xl cursor-pointer transition-all duration-300 relative ${
                     selectedPlan === "monthly"
-                      ? "border-blue-500 bg-blue-900/20"
+                      ? "border-emerald-500 bg-emerald-900/20"
                       : "border-gray-700 hover:border-gray-500"
                   }`}
                   onClick={() => setSelectedPlan("monthly")}
                 >
                   {selectedPlan === "monthly" && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-white"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                      <FaCheck className="h-4 w-4 text-white" />
                     </div>
                   )}
                   <div className="mb-2">
-                    <span className="bg-blue-900/30 text-blue-400 text-xs font-medium px-2.5 py-0.5 rounded">
+                    <span className="bg-emerald-900/30 text-emerald-400 text-xs font-medium px-2.5 py-1 rounded-full">
                       MONTHLY
                     </span>
                   </div>
                   <div className="flex items-baseline mb-1">
                     <span className="text-3xl font-bold text-white">Rs 50</span>
-                    <span className="text-gray-400 ml-1">/month</span>
+                    <span className="text-gray-400 ml-1 text-sm">/month</span>
                   </div>
-                  <p className="text-sm text-gray-400">Billed monthly</p>
+                  <p className="text-xs text-gray-400">Billed monthly</p>
                 </div>
 
                 <div
-                  className={`p-5 border rounded-xl cursor-pointer transition-all duration-300 relative ${
+                  className={`p-4 border rounded-xl cursor-pointer transition-all duration-300 relative ${
                     selectedPlan === "yearly"
-                      ? "border-blue-500 bg-blue-900/20"
+                      ? "border-emerald-500 bg-emerald-900/20"
                       : "border-gray-700 hover:border-gray-500"
                   }`}
                   onClick={() => setSelectedPlan("yearly")}
                 >
                   {selectedPlan === "yearly" && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-white"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                      <FaCheck className="h-4 w-4 text-white" />
                     </div>
                   )}
                   <div className="mb-2 flex justify-between items-center">
-                    <span className="bg-blue-900/30 text-blue-400 text-xs font-medium px-2.5 py-0.5 rounded">
+                    <span className="bg-emerald-900/30 text-emerald-400 text-xs font-medium px-2 py-1 rounded-full">
                       YEARLY
                     </span>
-                    <span className="bg-green-900/30 text-green-400 text-xs font-medium px-2.5 py-0.5 rounded">
+                    <span className="bg-green-900/30 text-green-400 text-xs font-medium px-2 py-1 rounded-full">
                       SAVE 50%
                     </span>
                   </div>
@@ -603,9 +617,9 @@ const PremiumSubscription = () => {
                     <span className="text-3xl font-bold text-white">
                       Rs 100
                     </span>
-                    <span className="text-gray-400 ml-1">/year</span>
+                    <span className="text-gray-400 ml-1 text-sm">/year</span>
                   </div>
-                  <p className="text-sm text-gray-400">Best value</p>
+                  <p className="text-xs text-gray-400">Best value</p>
                 </div>
               </div>
 
@@ -616,31 +630,27 @@ const PremiumSubscription = () => {
               ) : (
                 <button
                   onClick={handleSubscribe}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 flex items-center justify-center font-semibold text-lg shadow-lg"
+                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 rounded-lg hover:from-emerald-500 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center font-semibold text-lg shadow-lg"
                   disabled={isProcessing}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <FaRegCreditCard className="h-5 w-5 mr-2" />
                   Subscribe with eSewa
                 </button>
               )}
+
+              <div className="mt-6 text-center">
+                <p className="text-xs text-gray-500">
+                  By subscribing, you agree to our Terms of Service and Privacy
+                  Policy
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Benefits */}
-          <div className="bg-gradient-to-b from-[#1a1a1c] to-[#141416] rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
-            <div className="p-6 border-b border-gray-800">
-              <h2 className="text-2xl font-bold text-blue-400">
+          <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl shadow-2xl border border-gray-800 overflow-hidden transform transition-all duration-300 hover:shadow-emerald-900/20 hover:-translate-y-1">
+            <div className="bg-gradient-to-r from-emerald-900/30 to-teal-900/30 p-6 border-b border-gray-800">
+              <h2 className="text-2xl font-bold text-emerald-400">
                 Premium Benefits
               </h2>
               <p className="text-gray-400 mt-1">
@@ -648,112 +658,134 @@ const PremiumSubscription = () => {
               </p>
             </div>
 
-            <div className="p-6">
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-blue-900/20 rounded-full flex items-center justify-center mr-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-400"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-300">
-                      Ad-Free Experience
-                    </h3>
-                    <p className="text-gray-400">
-                      Enjoy browsing without any advertisements or distractions.
-                    </p>
-                  </div>
-                </li>
+            <div className="p-8">
+              <ul className="space-y-6">
+                {benefits.map((benefit, index) => (
+                  <li key={index} className="flex items-start">
+                    <div className="flex-shrink-0 w-12 h-12 bg-emerald-900/20 rounded-full flex items-center justify-center mr-4">
+                      <div className="w-10 h-10 flex items-center justify-center">
+                        {benefit.icon}
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-1">
+                        {benefit.title}
+                      </h3>
+                      <p className="text-gray-400">{benefit.description}</p>
+                    </div>
+                  </li>
+                ))}
 
                 <li className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-blue-900/20 rounded-full flex items-center justify-center mr-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-400"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                  <div className="flex-shrink-0 w-12 h-12 bg-emerald-900/20 rounded-full flex items-center justify-center mr-4">
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <FaShieldAlt className="h-5 w-5 text-emerald-400" />
+                    </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-300">
-                      Exclusive Recipes
+                    <h3 className="text-lg font-semibold text-white mb-1">
+                      100% Secure Payments
                     </h3>
                     <p className="text-gray-400">
-                      Access premium recipes that are only available to
-                      subscribers.
-                    </p>
-                  </div>
-                </li>
-
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-blue-900/20 rounded-full flex items-center justify-center mr-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-400"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-300">
-                      Priority Support
-                    </h3>
-                    <p className="text-gray-400">
-                      Get fast responses from our dedicated support team.
-                    </p>
-                  </div>
-                </li>
-
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-blue-900/20 rounded-full flex items-center justify-center mr-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-400"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-300">
-                      Early Access
-                    </h3>
-                    <p className="text-gray-400">
-                      Be the first to try new features before they're released
-                      to everyone.
+                      All transactions are processed securely through our
+                      trusted payment partners.
                     </p>
                   </div>
                 </li>
               </ul>
             </div>
+          </div>
+        </div>
+
+        {/* Testimonials */}
+        <div className="mt-16 text-center">
+          <h2 className="text-2xl font-bold text-emerald-400 mb-8">
+            What Our Premium Members Say
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {[
+              {
+                name: "Sarah J.",
+                quote:
+                  "The premium recipes alone are worth the subscription. I've discovered so many amazing dishes!",
+              },
+              {
+                name: "Michael T.",
+                quote:
+                  "Being able to browse without ads has made my experience so much better. Highly recommend upgrading.",
+              },
+              {
+                name: "Priya K.",
+                quote:
+                  "The early access to new features makes me feel like a VIP. Love being part of the premium community!",
+              },
+            ].map((testimonial, index) => (
+              <div
+                key={index}
+                className="bg-gray-800/50 p-6 rounded-xl border border-gray-700 hover:border-emerald-800/30 transition-all duration-300"
+              >
+                <div className="flex items-center justify-center mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <svg
+                      key={i}
+                      className="w-5 h-5 text-emerald-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-gray-300 mb-4">"{testimonial.quote}"</p>
+                <p className="text-emerald-400 font-medium">
+                  {testimonial.name}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mt-16 max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-emerald-400 mb-8 text-center">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-4">
+            {[
+              {
+                question: "How will I be billed?",
+                answer:
+                  "You'll be billed through eSewa according to the plan you choose. Monthly plans are billed every month, while yearly plans are billed once per year.",
+              },
+              {
+                question: "Can I cancel my subscription?",
+                answer:
+                  "No, you cannot cancel your subscription. Your premium access will remain active until the end of your current billing period.",
+              },
+              {
+                question: "What happens after I subscribe?",
+                answer:
+                  "After subscribing, you'll immediately gain access to all premium features. You'll see the premium badge on your profile and can access exclusive content.",
+              },
+              {
+                question: "Is my payment information secure?",
+                answer:
+                  "Yes, all payment processing is handled securely by eSewa. We never store your payment information on our servers.",
+              },
+            ].map((faq, index) => (
+              <div
+                key={index}
+                className="bg-gray-800/50 rounded-xl border border-gray-700 overflow-hidden"
+              >
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    {faq.question}
+                  </h3>
+                  <p className="text-gray-400">{faq.answer}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

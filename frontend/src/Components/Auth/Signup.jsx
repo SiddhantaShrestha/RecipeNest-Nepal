@@ -11,6 +11,7 @@ import "../../CSS/auth.css";
 const Signup = () => {
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const initialValues = {
     name: "",
@@ -20,6 +21,7 @@ const Signup = () => {
     dob: "",
     password: "",
     confirmPassword: "",
+    acceptTerms: false,
   };
 
   const validationSchema = Yup.object({
@@ -36,6 +38,9 @@ const Signup = () => {
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm your password"),
+    acceptTerms: Yup.boolean()
+      .required("Required")
+      .oneOf([true], "You must accept the Terms and Conditions"),
   });
 
   const handleSubmit = async (values, { resetForm }) => {
@@ -48,6 +53,7 @@ const Signup = () => {
         contact: values.phone,
         dob: values.dob,
         password: values.password,
+        acceptedTerms: values.acceptTerms,
       });
 
       const { user, token, expirationDate } = response.data;
@@ -82,8 +88,182 @@ const Signup = () => {
     }
   };
 
+  // Terms and Conditions modal
+  const TermsModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-800 rounded-xl p-6 max-w-2xl max-h-[80vh] overflow-y-auto border border-gray-700">
+        <h2 className="text-2xl font-bold mb-4 text-white">
+          🍴 Recipe Nest Nepal – Terms & Conditions
+        </h2>
+        <p className="text-gray-300 mb-4">
+          By using our platform, you agree to the terms outlined below.
+          <br />
+          <strong>Last updated: 4/18/2025</strong>
+        </p>
+
+        <div className="space-y-4 text-gray-300">
+          <div>
+            <h3 className="text-xl font-semibold text-white">
+              📌 General Usage
+            </h3>
+            <ul className="list-disc pl-5 mt-2">
+              <li>
+                Use of this platform implies acceptance of all terms and
+                policies
+              </li>
+              <li>
+                Users must register with valid email and complete profile
+                information
+              </li>
+              <li>Premium content is accessible only to subscribed users</li>
+              <li>Contact support at recipenest@gmail.com for issues</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-white">
+              📥 Content Access
+            </h3>
+            <ul className="list-disc pl-5 mt-2">
+              <li>Free and premium recipes are for personal use only</li>
+              <li>
+                Redistribution or resale of recipes is strictly prohibited
+              </li>
+              <li>Users can bookmark and comment on recipes they access</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-white">
+              💸 Purchases & Subscriptions
+            </h3>
+            <ul className="list-disc pl-5 mt-2">
+              <li>
+                Ingredient purchases and premium recipe downloads are
+                non-refundable
+              </li>
+              <li>
+                Subscriptions must be renewed after every expiry in order to
+                continue viewing premium content
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-white">
+              🧾 Orders & Deliveries
+            </h3>
+            <ul className="list-disc pl-5 mt-2">
+              <li>All deliveries are handled by third-party vendors</li>
+              <li>
+                Delivery delays are communicated via email or in-app
+                notifications
+              </li>
+              <li>Shipping charges vary by location and vendor</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-white">
+              🧑‍🍳 User Conduct
+            </h3>
+            <ul className="list-disc pl-5 mt-2">
+              <li>
+                Respectful communication is required in comments and reviews
+              </li>
+              <li>
+                Offensive language, spam, or abuse may lead to account
+                suspension
+              </li>
+              <li>Duplicate or misleading recipe uploads will be removed</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-white">
+              📤 Recipe Upload Policy
+            </h3>
+            <ul className="list-disc pl-5 mt-2">
+              <li>
+                Only original or properly credited recipes should be uploaded
+              </li>
+              <li>
+                Clear steps and accurate ingredient quantities must be provided
+              </li>
+              <li>
+                Uploaded content may be reviewed or edited for quality assurance
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-white">
+              🔐 Privacy & Data
+            </h3>
+            <ul className="list-disc pl-5 mt-2">
+              <li>
+                We never share or sell your personal data to third parties
+              </li>
+              <li>
+                Contact info is used solely for recipe recommendations and order
+                fulfillment
+              </li>
+              <li>
+                Users may delete their account and data at any time by
+                contacting support
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-white">
+              🧪 Ratings & Feedback
+            </h3>
+            <ul className="list-disc pl-5 mt-2">
+              <li>Ratings should reflect honest experiences with recipes</li>
+              <li>Inappropriate or fake reviews will be moderated</li>
+              <li>
+                Feedback helps us improve content quality and user experience
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-white">
+              🕒 Account Activity
+            </h3>
+            <ul className="list-disc pl-5 mt-2">
+              <li>
+                Inactive accounts may be archived after 6 months of no login
+              </li>
+              <li>
+                Saved recipes and preferences are retained unless account is
+                deleted
+              </li>
+              <li>
+                Subscription access is revoked immediately upon cancellation or
+                expiration
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={() => setShowTerms(false)}
+            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col lg:flex-row w-full min-h-screen font-sans bg-gray-900">
+      {showTerms && <TermsModal />}
+
       {/* Left Section - Form */}
       <div className="flex justify-center items-center w-full lg:w-3/5 p-6 lg:p-12">
         <div className="w-full max-w-xl bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700">
@@ -95,7 +275,7 @@ const Signup = () => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {() => (
+            {({ errors, touched, values, handleChange, setFieldValue }) => (
               <Form className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -169,10 +349,41 @@ const Signup = () => {
                   </div>
                 </div>
 
+                {/* Terms and Conditions Checkbox */}
+                <div className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="acceptTerms"
+                      name="acceptTerms"
+                      type="checkbox"
+                      checked={values.acceptTerms}
+                      onChange={handleChange}
+                      className="w-4 h-4 rounded border-gray-600 bg-gray-700 focus:ring-2 focus:ring-purple-500 text-purple-600"
+                    />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor="acceptTerms" className="text-gray-300">
+                      I accept the{" "}
+                      <button
+                        type="button"
+                        onClick={() => setShowTerms(true)}
+                        className="text-purple-500 hover:text-purple-400 underline"
+                      >
+                        Terms and Conditions
+                      </button>
+                    </label>
+                    {errors.acceptTerms && touched.acceptTerms && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.acceptTerms}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 <button
                   type="submit"
-                  className="w-full py-3 text-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 shadow-lg"
-                  disabled={isSubmitting}
+                  className="w-full py-3 text-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isSubmitting || !values.acceptTerms}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center">

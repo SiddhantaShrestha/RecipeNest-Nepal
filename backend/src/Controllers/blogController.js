@@ -31,7 +31,7 @@ export const createBlog = async (req, res) => {
       description,
       category,
       image: link,
-      creator: req._id, // Assuming req._id is set for the logged-in user
+      creator: req._id,
     });
     await newBlog.save();
 

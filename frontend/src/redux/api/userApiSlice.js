@@ -33,6 +33,14 @@ export const userApiSlice = apiSlice.injectEndpoints({
       transformResponse: (response) => response.data,
       providesTags: ["Profile"],
     }),
+    updateProfile: builder.mutation({
+      query: (userData) => ({
+        url: `${BASE_URL}/api/users/update-profile`,
+        method: "PATCH",
+        body: userData,
+      }),
+      invalidatesTags: ["Profile"],
+    }),
     updateUser: builder.mutation({
       query: ({ userId, userData }) => ({
         url: `${BASE_URL}/api/users/${userId}`,
@@ -73,6 +81,7 @@ export const {
   useGetUserByIdQuery,
   useGetMyProfileQuery,
   useUpdateUserMutation,
+  useUpdateProfileMutation,
   useDeleteUserMutation,
   useGetUserProductSalesQuery,
   useGetUserSalesMetricsQuery,

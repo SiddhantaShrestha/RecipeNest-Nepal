@@ -2,13 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import Swal from "sweetalert2";
 import { setCurrentRecipe, setBookmarkStatus } from "../../slices/recipeSlice";
 import {
   FaClock,
   FaUsers,
   FaBookmark,
-  FaPrint,
-  FaShareAlt,
   FaStar,
   FaArrowLeft,
   FaUtensils,
@@ -199,13 +198,11 @@ const ViewRecipePage = () => {
   };
 
   const handleAddToCart = (product) => {
-    // Check if product is already in cart
     const existingItem = cartItems.find(
       (item) => item.product._id === product._id
     );
 
     if (existingItem) {
-      // Increase quantity if already in cart
       setCartItems(
         cartItems.map((item) =>
           item.product._id === product._id
@@ -214,12 +211,21 @@ const ViewRecipePage = () => {
         )
       );
     } else {
-      // Add new item to cart
       setCartItems([...cartItems, { product, quantity: 1 }]);
     }
 
-    // Show notification
-    alert(`Added ${product.name} to your cart!`);
+    // SweetAlert2 notification
+    Swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: `Added ${product.name} to cart!`,
+      showConfirmButton: false,
+      timer: 1500,
+      toast: true,
+      background: "#1F2937", // gray-800
+      color: "#E5E7EB", // gray-200
+      iconColor: "#10B981", // green-500
+    });
   };
 
   const handleRatingSubmit = async (e) => {
@@ -280,15 +286,46 @@ const ViewRecipePage = () => {
           },
         }
       );
+
       dispatch(setBookmarkStatus(response.data.isBookmarked));
-      alert(response.data.message);
+
+      // SweetAlert2 notification
+      Swal.fire({
+        position: "top-end",
+        icon: response.data.isBookmarked ? "success" : "info",
+        title: response.data.isBookmarked
+          ? "Recipe bookmarked!"
+          : "Recipe removed from bookmarks",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        background: "#1F2937", // gray-800
+        color: "#E5E7EB", // gray-200
+        iconColor: response.data.isBookmarked ? "#10B981" : "#3B82F6", // green-500 for success, blue-500 for info
+      });
     } catch (error) {
       console.error("Bookmark toggle error:", error);
+
       if (error.response?.status === 401) {
-        alert("You need to log in again.");
-        navigate("/login");
+        Swal.fire({
+          icon: "error",
+          title: "Session Expired",
+          text: "You need to log in again.",
+          confirmButtonColor: "#6366F1", // indigo-500
+          background: "#1F2937", // gray-800
+          color: "#E5E7EB", // gray-200
+        }).then(() => {
+          navigate("/login");
+        });
       } else {
-        alert("Error bookmarking recipe. Please try again.");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Error bookmarking recipe. Please try again.",
+          confirmButtonColor: "#6366F1", // indigo-500
+          background: "#1F2937", // gray-800
+          color: "#E5E7EB", // gray-200
+        });
       }
     }
   };

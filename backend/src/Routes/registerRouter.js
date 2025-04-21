@@ -36,7 +36,7 @@ registerRouter.route("/verify-email").patch(verifyEmail);
 
 registerRouter.route("/login").post(loginUser);
 
-registerRouter.route("/my-profile").get(isAuthenticated, myProfile); //first thing in parameter in middleware folder and second thing in controller folder
+registerRouter.route("/my-profile").get(isAuthenticated, myProfile);
 
 registerRouter.route("/update-profile").patch(isAuthenticated, updateProfile);
 

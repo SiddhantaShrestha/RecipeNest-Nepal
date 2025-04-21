@@ -50,7 +50,7 @@ recipeRouter.route("/:id").delete(isAuthenticated, deleteRecipe);
 // Protected route for adding comments
 recipeRouter.route("/:id/comments").post(isAuthenticated, addComment);
 
-// NEW: Protected route for adding ratings
+// Protected route for adding ratings
 recipeRouter.route("/:id/ratings").post(isAuthenticated, addRecipeRating);
 
 export default recipeRouter;

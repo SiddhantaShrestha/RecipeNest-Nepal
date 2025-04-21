@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import SubNavbar from "../SubNavbar";
 import {
   useGetMyProfileQuery,
-  useUpdateUserMutation,
+  useUpdateProfileMutation,
 } from "../../redux/api/userApiSlice";
 import { toast } from "react-toastify";
 
@@ -25,7 +25,7 @@ const MyProfile = () => {
   } = useGetMyProfileQuery();
 
   // Use Redux hooks for updating profile
-  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
   // Set form data when profile is fetched
   useEffect(() => {
@@ -48,11 +48,7 @@ const MyProfile = () => {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      await updateUser({
-        userId: profileData._id,
-        userData: formData,
-      }).unwrap();
-
+      await updateProfile(formData).unwrap();
       toast.success("Profile updated successfully!");
       setEditMode(false);
     } catch (error) {

@@ -10,6 +10,7 @@ import {
   FaStar,
   FaRegStar,
   FaCrown,
+  FaInfoCircle,
 } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -99,11 +100,6 @@ const RecipeListPage = () => {
     if (filterPremium === "Premium Only") {
       filtered = filtered.filter((recipe) => recipe.isPremium);
     } else if (filterPremium === "Basic Only") {
-      filtered = filtered.filter((recipe) => !recipe.isPremium);
-    }
-
-    // Apply user premium status filter
-    if (!isPremiumUser) {
       filtered = filtered.filter((recipe) => !recipe.isPremium);
     }
 
@@ -546,6 +542,11 @@ const RecipeListPage = () => {
                       {option === "Premium Only" && (
                         <FaCrown className="ml-1 text-yellow-400" size={12} />
                       )}
+                      {option === "Premium Only" && (
+                        <span className="text-xs text-gray-400 ml-1">
+                          (visible to all)
+                        </span>
+                      )}
                     </label>
                   </div>
                 ))}
@@ -819,16 +820,40 @@ const RecipeListPage = () => {
                     {recipe.description}
                   </p>
 
+                  {recipe.isPremium && !isPremiumUser && (
+                    <div className="mb-4 p-3 bg-yellow-900/30 border border-yellow-700 rounded-lg text-yellow-200 text-sm flex items-start">
+                      <FaInfoCircle className="flex-shrink-0 mt-0.5 mr-2" />
+                      <span>
+                        This is a premium recipe. Upgrade your account to view
+                        the full details, ingredients, and instructions.
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
                       {renderStarRating(recipe.rating, recipe.numRatings)}
+                      {recipe.isPremium && (
+                        <span className="ml-2 text-yellow-400 flex items-center">
+                          <FaCrown className="mr-1" /> Premium
+                        </span>
+                      )}
                     </div>
-                    <Link
-                      to={`/recipes/${recipe._id}`}
-                      className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
-                    >
-                      View Recipe
-                    </Link>
+                    {recipe.isPremium && !isPremiumUser ? (
+                      <Link
+                        to="/premium-subscription"
+                        className="px-5 py-2 bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-lg hover:from-yellow-700 hover:to-yellow-800 transition duration-300 flex items-center"
+                      >
+                        <FaCrown className="mr-2" /> Upgrade to View
+                      </Link>
+                    ) : (
+                      <Link
+                        to={`/recipes/${recipe._id}`}
+                        className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
+                      >
+                        View Recipe
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
@@ -836,6 +861,7 @@ const RecipeListPage = () => {
           ))}
         </div>
 
+        {/* Empty State */}
         {/* Empty State */}
         {filteredRecipes.length === 0 && !isLoading && !error && (
           <div className="text-center py-16 bg-gray-800 rounded-xl my-10 border border-gray-700">
@@ -857,20 +883,26 @@ const RecipeListPage = () => {
                   Clear Filters
                 </button>
               </>
-            ) : !isPremiumUser && filterPremium === "Premium Only" ? (
+            ) : filterPremium === "Premium Only" ? (
               <>
                 <h3 className="text-2xl font-bold text-white mb-2">
-                  Premium Recipes Locked
+                  {isPremiumUser
+                    ? "No Premium Recipes Available"
+                    : "Premium Recipes Available"}
                 </h3>
                 <p className="text-gray-400 mb-6">
-                  Upgrade to premium to access exclusive recipes
+                  {isPremiumUser
+                    ? "There are currently no premium recipes in our collection."
+                    : "Upgrade to premium to access exclusive recipes"}
                 </p>
-                <Link
-                  to="/subscription"
-                  className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-lg hover:from-yellow-700 hover:to-yellow-800 transition duration-300"
-                >
-                  Upgrade Now
-                </Link>
+                {!isPremiumUser && (
+                  <Link
+                    to="/subscription"
+                    className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-lg hover:from-yellow-700 hover:to-yellow-800 transition duration-300"
+                  >
+                    Upgrade Now
+                  </Link>
+                )}
               </>
             ) : (
               <>

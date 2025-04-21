@@ -1,17 +1,6 @@
-// to send email form server first you have to =>
-//use 2-step verification and generate app password
-//insted of using your password use app password of gmail
-//for this go to the => manage your account => security setting and=>enable 2-step verifiction =>crete app pssword (select other option)
 import nodemailer from "nodemailer";
 import { email, password } from "../constant.js";
-// import { emailHost, fromEmail, fromPassword } from "../config/config.js";
-// the main thing in this file is trasporterInfo and mailInfo
-//neglet other part
 
-// FROM_EMAIL=uniquekc425@gmail.com
-// FROM_PASSWORD=coymbbjqfpbqcdbu
-// EMAIL_HOST = smtp.gmail.com
-//transporterInof gives form information while mailInof gives to info
 let transporterInfo = {
   // host: emailHost,
   host: "smtp.gmail.com",
@@ -24,8 +13,8 @@ let transporterInfo = {
     //it is the email through which email is send
     user: email,
     pass: password,
-    //insted of using your password use app password of google
-    //for this go to the => manage your account => security setting and=>enable 2-step verifiction =>crete app pssword (select other option)
+    //instead of using your password use app password of google
+    //for this go to the => manage your account => security setting and=>enable 2-step verification =>crete app password (select other option)
   },
 };
 
@@ -37,41 +26,3 @@ export let sendMail = async (mailInfo) => {
     console.log("error has occurred", error.message);
   }
 };
-
-// the from part is responsible  to show
-//to sendMail just call
-// try {
-//   await sendMail({
-//     from: '"Fred Foo" <nitanthapa425@gmail.com>',
-//     to: ["nitanthapa123@gmail.com", "sandeshbca5@arunima.edu.np"],
-//     cc: ["ram@gmail.com"],
-//     bcc: ["hari@gmail.com"],
-////bcc is blind carbon copy
-//     attachments: [
-//   {
-//     filename: 'example.pdf', // Replace with your desired filename
-//     path: '/path/to/example.pdf' // Replace with the actual file path on your server
-//   }
-// ]
-//     subject: "this is subject",
-//     html: `<h1>Hello World<h1>`,
-//   });
-//   console.log("email is sent successfully");
-// } catch (error) {}
-
-//below is good approach
-
-// note from : is only  use to show the from information (ie not used to point the sender email sender email is point to the auth part)
-
-// await sendMail({
-//     from: '"Unique" <uniquekc425@gmail.com>',
-//     to: ["dilaa.bhusal7@gmail.com", "nitanthapa425@gmail.com"],
-//     subject: "My first system email",
-//     html: `<h1>Hello world</h1>`,
-//   });
-
-//mail
-
-//login
-//email
-//password
