@@ -9,7 +9,7 @@ const createToken = (userId) => {
       { expiresIn: "24h" }
     );
   } catch (error) {
-    console.error("Token creation error:", error);
+    // console.error("Token creation error:", error);
     throw new Error("Failed to create authentication token");
   }
 };

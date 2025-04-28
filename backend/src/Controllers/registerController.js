@@ -42,7 +42,7 @@ export let createRegister = async (req, res) => {
     const token = createToken(newUser._id);
 
     // For debugging: log the token structure
-    console.log("Token payload structure:", jwt.decode(token));
+    // console.log("Token payload structure:", jwt.decode(token));
 
     // Send verification email
     try {
@@ -56,7 +56,7 @@ export let createRegister = async (req, res) => {
         `,
       });
     } catch (emailError) {
-      console.error("Email sending failed:", emailError);
+      // console.error("Email sending failed:", emailError);
       // Continue with registration even if email fails
     }
 
@@ -93,11 +93,11 @@ export const verifyEmail = async (req, res) => {
     }
 
     let token = tokenString.split(" ")[1];
-    console.log("Received token for verification:", token);
+    // console.log("Received token for verification:", token);
 
     // Verify token using the same SECRET_KEY
     let decoded = await jwt.verify(token, process.env.SECRET_KEY);
-    console.log("Decoded token:", decoded);
+    // console.log("Decoded token:", decoded);
 
     // Extract the user ID from various possible token structures
     let userId;
@@ -122,7 +122,7 @@ export const verifyEmail = async (req, res) => {
     }
 
     if (!userId) {
-      console.log("Full decoded token content:", JSON.stringify(decoded));
+      // console.log("Full decoded token content:", JSON.stringify(decoded));
       return res.status(401).json({
         success: false,
         message: "Invalid token structure - could not extract user ID",
@@ -143,14 +143,14 @@ export const verifyEmail = async (req, res) => {
       });
     }
 
-    console.log("Updated user:", result);
+    // console.log("Updated user:", result);
 
     res.status(200).json({
       success: true,
       message: "Email verified successfully",
     });
   } catch (error) {
-    console.error("Verification error:", error);
+    // console.error("Verification error:", error);
     res.status(400).json({
       success: false,
       message: error.message,
@@ -263,7 +263,7 @@ export const updatePassword = async (req, res, next) => {
       );
       res.status(201).json({
         success: true,
-        message: "passowrd updated successfully",
+        message: "password updated successfully",
         data: result,
       });
     } else {
@@ -413,7 +413,7 @@ export const resetPassword = async (req, res, next) => {
     let _id = req._id;
 
     let password = req.body.password;
-    console.log(password);
+    // console.log(password);
     let hashPassword = await bcrypt.hash(password, 10);
 
     let result = await Register.findByIdAndUpdate(
@@ -442,7 +442,7 @@ export const resetPassword = async (req, res, next) => {
 export const toggleBookmark = async (req, res) => {
   try {
     const { recipeId } = req.body;
-    const userId = req._id; // This comes from your isAuthenticated middleware
+    const userId = req._id;
 
     const user = await Register.findById(userId);
     if (!user) {
@@ -484,14 +484,14 @@ export const toggleBookmark = async (req, res) => {
 };
 
 export const getBookmarkedRecipes = async (req, res) => {
-  console.log("getBookmarkedRecipes called with:", {
-    userId: req._id,
-    headers: req.headers,
-  });
+  // console.log("getBookmarkedRecipes called with:", {
+  //   userId: req._id,
+  //   headers: req.headers,
+  // });
 
   try {
     if (!req._id) {
-      console.log("No user ID in request");
+      // console.log("No user ID in request");
       return res.status(401).json({
         success: false,
         message: "User not authenticated",
@@ -499,7 +499,7 @@ export const getBookmarkedRecipes = async (req, res) => {
     }
 
     const user = await Register.findById(req._id).populate("bookmarkedRecipes");
-    console.log("User found:", !!user);
+    // console.log("User found:", !!user);
 
     if (!user) {
       return res.status(404).json({
@@ -514,7 +514,7 @@ export const getBookmarkedRecipes = async (req, res) => {
       bookmarkedRecipes: user.bookmarkedRecipes,
     });
   } catch (error) {
-    console.error("Error in getBookmarkedRecipes:", error);
+    // console.error("Error in getBookmarkedRecipes:", error);
     res.status(500).json({
       success: false,
       message: error.message,

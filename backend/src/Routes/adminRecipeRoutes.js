@@ -8,11 +8,6 @@ import authorized from "../Middleware/authorized.js";
 
 const adminRecipeRouter = Router();
 
-// Get all pending recipes
-adminRecipeRouter
-  .route("/pending")
-  .get(isAuthenticated, authorized, getPendingRecipes);
-
 // Approve or reject a recipe
 adminRecipeRouter
   .route("/:id/review")

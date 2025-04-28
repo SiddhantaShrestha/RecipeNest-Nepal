@@ -63,6 +63,9 @@ const ProductApproval = () => {
 
   return (
     <div className="container mx-auto px-4 max-w-7xl">
+      <div className="md:hidden">
+        <AdminMenu />
+      </div>
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-1/4">
           <AdminMenu />

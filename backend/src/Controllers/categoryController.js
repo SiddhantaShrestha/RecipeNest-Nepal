@@ -20,7 +20,7 @@ export const createCategory = asyncHandler(async (req, res) => {
     const category = await new Category({ name }).save();
     res.json(category);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return res.status(400).json(error);
   }
 });
@@ -42,7 +42,7 @@ export const updateCategory = asyncHandler(async (req, res) => {
     const updatedCategory = await category.save();
     res.json(updatedCategory);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -52,7 +52,7 @@ export const removeCategory = asyncHandler(async (req, res) => {
     const removed = await Category.findByIdAndDelete(req.params.categoryId);
     res.json(removed);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -62,7 +62,7 @@ export const listCategory = asyncHandler(async (req, res) => {
     const all = await Category.find({});
     res.json(all);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return res.status(400).json(error.message);
   }
 });
@@ -72,7 +72,7 @@ export const readCategory = asyncHandler(async (req, res) => {
     const category = await Category.findOne({ _id: req.params.id });
     res.json(category);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return res.status(400).json(error.message);
   }
 });

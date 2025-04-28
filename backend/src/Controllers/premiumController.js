@@ -108,7 +108,7 @@ export const verifyPremiumPayment = async (req, res) => {
           { new: true }
         );
 
-        console.log("Updated User:", updatedUser);
+        // console.log("Updated User:", updatedUser);
 
         res.json({
           success: true,
@@ -116,7 +116,7 @@ export const verifyPremiumPayment = async (req, res) => {
           user: updatedUser,
         });
       } else {
-        console.error("Payment not complete:", response.data);
+        // console.error("Payment not complete:", response.data);
         res.status(400).json({
           success: false,
           message: "Payment verification failed",
@@ -124,12 +124,12 @@ export const verifyPremiumPayment = async (req, res) => {
         });
       }
     } catch (verifyError) {
-      console.error("eSewa Verification Complete Error:", {
-        message: verifyError.message,
-        response: verifyError.response?.data,
-        status: verifyError.response?.status,
-        fullError: verifyError,
-      });
+      // console.error("eSewa Verification Complete Error:", {
+      //   message: verifyError.message,
+      //   response: verifyError.response?.data,
+      //   status: verifyError.response?.status,
+      //   fullError: verifyError,
+      // });
 
       res.status(500).json({
         success: false,
@@ -143,7 +143,7 @@ export const verifyPremiumPayment = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Overall Verification Error:", error);
+    // console.error("Overall Verification Error:", error);
     res.status(500).json({
       success: false,
       message: "Internal Server Error",

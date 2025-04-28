@@ -9,12 +9,12 @@ export const AuthProvider = ({ children }) => {
     const expirationDate = localStorage.getItem("tokenExpiration");
 
     // Add debug logging
-    console.log("Initial auth state check:", {
-      hasToken: !!token,
-      hasUser: !!user,
-      expiration: expirationDate,
-      now: Date.now(),
-    });
+    // console.log("Initial auth state check:", {
+    //   hasToken: !!token,
+    //   hasUser: !!user,
+    //   expiration: expirationDate,
+    //   now: Date.now(),
+    // });
 
     try {
       if (token && expirationDate && Date.now() < parseInt(expirationDate)) {
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
         return { isAuthenticated: true, token, user: parsedUser };
       }
     } catch (error) {
-      console.error("Auth state initialization error:", error);
+      // console.error("Auth state initialization error:", error);
     }
 
     // Clear storage if token is invalid or expired
@@ -42,11 +42,11 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("tokenExpiration", expirationDate.toString());
 
-      console.log("Login data saved:", {
-        token: token.substring(0, 20) + "...",
-        expirationDate,
-        user,
-      });
+      // console.log("Login data saved:", {
+      //   token: token.substring(0, 20) + "...",
+      //   expirationDate,
+      //   user,
+      // });
 
       setAuthState({ isAuthenticated: true, token, user });
 
@@ -54,12 +54,12 @@ export const AuthProvider = ({ children }) => {
       const timeoutId = setTimeout(logout, tokenExpirationTime);
       return () => clearTimeout(timeoutId);
     } catch (error) {
-      console.error("Failed to save auth data:", error);
+      // console.error("Failed to save auth data:", error);
     }
   };
 
   const logout = () => {
-    console.log("Logging out, clearing auth data");
+    // console.log("Logging out, clearing auth data");
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
     localStorage.removeItem("tokenExpiration");

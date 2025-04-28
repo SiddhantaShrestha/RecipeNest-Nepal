@@ -40,7 +40,7 @@ const submitProduct = asyncHandler(async (req, res) => {
       product,
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(400).json(error.message);
   }
 });
@@ -76,7 +76,7 @@ const addProduct = asyncHandler(async (req, res) => {
     await product.save();
     res.json(product);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(400).json(error.message);
   }
 });
@@ -180,11 +180,11 @@ const reviewProductSubmission = asyncHandler(async (req, res) => {
           subject: emailSubject,
           html: emailContent,
         });
-        console.log(
-          `Email notification sent to ${submitter.email} for product ${product._id}`
-        );
+        // console.log(
+        //   `Email notification sent to ${submitter.email} for product ${product._id}`
+        // );
       } catch (emailError) {
-        console.error("Failed to send email notification:", emailError);
+        // console.error("Failed to send email notification:", emailError);
         // Continue with the process even if email fails
       }
     }
@@ -195,7 +195,7 @@ const reviewProductSubmission = asyncHandler(async (req, res) => {
       product,
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(400).json({ error: error.message });
   }
 });
@@ -209,7 +209,7 @@ const fetchPendingProducts = asyncHandler(async (req, res) => {
 
     res.json(pendingProducts);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ error: "Server Error" });
   }
 });
@@ -223,7 +223,7 @@ const fetchUserSubmittedProducts = asyncHandler(async (req, res) => {
 
     res.json(userProducts);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ error: "Server Error" });
   }
 });
@@ -279,7 +279,7 @@ const updateProductDetails = asyncHandler(async (req, res) => {
     await product.save();
     res.json(product);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(400).json(error.message);
   }
 });
@@ -306,7 +306,7 @@ const removeProduct = asyncHandler(async (req, res) => {
     await Product.findByIdAndDelete(req.params.id);
     res.json({ message: "Product removed successfully" });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -338,7 +338,7 @@ const fetchProducts = asyncHandler(async (req, res) => {
       hasMore: false,
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ error: "Server Error" });
   }
 });
@@ -367,7 +367,7 @@ const fetchProductById = asyncHandler(async (req, res) => {
 
     return res.json(product);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(404).json({ error: error.message || "Product not found" });
   }
 });
@@ -385,7 +385,7 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
 
     res.json(products);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ error: "Server Error" });
   }
 });
@@ -444,7 +444,7 @@ const addProductReview = asyncHandler(async (req, res) => {
       throw new Error("Product not found");
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(400).json(error.message);
   }
 });
@@ -458,7 +458,7 @@ const fetchTopProducts = asyncHandler(async (req, res) => {
 
     res.json(products);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(400).json(error.message);
   }
 });
@@ -472,7 +472,7 @@ const fetchNewProducts = asyncHandler(async (req, res) => {
 
     res.json(products);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(400).json(error.message);
   }
 });

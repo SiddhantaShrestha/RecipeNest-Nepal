@@ -5,8 +5,6 @@
   "dependencies": {
     "@paypal/react-paypal-js": "^8.8.2",
     "@reduxjs/toolkit": "^2.5.1",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "apexcharts": "^4.4.0",
     "axios": "^1.7.7",
@@ -58,7 +56,11 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
     "autoprefixer": "^10.4.20",
+    "jest": "^27.5.1",
+    "msw": "^2.7.5",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15"
   }

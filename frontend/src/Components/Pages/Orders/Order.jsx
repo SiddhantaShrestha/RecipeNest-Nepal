@@ -33,8 +33,8 @@ const Order = () => {
 
   // Debug the user data when component mounts
   useEffect(() => {
-    console.log("Current auth state:", auth);
-    console.log("User data in Order component:", user);
+    // console.log("Current auth state:", auth);
+    // console.log("User data in Order component:", user);
   }, [auth, user]);
 
   // Handle eSewa payment
@@ -45,11 +45,11 @@ const Order = () => {
       // Generate a unique transaction ID with a consistent format
       const transaction_uuid = `ESEWA-${orderId}-${Date.now()}`;
 
-      console.log("Initiating eSewa payment:", {
-        orderId,
-        amount: order.totalPrice.toString(),
-        transaction_uuid,
-      });
+      // console.log("Initiating eSewa payment:", {
+      //   orderId,
+      //   amount: order.totalPrice.toString(),
+      //   transaction_uuid,
+      // });
 
       const response = await axios.post("http://localhost:8000/api/esewa/pay", {
         amount: order.totalPrice.toString(),
@@ -97,13 +97,13 @@ const Order = () => {
       const storedTransactionId = localStorage.getItem("currentTransactionId");
       const paymentAmount = localStorage.getItem("paymentAmount");
 
-      console.log("Checking payment status:", {
-        storedOrderId,
-        currentOrderId: orderId,
-        storedTransactionId,
-        isPaid: order?.isPaid,
-        urlParams: window.location.search,
-      });
+      // console.log("Checking payment status:", {
+      //   storedOrderId,
+      //   currentOrderId: orderId,
+      //   storedTransactionId,
+      //   isPaid: order?.isPaid,
+      //   urlParams: window.location.search,
+      // });
 
       // Check if we're returning from eSewa and this is the order we were paying for
       if (storedOrderId === orderId && storedTransactionId && !order?.isPaid) {
@@ -408,33 +408,42 @@ const Order = () => {
                   <span>Rs{order.totalPrice}</span>
                 </div>
 
+                {/* Payment Button Section */}
                 {!order.isPaid && (
                   <div className="mt-4">
                     {loadingPay && <Loader />}
-                    {isProcessing ? (
-                      <div className="flex justify-center my-4">
-                        <Loader />
-                      </div>
-                    ) : (
-                      <button
-                        onClick={handleEsewaPayment}
-                        className="bg-green-600 hover:bg-green-700 text-white w-full py-3 rounded-md font-medium transition duration-300 flex items-center justify-center"
-                        disabled={isProcessing}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 mr-2"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
+                    {/* Show payment button only for non-admin users */}
+                    {!user.isAdmin &&
+                      (isProcessing ? (
+                        <div className="flex justify-center my-4">
+                          <Loader />
+                        </div>
+                      ) : (
+                        <button
+                          onClick={handleEsewaPayment}
+                          className="bg-green-600 hover:bg-green-700 text-white w-full py-3 rounded-md font-medium transition duration-300 flex items-center justify-center"
+                          disabled={isProcessing}
                         >
-                          <path
-                            fillRule="evenodd"
-                            d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        Pay with eSewa
-                      </button>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 mr-2"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Pay with eSewa
+                        </button>
+                      ))}
+                    {/* For admin users, show a message instead */}
+                    {user.isAdmin && (
+                      <div className="bg-gray-700 bg-opacity-50 text-gray-300 p-3 rounded text-center">
+                        Admin view - payment controls hidden
+                      </div>
                     )}
                   </div>
                 )}

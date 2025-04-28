@@ -78,7 +78,7 @@ const Login = () => {
 
         // Now fetch the user profile
         const userProfile = await fetchUserProfile(token);
-        console.log("User profile:", userProfile); // Debug log
+        // console.log("User profile:", userProfile); // Debug log
 
         if (userProfile) {
           // Update the user data in the store
@@ -86,10 +86,10 @@ const Login = () => {
 
           // Check if user is admin using isAdmin flag
           if (userProfile.isAdmin) {
-            console.log("User is admin, redirecting to admin dashboard");
+            // console.log("User is admin, redirecting to admin dashboard");
             navigate("/admin/dashboard");
           } else {
-            console.log("Regular user, redirecting to home page");
+            // console.log("Regular user, redirecting to home page");
             navigate("/");
           }
         } else {

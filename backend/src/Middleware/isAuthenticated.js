@@ -3,11 +3,11 @@ import { secretKey } from "../constant.js";
 
 let isAuthenticated = async (req, res, next) => {
   try {
-    console.log("Headers received:", req.headers);
+    // console.log("Headers received:", req.headers);
     const tokenString = req.headers.authorization;
 
     if (!tokenString || !tokenString.startsWith("Bearer ")) {
-      console.log("Token string invalid:", { tokenString });
+      // console.log("Token string invalid:", { tokenString });
       return res.status(401).json({
         success: false,
         message: "Not authenticated: Please login to continue",
@@ -22,7 +22,7 @@ let isAuthenticated = async (req, res, next) => {
     req._id = decoded._id;
     req.isAdmin = decoded.isAdmin;
 
-    console.log("Authenticated user:", { id: req._id, role: req.isAdmin });
+    // console.log("Authenticated user:", { id: req._id, role: req.isAdmin });
 
     next();
   } catch (error) {

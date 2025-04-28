@@ -136,7 +136,7 @@ router.get("/failure", (req, res) => {
       res.redirect(`${FRONTEND_URL}/order`);
     }
   } catch (error) {
-    console.error("Error in failure handler:", error);
+    // console.error("Error in failure handler:", error);
     res.redirect(`${FRONTEND_URL}/order`);
   }
 });
@@ -265,11 +265,11 @@ router.post("/verify", async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error verifying payment:", {
-      message: error.message,
-      response: error.response?.data,
-      stack: error.stack,
-    });
+    // console.error("Error verifying payment:", {
+    //   message: error.message,
+    //   response: error.response?.data,
+    //   stack: error.stack,
+    // });
     res.status(500).json({
       success: false,
       message: "Internal Server Error",

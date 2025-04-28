@@ -23,6 +23,6 @@ export let sendMail = async (mailInfo) => {
     let transporter = nodemailer.createTransport(transporterInfo); //transporter gives from information
     let info = await transporter.sendMail(mailInfo);
   } catch (error) {
-    console.log("error has occurred", error.message);
+    // console.log("error has occurred", error.message);
   }
 };
