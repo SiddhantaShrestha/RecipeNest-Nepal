@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
+import { fileURLToPath } from "url";
 
 import { port } from "./src/constant.js";
 import connectDb from "./src/connectDb/connectmongoDb.js";
@@ -19,22 +20,25 @@ import userSalesRoutes from "./src/Routes/userSalesRoutee.js";
 
 const app = express();
 
+// ── ESM dirname (correct base is /backend)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // ---------- Core middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// CORS (dev: localhost:3000; prod: your domain)
+// CORS
 const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
-  process.env.CLIENT_ORIGIN, // e.g. https://recipenestnepal.com (set in prod)
+  process.env.CLIENT_ORIGIN, // e.g. https://recipenest-nepal.onrender.com
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, cb) => {
-      // allow non-browser requests (e.g. curl, server-to-server)
       if (!origin) return cb(null, true);
       if (allowedOrigins.includes(origin)) return cb(null, true);
       return cb(new Error(`CORS blocked: ${origin}`));
@@ -48,8 +52,7 @@ app.use(
 // ---------- Connect DB
 connectDb();
 
-// ---------- Static folders (uploads)
-const __dirname = path.resolve();
+// ---------- Static folders (inside /backend)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ---------- Health check
@@ -68,15 +71,12 @@ app.use("/api/user-sales", userSalesRoutes);
 app.use("/api/esewa", esewaRoutes);
 app.use("/api/premium", premiumRoutes);
 
-// ---------- Serve frontend build (we'll copy it to backend/public at build time)
-const FRONTEND_DIR = path.join(__dirname, "backend", "public"); // NOTE: when running from repo root in some hosts
-// If you run the app from backend folder directly, use: path.join(__dirname, "public")
-
+// ---------- Serve frontend build (copied to /backend/public by root build script)
+const FRONTEND_DIR = path.join(__dirname, "public"); //  NOT "backend/public"
 app.use(express.static(FRONTEND_DIR));
 
-// Catch-all for client-side routing (AFTER API routes)
+// Catch-all AFTER API/static
 app.get("*", (req, res) => {
-  // don't hijack API or uploads
   if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
     return res.status(404).send("Not found");
   }
