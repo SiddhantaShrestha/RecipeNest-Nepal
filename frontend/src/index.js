@@ -55,7 +55,6 @@ import EsewaPayment from "./Components/Auth/ESewaPayment.jsx";
 import Shipping from "./Components/Pages/Orders/Shipping.jsx";
 import PlaceOrder from "./Components/Pages/Orders/PlaceOrder.jsx";
 import Order from "./Components/Pages/Orders/Order.jsx";
-import AdminRecipeApproval from "./Components/Recipe/AdminApproval.jsx";
 import MyBlogsPage from "./Components/Auth/MyBlogsPage.jsx";
 import UserOrder from "./Components/Pages/Orders/UserOrder.jsx";
 import OrderList from "./Components/Pages/Admin/OrderList.jsx";
