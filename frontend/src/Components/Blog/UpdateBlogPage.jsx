@@ -10,6 +10,7 @@ import FormikTextArea from "../FormikComponents/FormikTextArea";
 import FormikCategorySelect from "../FormikComponents/FormikCategorySelect";
 import Navbar from "../Navbar";
 import Swal from "sweetalert2";
+import api from "../../api";
 
 const UpdateBlogPage = () => {
   const { id } = useParams();
@@ -100,8 +101,8 @@ const UpdateBlogPage = () => {
       formData.append("image", values.image);
     }
 
-    axios
-      .patch(`http://localhost:8000/blogs/${id}`, formData, {
+    api
+      .patch(`/blogs/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

@@ -93,7 +93,7 @@ const ProductDetails = () => {
             <div className="lg:w-1/2 relative">
               <div className="bg-gray-800 rounded-lg overflow-hidden shadow-xl">
                 <img
-                  src={`http://localhost:8000${product.image}`}
+                  src={getImageUrl(product.image)}
                   alt={product.name}
                   className="w-full h-auto object-cover"
                 />

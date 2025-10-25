@@ -46,7 +46,7 @@ const Signup = () => {
   const handleSubmit = async (values, { resetForm }) => {
     setIsSubmitting(true);
     try {
-      const response = await axios.post("http://localhost:8000/api/users", {
+      const response = await axios.api("/users", {
         name: values.name,
         username: values.username,
         email: values.email,

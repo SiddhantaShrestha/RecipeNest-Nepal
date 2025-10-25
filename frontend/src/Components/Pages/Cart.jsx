@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FaTrash, FaShoppingCart, FaArrowRight } from "react-icons/fa";
 import { addToCart, removeFromCart } from "../../redux/features/cart/cartSlice";
+import { BASE_URL, getImageUrl } from "../../redux/constants";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ const Cart = () => {
                     >
                       <div className="w-full sm:w-20 h-20 mb-4 sm:mb-0 flex-shrink-0">
                         <img
-                          src={`http://localhost:8000${item.image}`}
+                          src={getImageUrl(item.image)}
                           alt={item.name}
                           className="w-full h-full object-cover rounded-md shadow-md"
                         />

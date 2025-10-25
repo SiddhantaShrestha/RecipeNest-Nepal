@@ -12,6 +12,7 @@ import Loader from "../../Loader";
 import { Link } from "react-router-dom";
 import { useGetOrdersQuery } from "../../../redux/api/orderApiSlice";
 import AdminMenu from "./AdminMenu";
+import { BASE_URL } from "../../../redux/constants";
 
 const OrderList = () => {
   const { data: orders = [], isLoading, error, refetch } = useGetOrdersQuery();
@@ -216,7 +217,7 @@ const OrderList = () => {
                           <div className="flex items-center">
                             <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-700 bg-gray-800">
                               <img
-                                src={`http://localhost:8000${order.orderItems[0].image}`}
+                                src={`${BASE_URL}${order.orderItems[0].image}`}
                                 alt={order._id}
                                 className="h-full w-full object-cover object-center"
                               />

@@ -10,6 +10,8 @@ import {
   useGetOrderDetailsQuery,
   usePayOrderMutation,
 } from "../../../redux/api/orderApiSlice";
+import api from "../../../api";
+import { getImageUrl } from "../../../redux/constants";
 
 const Order = () => {
   const { id: orderId } = useParams();
@@ -51,7 +53,7 @@ const Order = () => {
       //   transaction_uuid,
       // });
 
-      const response = await axios.post("http://localhost:8000/api/esewa/pay", {
+      const response = await api.post("/esewa/pay", {
         amount: order.totalPrice.toString(),
         transaction_uuid: transaction_uuid,
         orderId: orderId, // Pass the orderId explicitly
@@ -152,13 +154,10 @@ const Order = () => {
             storedTransactionId
           ) {
             try {
-              const verifyResponse = await axios.post(
-                "http://localhost:8000/api/esewa/verify",
-                {
-                  transaction_uuid: storedTransactionId,
-                  amount: paymentAmount,
-                }
-              );
+              const verifyResponse = await api.post("/esewa/verify", {
+                transaction_uuid: storedTransactionId,
+                amount: paymentAmount,
+              });
 
               console.log("Manual verification response:", verifyResponse.data);
 
@@ -309,7 +308,7 @@ const Order = () => {
                           <td className="py-3 px-4">
                             <div className="flex items-center">
                               <img
-                                src={`http://localhost:8000${item.image}`}
+                                src={getImageUrl(item.image)}
                                 alt={item.name}
                                 className="w-12 h-12 object-cover rounded mr-4"
                               />

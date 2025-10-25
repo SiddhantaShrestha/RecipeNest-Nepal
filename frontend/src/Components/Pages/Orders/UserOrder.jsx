@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { useGetMyOrdersQuery } from "../../../redux/api/orderApiSlice";
 import SubNavbar from "../../SubNavbar";
+import { BASE_URL } from "../../../redux/constants";
 
 const UserOrder = () => {
   const {
@@ -251,7 +252,7 @@ const UserOrder = () => {
                           <div className="flex items-center">
                             <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-gray-700 bg-gray-800">
                               <img
-                                src={`http://localhost:8000${order.orderItems[0].image}`}
+                                src={`${BASE_URL}${order.orderItems[0].image}`}
                                 alt={order.user}
                                 className="h-full w-full object-cover object-center"
                               />

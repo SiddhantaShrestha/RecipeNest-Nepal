@@ -7,6 +7,7 @@ import {
 import AdminMenu from "./AdminMenu";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import { BASE_URL, getImageUrl } from "../../../redux/constants";
 
 const AllProducts = () => {
   const { data: products, isLoading, isError, refetch } = useAllProductsQuery();
@@ -98,7 +99,7 @@ const AllProducts = () => {
                 <div className="flex flex-col md:flex-row">
                   <div className="md:w-1/4 relative overflow-hidden">
                     <img
-                      src={`http://localhost:8000${product.image}`}
+                      src={getImageUrl(product.image)}
                       alt={product.name}
                       className="w-full h-full object-cover md:h-48 lg:h-56"
                     />

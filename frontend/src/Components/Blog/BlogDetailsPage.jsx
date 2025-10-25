@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import Navbar from "../Navbar";
+import api from "../../api";
 
 const BlogDetailsPage = () => {
   const { id } = useParams();
@@ -19,7 +20,7 @@ const BlogDetailsPage = () => {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/blogs/${id}`);
+        const response = await api.get(`/blogs/${id}`);
         setBlog(response.data.blog);
         setComments(response.data.blog.comments || []);
         setLoading(false);
@@ -42,8 +43,8 @@ const BlogDetailsPage = () => {
     }
 
     try {
-      const response = await axios.post(
-        `http://localhost:8000/blogs/${id}/comments`,
+      const response = await api.post(
+        `/blogs/${id}/comments`,
         { text: newComment.text },
         {
           headers: {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import axios from "axios";
+import api from "../../../api";
 
 const AdminRoutes = () => {
   const [loading, setLoading] = useState(true);
@@ -18,14 +19,11 @@ const AdminRoutes = () => {
 
       try {
         // Fetch user profile to check admin status
-        const response = await axios.get(
-          "http://localhost:8000/api/users/my-profile",
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
+        const response = await api.get("/users/my-profile", {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
 
         // Set admin status based on response
         setIsAdmin(response.data.data.isAdmin);

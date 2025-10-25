@@ -4,6 +4,7 @@ import axios from "axios";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormikInput from "../FormikComponents/FormikInput";
+import api from "../../api";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -27,8 +28,8 @@ const ResetPassword = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await axios.patch(
-        "http://localhost:8000/api/users/reset-password",
+      const response = await api.patch(
+        "/users/reset-password",
         {
           password: values.password,
         },

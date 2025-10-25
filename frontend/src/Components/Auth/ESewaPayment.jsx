@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import api from "../../api";
 
 const EsewaPayment = ({ amount = "100" }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +16,7 @@ const EsewaPayment = ({ amount = "100" }) => {
         Math.random() * 1000
       )}`;
 
-      const response = await axios.post("http://localhost:5000/api/esewa/pay", {
+      const response = await api.post("/esewa/pay", {
         amount: amount,
         transaction_uuid: transaction_uuid,
       });

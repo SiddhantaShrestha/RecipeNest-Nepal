@@ -19,6 +19,7 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import "../../CSS/navigation.css";
 import FavoritesCount from "../Products/FavoritesCount";
+import api from "../../api";
 
 const Navigation = () => {
   // States
@@ -51,14 +52,11 @@ const Navigation = () => {
   // Fetch user profile data
   const fetchProfile = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:8000/api/users/my-profile",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }
-      );
+      const response = await api.get("/users/my-profile", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
       setProfile(response.data.data);
       setFormData({
         name: response.data.data.name,

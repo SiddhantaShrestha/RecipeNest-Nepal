@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import api from "../../api";
 
 const VerifyEmail = () => {
   const navigate = useNavigate();
@@ -15,9 +16,9 @@ const VerifyEmail = () => {
 
     if (token) {
       // Call the backend to verify the email
-      axios
+      api
         .patch(
-          "http://localhost:8000/api/users/verify-email",
+          "/users/verify-email",
           {},
           {
             headers: {

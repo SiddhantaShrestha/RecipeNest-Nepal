@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBlogs } from "../../slices/blogsSlice";
 import { logout } from "../../slices/authSlice";
 import Swal from "sweetalert2";
+import api from "../../api";
 
 const validate = (values) => {
   const errors = {};
@@ -78,16 +79,12 @@ const CreateBlogPage = () => {
         color: "#f3f4f6", // gray-100
       });
 
-      const response = await axios.post(
-        "http://localhost:8000/blogs",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.post("/blogs", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       // Success notification
       dispatch(fetchBlogs()); // Refresh the blogs list after creation

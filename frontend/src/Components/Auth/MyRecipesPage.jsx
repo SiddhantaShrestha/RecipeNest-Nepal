@@ -10,6 +10,7 @@ import {
 } from "../../slices/recipeSlice";
 import Navbar from "../Navbar";
 import SubNavbar from "../SubNavbar";
+import api from "../../api";
 
 const MyRecipesPage = () => {
   const dispatch = useDispatch();
@@ -24,12 +25,9 @@ const MyRecipesPage = () => {
     const fetchUserRecipes = async () => {
       dispatch(setLoading(true));
       try {
-        const response = await axios.get(
-          "http://localhost:8000/recipes/my-recipes",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await api.get("/recipes/my-recipes", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         dispatch(setUserRecipes(response.data.recipes));
         dispatch(setError(null));
       } catch (err) {
@@ -53,7 +51,7 @@ const MyRecipesPage = () => {
   const handleDelete = async (recipeId) => {
     if (window.confirm("Are you sure you want to delete this recipe?")) {
       try {
-        await axios.delete(`http://localhost:8000/recipes/${recipeId}`, {
+        await api.delete(`/recipes/${recipeId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         dispatch(deleteRecipe(recipeId));

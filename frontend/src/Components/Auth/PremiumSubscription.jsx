@@ -18,6 +18,7 @@ import {
   FaBolt,
   FaGem,
 } from "react-icons/fa";
+import api from "../../api";
 
 const PremiumSubscription = () => {
   const [selectedPlan, setSelectedPlan] = useState("monthly");
@@ -72,8 +73,8 @@ const PremiumSubscription = () => {
           window.history.replaceState({}, document.title, "/premium");
 
           // Verify payment with backend
-          const verifyResponse = await axios.post(
-            "http://localhost:8000/api/esewa/verify",
+          const verifyResponse = await api.post(
+            "/esewa/verify",
             {
               transaction_uuid: transactionId,
               amount: localStorage.getItem("premiumAmount"),
@@ -96,14 +97,11 @@ const PremiumSubscription = () => {
           localStorage.removeItem("premiumStartTime");
 
           // Refresh premium status
-          const statusResponse = await axios.get(
-            "http://localhost:8000/api/premium/status",
-            {
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-              },
-            }
-          );
+          const statusResponse = await api.get("/premium/status", {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
 
           setPremiumStatus(statusResponse.data);
           setPaymentStatus("success");
@@ -126,14 +124,11 @@ const PremiumSubscription = () => {
     const checkPremiumStatus = async () => {
       try {
         console.log("Checking premium status...");
-        const response = await axios.get(
-          "http://localhost:8000/api/premium/status",
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
+        const response = await api.get("/premium/status", {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
         console.log("Premium status response:", response.data);
         setPremiumStatus(response.data);
       } catch (error) {
@@ -164,8 +159,8 @@ const PremiumSubscription = () => {
       const transaction_uuid = `PREMIUM-${auth.user._id}-${Date.now()}`;
 
       // 1. Initiate subscription on backend
-      const initResponse = await axios.post(
-        "http://localhost:8000/api/premium/initiate",
+      const initResponse = await api.post(
+        "/premium/initiate",
         { duration: selectedPlan },
         {
           headers: {
@@ -175,8 +170,8 @@ const PremiumSubscription = () => {
       );
 
       // 2. Get payment details from backend
-      const paymentResponse = await axios.post(
-        "http://localhost:8000/api/esewa/premium-pay",
+      const paymentResponse = await api.post(
+        "/esewa/premium-pay",
         {
           amount: initResponse.data.amount.toString(),
           transaction_uuid,

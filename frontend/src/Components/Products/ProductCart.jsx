@@ -25,7 +25,7 @@ const ProductCard = ({ p }) => {
           <div className="overflow-hidden">
             <img
               className="cursor-pointer w-full transition-transform duration-500 hover:scale-110"
-              src={`http://localhost:8000${p.image}`}
+              src={getImageUrl(p.image)}
               alt={p.name}
               style={{ height: "200px", objectFit: "cover" }}
             />

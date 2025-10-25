@@ -5,6 +5,7 @@ import Message from "../Message";
 import Header from "../E-commerce components/Header";
 import Product from "../Products/Product";
 import { FaStar, FaFire, FaTag, FaShoppingBag } from "react-icons/fa";
+import { BASE_URL, getImageUrl } from "../../redux/constants";
 
 const Home = () => {
   const { keyword } = useParams();
@@ -144,7 +145,7 @@ const Home = () => {
                             <div className="relative overflow-hidden h-48">
                               <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-30 z-10"></div>
                               <img
-                                src={`http://localhost:8000${product.image}`}
+                                src={getImageUrl(product.image)}
                                 alt={product.name}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                               />

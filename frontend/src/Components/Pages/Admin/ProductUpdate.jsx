@@ -9,6 +9,7 @@ import {
 } from "../../../redux/api/productApiSlice";
 import { useFetchCategoriesQuery } from "../../../redux/api/categoryApiSlice";
 import { toast } from "react-toastify";
+import { getImageUrl } from "../../../redux/constants";
 
 const AdminProductUpdate = () => {
   const params = useParams();
@@ -120,7 +121,7 @@ const AdminProductUpdate = () => {
               {image && (
                 <div className="mb-4 flex justify-center">
                   <img
-                    src={`http://localhost:8000/${image}`}
+                    src={getImageUrl(image)}
                     alt={name}
                     className="max-h-64 object-contain rounded-md border border-gray-700"
                   />

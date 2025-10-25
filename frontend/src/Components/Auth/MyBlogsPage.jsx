@@ -9,6 +9,7 @@ import {
   deleteBlog,
 } from "../../slices/blogsSlice";
 import SubNavbar from "../SubNavbar";
+import api from "../../api";
 
 const MyBlogsPage = () => {
   const dispatch = useDispatch();
@@ -21,12 +22,9 @@ const MyBlogsPage = () => {
     const fetchUserBlogs = async () => {
       dispatch(setLoading(true));
       try {
-        const response = await axios.get(
-          "http://localhost:8000/blogs/my-blogs",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await api.get("/blogs/my-blogs", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         dispatch(setUserBlogs(response.data.blogs));
         dispatch(setError(null));
       } catch (err) {
@@ -50,7 +48,7 @@ const MyBlogsPage = () => {
   const handleDelete = async (blogId) => {
     if (window.confirm("Are you sure you want to delete this blog?")) {
       try {
-        await axios.delete(`http://localhost:8000/blogs/${blogId}`, {
+        await api.delete(`/blogs/${blogId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         dispatch(deleteBlog(blogId));

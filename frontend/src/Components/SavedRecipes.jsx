@@ -11,6 +11,7 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 import SubNavbar from "./SubNavbar";
+import api from "../api";
 
 const SavedRecipes = () => {
   const dispatch = useDispatch();
@@ -23,15 +24,12 @@ const SavedRecipes = () => {
     if (isAuthenticated && token) {
       const fetchBookmarkedRecipes = async () => {
         try {
-          const response = await axios.get(
-            "http://localhost:8000/api/users/bookmarks",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
+          const response = await api.get("/users/bookmarks", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
 
           if (response.data.success) {
             dispatch(setRecipes(response.data.bookmarkedRecipes));
@@ -65,12 +63,9 @@ const SavedRecipes = () => {
   const handleRemoveBookmark = async (recipeId) => {
     if (window.confirm("Remove this recipe from your saved collection?")) {
       try {
-        await axios.delete(
-          `http://localhost:8000/api/users/bookmarks/${recipeId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        await api.delete(`/users/bookmarks/${recipeId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         dispatch(
           setRecipes(recipes.filter((recipe) => recipe._id !== recipeId))
         );

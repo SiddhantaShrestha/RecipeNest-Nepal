@@ -17,6 +17,7 @@ import {
 } from "react-icons/fa";
 import Pagination from "../Pagination";
 import SubNavbar from "../SubNavbar";
+import { BASE_URL } from "../../redux/constants";
 
 const MyProducts = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -193,7 +194,7 @@ const MyProducts = () => {
                                 <div className="h-12 w-12 flex-shrink-0 border border-gray-600 rounded-md overflow-hidden">
                                   <img
                                     className="h-12 w-12 object-cover"
-                                    src={`http://localhost:8000${product.image}`}
+                                    src={`${BASE_URL}${product.image}`}
                                     alt={product.name}
                                     onError={(e) =>
                                       (e.target.src =

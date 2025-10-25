@@ -60,9 +60,9 @@ app.get("/ping", (_req, res) => res.send("OK"));
 
 // ---------- API routes
 app.use("/api/users", registerRouter);
-app.use("/blogs", blogRouter);
-app.use("/recipes", recipeRouter);
-app.use("/file", FileRouter);
+app.use("/api/blogs", blogRouter);
+app.use("/api/recipes", recipeRouter);
+app.use("/api/file", FileRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/products", productRoutes);
 app.use("/api/upload", uploadRoutes);

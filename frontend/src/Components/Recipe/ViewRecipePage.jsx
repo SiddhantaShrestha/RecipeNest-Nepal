@@ -17,6 +17,7 @@ import {
   FaExternalLinkAlt,
 } from "react-icons/fa";
 import { useGetFilteredProductsQuery } from "../../redux/api/productApiSlice";
+import api from "../../api";
 
 const ViewRecipePage = () => {
   const { id } = useParams();
@@ -79,12 +80,9 @@ const ViewRecipePage = () => {
 
     const fetchRecipe = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:8000/recipes/${id}`,
-          {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          }
-        );
+        const response = await api.get(`/recipes/${id}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
 
         const recipeData = response.data.recipe;
         setIsPremiumRecipe(recipeData.isPremium);
@@ -130,12 +128,9 @@ const ViewRecipePage = () => {
     const fetchBookmarks = async () => {
       if (token && !accessDenied) {
         try {
-          const response = await axios.get(
-            "http://localhost:8000/api/users/bookmarks",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+          const response = await api.get("/users/bookmarks", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           const bookmarkedRecipes = response.data.bookmarkedRecipes;
           dispatch(
             setBookmarkStatus(
@@ -155,12 +150,9 @@ const ViewRecipePage = () => {
   // Fetch related recipes based on the category
   const fetchRelatedRecipes = async (category) => {
     try {
-      const response = await axios.get(
-        `http://localhost:8000/recipes?category=${category}&limit=3`,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
-      );
+      const response = await api.get(`/recipes?category=${category}&limit=3`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
 
       // Filter out the current recipe
       const filteredRecipes = response.data.recipes.filter(
@@ -169,12 +161,9 @@ const ViewRecipePage = () => {
 
       // If we don't have enough recipes after filtering, fetch more
       if (filteredRecipes.length < 3) {
-        const additionalResponse = await axios.get(
-          `http://localhost:8000/recipes?limit=5`,
-          {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          }
-        );
+        const additionalResponse = await api.get(`/recipes?limit=5`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
 
         // Combine and filter unique recipes
         const additionalRecipes = additionalResponse.data.recipes.filter(
@@ -237,8 +226,8 @@ const ViewRecipePage = () => {
     }
 
     try {
-      const response = await axios.post(
-        `http://localhost:8000/recipes/${id}/ratings`,
+      const response = await api.post(
+        `/recipes/${id}/ratings`,
         {
           rating: userRating,
           comment: ratingComment || "Great recipe!",
@@ -251,12 +240,9 @@ const ViewRecipePage = () => {
       );
 
       // Update the recipe state with the new rating
-      const updatedRecipeResponse = await axios.get(
-        `http://localhost:8000/recipes/${id}`,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
-      );
+      const updatedRecipeResponse = await api.get(`/recipes/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
 
       dispatch(setCurrentRecipe(updatedRecipeResponse.data.recipe));
       setRatings(updatedRecipeResponse.data.recipe.ratings);
@@ -277,8 +263,8 @@ const ViewRecipePage = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/users/toggle-bookmark",
+      const response = await api.post(
+        "/users/toggle-bookmark",
         { recipeId: id },
         {
           headers: {

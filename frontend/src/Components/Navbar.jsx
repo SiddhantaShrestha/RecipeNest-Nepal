@@ -22,6 +22,7 @@ import {
 } from "react-icons/ai";
 import navImage2 from "../Images/RecipeNest Logo 2.png";
 import FavoritesCount from "./Products/FavoritesCount";
+import api from "../api";
 
 const Navbar = () => {
   const [authToken, setAuthToken] = useState(null);
@@ -54,14 +55,11 @@ const Navbar = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:8000/api/users/my-profile",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }
-      );
+      const response = await api.get("/users/my-profile", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
       setProfile(response.data.data);
       setFormData({
         name: response.data.data.name,

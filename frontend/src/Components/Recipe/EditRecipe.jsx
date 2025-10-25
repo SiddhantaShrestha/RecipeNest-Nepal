@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { setError } from "../../slices/recipeSlice";
 import Navbar from "../Navbar";
 import SubNavbar from "../SubNavbar";
+import api from "../../api";
 
 const EditRecipe = () => {
   const { id } = useParams();
@@ -35,12 +36,9 @@ const EditRecipe = () => {
     const fetchRecipe = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `http://localhost:8000/recipes/${id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await api.get(`/recipes/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const recipeData = response.data.recipe;
 
@@ -219,16 +217,12 @@ const EditRecipe = () => {
 
     setLoading(true);
     try {
-      const response = await axios.put(
-        `http://localhost:8000/recipes/${id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await api.put(`/recipes/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
       alert(response.data.message);
       navigate(`/recipes/${id}`);
     } catch (err) {

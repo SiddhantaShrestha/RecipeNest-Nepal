@@ -17,18 +17,9 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/users/forgot-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: values.email,
-          }),
-        }
-      );
+      const response = await api.post("/users/forgot-password", {
+        email: values.email,
+      });
 
       const data = await response.json();
 

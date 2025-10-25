@@ -153,7 +153,7 @@ const ProductCarousel = () => {
                 <div key={_id} className="relative">
                   <div className="relative h-[30rem] overflow-hidden">
                     <img
-                      src={`http://localhost:8000${image}`}
+                      src={getImageUrl(image)}
                       alt={name}
                       className="w-full object-cover h-full transition-transform duration-700 hover:scale-105"
                     />

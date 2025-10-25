@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import SubNavbar from "../SubNavbar";
+import api from "../../api";
 
 const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState("");
@@ -50,8 +51,8 @@ const ChangePassword = () => {
     }
 
     try {
-      await axios.patch(
-        "http://localhost:8000/api/users/update-password",
+      await api.patch(
+        "/users/update-password",
         {
           oldPassword,
           newPassword,

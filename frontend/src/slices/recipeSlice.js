@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import api from "../api";
 
 const initialState = {
   recipes: [],
@@ -98,7 +99,7 @@ export const {
 export const fetchRecipes = () => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    const response = await axios.get("http://localhost:8000/recipes");
+    const response = await api.get("/recipes");
     dispatch(setRecipes(response.data.recipes || []));
   } catch (error) {
     dispatch(
@@ -110,7 +111,7 @@ export const fetchRecipes = () => async (dispatch) => {
 export const fetchRecipeById = (id) => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    const response = await axios.get(`http://localhost:8000/recipes/${id}`);
+    const response = await axios.get(`/recipes/${id}`);
     dispatch(setCurrentRecipe(response.data.recipe));
   } catch (error) {
     dispatch(
@@ -122,10 +123,7 @@ export const fetchRecipeById = (id) => async (dispatch) => {
 export const createRecipe = (recipeData) => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    const response = await axios.post(
-      "http://localhost:8000/recipes",
-      recipeData
-    );
+    const response = await axios.post("/recipes", recipeData);
     dispatch(addRecipe(response.data.recipe));
     return response.data.recipe; // Return for component to use
   } catch (error) {
@@ -139,10 +137,7 @@ export const createRecipe = (recipeData) => async (dispatch) => {
 export const updateExistingRecipe = (id, recipeData) => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    const response = await axios.put(
-      `http://localhost:8000/recipes/${id}`,
-      recipeData
-    );
+    const response = await axios.put(`/recipes/${id}`, recipeData);
     dispatch(updateRecipe(response.data.recipe));
   } catch (error) {
     dispatch(
@@ -154,7 +149,7 @@ export const updateExistingRecipe = (id, recipeData) => async (dispatch) => {
 export const removeRecipe = (id) => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    await axios.delete(`http://localhost:8000/recipes/${id}`);
+    await axios.delete(`/recipes/${id}`);
     dispatch(deleteRecipe(id));
   } catch (error) {
     dispatch(

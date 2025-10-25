@@ -5,6 +5,7 @@ import {
   useFetchPendingProductsQuery,
   useReviewProductSubmissionMutation,
 } from "../../../redux/api/productApiSlice";
+import { BASE_URL, getImageUrl } from "../../../redux/constants";
 
 const ProductApproval = () => {
   const {
@@ -98,7 +99,7 @@ const ProductApproval = () => {
                       {/* Product Image */}
                       <div className="p-4">
                         <img
-                          src={`http://localhost:8000${product.image}`}
+                          src={getImageUrl(product.image)}
                           alt={product.name}
                           className="w-full h-40 object-cover rounded-lg"
                         />

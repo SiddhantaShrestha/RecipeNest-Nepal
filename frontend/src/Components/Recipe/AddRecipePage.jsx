@@ -6,6 +6,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import Navbar from "../Navbar";
 import SubNavbar from "../SubNavbar";
+import api from "../../api";
 
 const AddRecipePage = () => {
   const navigate = useNavigate();
@@ -187,16 +188,12 @@ const AddRecipePage = () => {
 
       const token = localStorage.getItem("authToken");
 
-      const response = await axios.post(
-        "http://localhost:8000/recipes",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.post("/recipes", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       dispatch(addRecipe(response.data));
 

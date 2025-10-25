@@ -9,6 +9,7 @@ import { login, updateUser } from "../../redux/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../redux/constants";
 import Swal from "sweetalert2";
+import api from "../../api";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -27,7 +28,7 @@ const Login = () => {
 
   const fetchUserProfile = async (token) => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/users/my-profile`, {
+      const response = await api.get(`${BASE_URL}/users/my-profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -45,13 +46,10 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/users/login",
-        {
-          email: values.email,
-          password: values.password,
-        }
-      );
+      const response = await api.post("/users/login", {
+        email: values.email,
+        password: values.password,
+      });
 
       if (response.data.success && response.data.token) {
         const token = response.data.token;

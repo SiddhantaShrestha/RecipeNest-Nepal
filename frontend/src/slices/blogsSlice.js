@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import api from "../api";
 
 const initialState = {
   blogs: [], // All blogs
@@ -202,7 +203,7 @@ export const {
 export const fetchBlogs = () => async (dispatch) => {
   dispatch(fetchBlogsStart());
   try {
-    const response = await axios.get("http://localhost:8000/blogs");
+    const response = await api.get("/blogs");
     dispatch(fetchBlogsSuccess(response.data.blogs));
   } catch (error) {
     dispatch(fetchBlogsFailure(error.message));
@@ -212,7 +213,7 @@ export const fetchBlogs = () => async (dispatch) => {
 export const fetchBlog = (id) => async (dispatch) => {
   dispatch(fetchBlogStart());
   try {
-    const response = await axios.get(`http://localhost:8000/blogs/${id}`);
+    const response = await api.get(`/blogs/${id}`);
     dispatch(fetchBlogSuccess(response.data.blog));
   } catch (error) {
     dispatch(fetchBlogFailure(error.message));
@@ -224,7 +225,7 @@ export const fetchUserBlogs = () => async (dispatch) => {
   try {
     const token = localStorage.getItem("authToken");
 
-    const response = await axios.get("http://localhost:8000/blogs/my-blogs", {
+    const response = await api.get("/blogs/my-blogs", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -241,7 +242,7 @@ export const deleteBlog = (id) => async (dispatch) => {
   dispatch(deleteBlogStart());
   try {
     const token = localStorage.getItem("authToken");
-    await axios.delete(`http://localhost:8000/blogs/${id}`, {
+    await api.delete(`/blogs/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -256,16 +257,12 @@ export const updateBlog = (id, formData) => async (dispatch) => {
   dispatch(updateBlogStart());
   try {
     const token = localStorage.getItem("authToken");
-    const response = await axios.patch(
-      `http://localhost:8000/blogs/${id}`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await api.patch(`/blogs/${id}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
     dispatch(updateBlogSuccess(response.data.blog));
     return response.data.blog;
   } catch (error) {
@@ -278,7 +275,7 @@ export const createBlog = (formData) => async (dispatch) => {
   dispatch(createBlogStart());
   try {
     const token = localStorage.getItem("authToken");
-    const response = await axios.post("http://localhost:8000/blogs", formData, {
+    const response = await api.post("/blogs", formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
