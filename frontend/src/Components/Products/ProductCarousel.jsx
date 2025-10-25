@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
+import { getImageUrl } from "../../redux/constants";
 
 // Custom arrow components for better styling
 const NextArrow = (props) => {

@@ -3,6 +3,7 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormikInput from "../FormikComponents/FormikInput";
 import { Link } from "react-router-dom";
+import api from "../../api";
 
 const ForgotPassword = () => {
   const [emailSent, setEmailSent] = useState(false);

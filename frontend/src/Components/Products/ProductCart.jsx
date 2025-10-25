@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "../../redux/features/cart/cartSlice";
 import { toast } from "react-toastify";
 import HeartIcon from "./HeartIcon";
+import { getImageUrl } from "../../redux/constants";
 
 const ProductCard = ({ p }) => {
   const dispatch = useDispatch();

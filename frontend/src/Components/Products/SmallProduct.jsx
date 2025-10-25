@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import HeartIcon from "./HeartIcon";
+import { getImageUrl } from "../../redux/constants";
 
 const SmallProduct = ({ product }) => {
   return (
