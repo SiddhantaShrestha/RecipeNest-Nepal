@@ -1,5 +1,19 @@
 {
-  "dependencies": {
-    "flowbite": "^3.1.2"
+  "name": "recipenest-nepal",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "install:all": "npm ci --prefix backend && npm ci --prefix frontend",
+    "build": "npm run install:all && npm run build --prefix frontend && npm run copy:fe",
+    "copy:fe": "rm -rf backend/public && mkdir -p backend/public && cp -r frontend/build/* backend/public",
+    "start": "npm run start --prefix backend",
+    "dev": "concurrently \"npm:dev:be\" \"npm:dev:fe\"",
+    "dev:be": "npm run dev --prefix backend",
+    "dev:fe": "npm start --prefix frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

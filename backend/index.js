@@ -1,67 +1,88 @@
-import express, { json } from "express";
+import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import path from "path";
+
 import { port } from "./src/constant.js";
 import connectDb from "./src/connectDb/connectmongoDb.js";
-import bodyParser from "body-parser";
 import registerRouter from "./src/Routes/registerRouter.js";
-import blogRouter from "./src/Routes/blogRouter.js"; // Import the blogRouter
+import blogRouter from "./src/Routes/blogRouter.js";
 import recipeRouter from "./src/Routes/recipeRouter.js";
 import orderRoutes from "./src/Routes/orderRoutes.js";
 import FileRouter from "./src/Routes/fileRouter.js";
-import cookieParser from "cookie-parser";
 import categoryRouter from "./src/Routes/categoryRouter.js";
 import productRoutes from "./src/Routes/productRoutes.js";
 import uploadRoutes from "./src/Routes/uploadRoutes.js";
 import esewaRoutes from "./src/Routes/eSewaRoutes.js";
 import premiumRoutes from "./src/Routes/premiumRoutes.js";
 import userSalesRoutes from "./src/Routes/userSalesRoutee.js";
-import path from "path";
 
-let expressApp = express();
+const app = express();
 
-// Middleware
-expressApp.use(json());
-expressApp.use(cors());
-expressApp.use(express.urlencoded({ extended: true }));
-expressApp.use(cookieParser());
-expressApp.use(express.static("./uploads/"));
-// Connect to MongoDB
-connectDb(); // Using PORT from dotenv file
+// ---------- Core middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// Test server with ping API
-expressApp.get("/ping", (req, res) => {
-  res.send("Test");
-});
+// CORS (dev: localhost:3000; prod: your domain)
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  process.env.CLIENT_ORIGIN, // e.g. https://recipenestnepal.com (set in prod)
+].filter(Boolean);
 
-expressApp.use(
+app.use(
   cors({
-    origin: "http://localhost:3000", // Frontend origin
-    credentials: true, // Allow cookies and headers
+    origin: (origin, cb) => {
+      // allow non-browser requests (e.g. curl, server-to-server)
+      if (!origin) return cb(null, true);
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(new Error(`CORS blocked: ${origin}`));
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// Routes
-expressApp.use("/api/users", registerRouter); // User registration routes
-expressApp.use("/blogs", blogRouter); // Blog routes
-expressApp.use("/recipes", recipeRouter); // Blog routes
-expressApp.use("/file", FileRouter); // Blog routes
-expressApp.use("/api/category", categoryRouter);
-expressApp.use("/api/products", productRoutes);
-expressApp.use("/api/upload", uploadRoutes);
-expressApp.use("/api/orders", orderRoutes);
+// ---------- Connect DB
+connectDb();
 
-expressApp.use("/api/user-sales", userSalesRoutes);
-
-expressApp.use("/api/esewa", esewaRoutes);
-
-expressApp.use("/api/premium", premiumRoutes);
-
+// ---------- Static folders (uploads)
 const __dirname = path.resolve();
-expressApp.use("/uploads", express.static(path.join(__dirname + "/uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Start server and log the port
-expressApp.listen(port, () => {
-  console.log(`Server is running on PORT ${port}`);
+// ---------- Health check
+app.get("/ping", (_req, res) => res.send("OK"));
+
+// ---------- API routes
+app.use("/api/users", registerRouter);
+app.use("/blogs", blogRouter);
+app.use("/recipes", recipeRouter);
+app.use("/file", FileRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/products", productRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/user-sales", userSalesRoutes);
+app.use("/api/esewa", esewaRoutes);
+app.use("/api/premium", premiumRoutes);
+
+// ---------- Serve frontend build (we'll copy it to backend/public at build time)
+const FRONTEND_DIR = path.join(__dirname, "backend", "public"); // NOTE: when running from repo root in some hosts
+// If you run the app from backend folder directly, use: path.join(__dirname, "public")
+
+app.use(express.static(FRONTEND_DIR));
+
+// Catch-all for client-side routing (AFTER API routes)
+app.get("*", (req, res) => {
+  // don't hijack API or uploads
+  if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+    return res.status(404).send("Not found");
+  }
+  res.sendFile(path.join(FRONTEND_DIR, "index.html"));
 });
+
+// ---------- Start
+const PORT = process.env.PORT || port || 3000;
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));
